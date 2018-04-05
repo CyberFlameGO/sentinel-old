@@ -1,7 +1,7 @@
 package com.fredboat.sentinel.entities
 
 /* Shard lifecycle */
-data class ShardConnectedEvent(
+data class ShardReadyEvent(
         val id: Int,
         val total: Int
 )
