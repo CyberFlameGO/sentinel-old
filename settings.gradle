@@ -1,2 +1,3 @@
 rootProject.name = 'sentinel'
+include 'sentinel-shared'
 
