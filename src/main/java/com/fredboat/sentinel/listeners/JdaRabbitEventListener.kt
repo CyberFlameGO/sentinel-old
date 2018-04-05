@@ -1,5 +1,6 @@
 package com.fredboat.sentinel.listeners
 
+import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.ShardDisconnectedEvent
 import com.fredboat.sentinel.entities.ShardReadyEvent
 import com.fredboat.sentinel.entities.ShardReconnectedEvent
@@ -10,11 +11,15 @@ import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.ReconnectedEvent
 import net.dv8tion.jda.core.events.ResumedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.amqp.core.Message
 import org.springframework.amqp.core.MessageProperties
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 import java.nio.charset.Charset
+
+
 
 @Component
 class JdaRabbitEventListener(
@@ -22,7 +27,10 @@ class JdaRabbitEventListener(
         private val gson: Gson
 ) : ListenerAdapter() {
 
-    private val charset = Charset.forName("UTF-8")
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(JdaRabbitEventListener::class.java)
+        private val charset = Charset.forName("UTF-8")
+    }
 
     /* Shard lifecycle */
     override fun onReady(event: ReadyEvent) {
@@ -44,8 +52,11 @@ class JdaRabbitEventListener(
     private fun dispatch(event: Any) {
         val props = MessageProperties()
         props.type = event.javaClass.simpleName
-        val msg = Message(gson.toJson(event).toByteArray(charset), props)
-        rabbitTemplate.send(msg)
+        props.contentType = "text/plain"
+        val msg = Message("test"/*gson.toJson(event)*/.toByteArray(charset), props)
+        rabbitTemplate.send(QueueNames.JDA_EVENTS_QUEUE, msg)
+        log.info("Sent $msg")
     }
+
 
 }
