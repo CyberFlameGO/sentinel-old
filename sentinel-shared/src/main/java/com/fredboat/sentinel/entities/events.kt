@@ -30,23 +30,23 @@ data class GuildLeaveEvent(
         val guildId: String
 )
 
-/* Voice */
+/* Voice events */
 data class VoiceJoinEvent(
         val guildId: String,
-        val channelId: String,
+        val chanel: VoiceChannel,
         val member: Member
 )
 
 data class VoiceLeaveEvent(
         val guildId: String,
-        val channelId: String,
+        val chanel: VoiceChannel,
         val member: Member
 )
 
 data class VoiceMoveEvent(
         val guildId: String,
-        val oldChannelId: String,
-        val newChannelId: String,
+        val oldChanel: VoiceChannel,
+        val newChanel: VoiceChannel,
         val member: Member
 )
 
@@ -54,7 +54,7 @@ data class VoiceMoveEvent(
 data class MessageReceivedEvent(
         val id: String,
         val guildId: String,
-        val channelId: String,
+        val channel: TextChannel,
         val content: String,
         val author: Member
 )
