@@ -25,8 +25,9 @@ repositories {
 ext {
     jdaVersion = "3.6.0_354"
     bootVersion = "2.0.0.RELEASE"
-    amqpVersion = "2.0.2.RELEASE"
+    amqpVersion = "2.0.3.RELEASE"
     gsonVersion = '2.8.2'
+    jacksonKotlinVersion = "2.9.+"
     logbackVersion = "1.2.3"
 }
 
@@ -37,6 +38,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-web:$bootVersion"
     compile "org.springframework.amqp:spring-rabbit:$amqpVersion"
     compile "com.google.code.gson:gson:$gsonVersion"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
