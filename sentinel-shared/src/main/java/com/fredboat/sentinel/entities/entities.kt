@@ -12,7 +12,7 @@ data class Member(
         val name: String,
         val discrim: Short,
         val bot: Boolean,
-        val voiceChannel: VoiceChannel
+        val voiceChannel: VoiceChannel?
 )
 
 data class TextChannel(

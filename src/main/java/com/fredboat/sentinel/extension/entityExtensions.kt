@@ -17,7 +17,7 @@ fun net.dv8tion.jda.core.entities.Member.toEntity() = Member(
         effectiveName,
         user.discriminator.toShort(),
         user.isBot,
-        voiceState.channel.toEntity())
+        voiceState?.channel?.toEntity())
 
 fun net.dv8tion.jda.core.entities.VoiceChannel.toEntity() = VoiceChannel(
         id,
