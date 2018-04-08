@@ -3,7 +3,6 @@ package com.fredboat.sentinel.listeners
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
-import com.google.gson.Gson
 import net.dv8tion.jda.core.events.DisconnectEvent
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.ReconnectedEvent
@@ -22,12 +21,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 import java.nio.charset.Charset
 
-
-
 @Component
 class JdaRabbitEventListener(
-        private val rabbitTemplate: RabbitTemplate,
-        private val gson: Gson
+        private val rabbitTemplate: RabbitTemplate
 ) : ListenerAdapter() {
 
     companion object {
@@ -108,6 +104,7 @@ class JdaRabbitEventListener(
     private fun dispatch(event: Any) {
         rabbitTemplate.convertAndSend(QueueNames.JDA_EVENTS_QUEUE, event)
         log.info("Sent $event")
+        val res = rabbitTemplate.convertSendAndReceive(QueueNames.SENTINEL_REQUESTS_QUEUE, UsersRequest(0)) as UsersResponse
     }
 
 

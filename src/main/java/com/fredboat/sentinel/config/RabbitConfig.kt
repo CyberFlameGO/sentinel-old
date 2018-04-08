@@ -19,6 +19,10 @@ open class RabbitConfig {
     }
 
     @Bean
-    open fun queue() = Queue(QueueNames.JDA_EVENTS_QUEUE, false)//TODO
+    open fun eventQueue() = Queue(QueueNames.JDA_EVENTS_QUEUE, false)//TODO
+
+    @Bean
+    open fun requestQueue() = Queue(QueueNames.SENTINEL_REQUESTS_QUEUE, false)//TODO
+
 
 }
