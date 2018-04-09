@@ -6,6 +6,9 @@ import com.fredboat.sentinel.entities.GuildsRequest
 import com.fredboat.sentinel.entities.GuildsResponse
 import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
+import net.dv8tion.jda.core.JDA
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
@@ -14,10 +17,23 @@ import org.springframework.stereotype.Service
 @RabbitListener(queues = [QueueNames.SENTINEL_REQUESTS_QUEUE])
 class EntityRequests(private val shardManager: ShardManager) {
 
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(EntityRequests::class.java)
+    }
+
     @RabbitHandler
-    fun getGuilds(request: GuildsRequest): GuildsResponse {
+    fun getGuilds(request: GuildsRequest): GuildsResponse? {
+        val jda: JDA? = shardManager.getShardById(request.shard)
+
+        if (jda == null) {
+            log.error("Received GuildsRequest for shard ${request.shard} which was not found")
+            return null
+        } else if (jda.status != JDA.Status.CONNECTED) {
+            log.warn("Received GuildsRequest for shard ${request.shard} but status is ${jda.status}")
+        }
+
         val list = mutableListOf<Guild>()
-        shardManager.getShardById(request.shard).guilds.forEach { list.add(it.toEntity()) }
+        jda.guilds.forEach { list.add(it.toEntity()) }
         return GuildsResponse(list)
     }
 
