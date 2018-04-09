@@ -1,24 +1,8 @@
 package com.fredboat.sentinel.entities
 
 /* Shard lifecycle */
-data class ShardReadyEvent(
-        val id: Int,
-        val total: Int
-)
-
-data class ShardDisconnectedEvent(
-        val id: Int,
-        val total: Int
-)
-
-data class ShardResumedEvent(
-        val id: Int,
-        val total: Int
-)
-
-data class ShardReconnectedEvent(
-        val id: Int,
-        val total: Int
+data class ShardStatusChange(
+        val shard: Shard
 )
 
 /* Guild events */

@@ -3,7 +3,7 @@ package com.fredboat.sentinel.entities
 data class Shard(
         val id: Int,
         val total: Int,
-        val status: String
+        val status: ShardStatus
 )
 
 data class Guild(

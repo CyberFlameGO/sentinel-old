@@ -4,6 +4,12 @@ import com.fredboat.sentinel.entities.*
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.PermissionUtil
 
+fun net.dv8tion.jda.core.JDA.toEntity() = Shard(
+        shardInfo.shardId,
+        shardInfo.shardTotal,
+        status.toEntity()
+)
+
 fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
     val membersMutable = mutableListOf<Member>()
     val textMutable = mutableListOf<TextChannel>()

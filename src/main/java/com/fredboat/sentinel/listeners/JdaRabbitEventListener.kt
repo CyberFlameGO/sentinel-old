@@ -3,10 +3,7 @@ package com.fredboat.sentinel.listeners
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
-import net.dv8tion.jda.core.events.DisconnectEvent
-import net.dv8tion.jda.core.events.ReadyEvent
-import net.dv8tion.jda.core.events.ReconnectedEvent
-import net.dv8tion.jda.core.events.ResumedEvent
+import net.dv8tion.jda.core.events.StatusChangeEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
@@ -19,7 +16,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
-import java.nio.charset.Charset
 
 @Component
 class JdaRabbitEventListener(
@@ -28,24 +24,10 @@ class JdaRabbitEventListener(
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(JdaRabbitEventListener::class.java)
-        private val charset = Charset.forName("UTF-8")
     }
 
-    /* Shard lifecycle */
-    override fun onReady(event: ReadyEvent) {
-        dispatch(ShardReadyEvent(event.jda.shardInfo.shardId, event.jda.shardInfo.shardTotal))
-    }
-
-    override fun onDisconnect(event: DisconnectEvent) {
-        dispatch(ShardDisconnectedEvent(event.jda.shardInfo.shardId, event.jda.shardInfo.shardTotal))
-    }
-
-    override fun onResume(event: ResumedEvent) {
-        dispatch(ShardResumedEvent(event.jda.shardInfo.shardId, event.jda.shardInfo.shardTotal))
-    }
-
-    override fun onReconnect(event: ReconnectedEvent) {
-        dispatch(ShardReconnectedEvent(event.jda.shardInfo.shardId, event.jda.shardInfo.shardTotal))
+    override fun onStatusChange(event: StatusChangeEvent?) {
+        dispatch(ShardStatusChange(event!!.jda.toEntity()))
     }
 
     /* Guild events */
@@ -101,10 +83,11 @@ class JdaRabbitEventListener(
         ))
     }
 
+    /* Util */
+
     private fun dispatch(event: Any) {
         rabbitTemplate.convertAndSend(QueueNames.JDA_EVENTS_QUEUE, event)
         log.info("Sent $event")
-        val res = rabbitTemplate.convertSendAndReceive(QueueNames.SENTINEL_REQUESTS_QUEUE, UsersRequest(0)) as UsersResponse
     }
 
 
