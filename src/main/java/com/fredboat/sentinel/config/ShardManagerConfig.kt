@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 import javax.security.auth.login.LoginException
 
 @Configuration
-open class ShardManagerConfiguration {
+open class ShardManagerConfig {
 
     /*configProvider: ConfigPropertiesProvider, mainEventListener: EventListenerBoat,
                           audioConnectionFacade: AudioConnectionFacade, sessionController: SessionController,
@@ -18,12 +18,12 @@ open class ShardManagerConfiguration {
                           shutdownHandler: ShutdownHandler*/
 
     @Bean
-    open fun buildShardManager(credentials: Credentials,
+    open fun buildShardManager(jdaProperties: JdaProperties,
                                rabbitEventListener: JdaRabbitEventListener
     ): ShardManager {
 
         val builder = DefaultShardManagerBuilder()
-                .setToken(credentials.discordToken)
+                .setToken(jdaProperties.discordToken)
                 //.setGame(Game.playing(configProvider.getAppConfig().getStatus()))
                 .setBulkDeleteSplittingEnabled(false)
                 .setEnableShutdownHook(false)
@@ -31,6 +31,8 @@ open class ShardManagerConfiguration {
                 .setAutoReconnect(true)
                 .setSessionController(SessionControllerAdapter())
                 .setContextEnabled(false)
+                .setShards(jdaProperties.shardStart, jdaProperties.shardEndExcl)
+                .setShardsTotal(jdaProperties.shardCount)
                 //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder()
                 //        .eventListener(OkHttpEventMetrics("jda", Metrics.httpEventCounter)))
                 .addEventListeners(rabbitEventListener)
@@ -39,7 +41,6 @@ open class ShardManagerConfiguration {
                 //.addEventListeners(shardReviveHandler)
                 //.addEventListeners(musicPersistenceHandler)
                 //.addEventListeners(audioConnectionFacade)
-                //.setShardsTotal(configProvider.getCredentials().getRecommendedShardCount())
 
         val shardManager: ShardManager
         try {
