@@ -1,11 +1,11 @@
 package com.fredboat.sentinel.entities
 
-data class UsersRequest(
+data class GuildsRequest(
         val shard: Int
 )
 
-data class UsersResponse(
-        val users: List<User>) {
+data class GuildsResponse(
+        val guilds: List<Guild>) {
 
-    override fun toString() = "UsersResponse(users.size=${users.size})"
+    override fun toString() = "GuildsResponse(guilds.size=${guilds.size})"
 }

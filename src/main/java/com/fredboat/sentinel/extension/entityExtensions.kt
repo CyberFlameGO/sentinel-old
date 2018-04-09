@@ -4,6 +4,28 @@ import com.fredboat.sentinel.entities.*
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.PermissionUtil
 
+fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
+    val membersMutable = mutableListOf<Member>()
+    val textMutable = mutableListOf<TextChannel>()
+    val voiceMutable = mutableListOf<VoiceChannel>()
+    val rolesMutable = mutableListOf<Role>()
+
+
+    members.forEach { membersMutable.add(it.toEntity()) }
+    textChannels.forEach { textMutable.add(it.toEntity()) }
+    voiceChannels.forEach { voiceMutable.add(it.toEntity()) }
+    roles.forEach { rolesMutable.add(it.toEntity()) }
+
+    return Guild(
+            id,
+            name,
+            owner?.toEntity(),
+            membersMutable,
+            textMutable,
+            voiceMutable,
+            rolesMutable)
+}
+
 fun net.dv8tion.jda.core.entities.User.toEntity() = User(
         id,
         name,

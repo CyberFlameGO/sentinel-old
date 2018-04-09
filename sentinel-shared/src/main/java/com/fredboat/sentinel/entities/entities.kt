@@ -9,10 +9,11 @@ data class Shard(
 data class Guild(
         val id: String,
         val name: String,
-        val owner: Member,
+        val owner: Member?, // Discord has a history of having guilds without owners :(
         val members: List<Member>,
         val textChannels: List<TextChannel>,
-        val voiceChannels: List<VoiceChannel>
+        val voiceChannels: List<VoiceChannel>,
+        val roles: List<Role>
 )
 
 data class User(
