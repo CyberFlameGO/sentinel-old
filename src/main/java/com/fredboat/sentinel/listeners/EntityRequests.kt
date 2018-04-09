@@ -1,10 +1,7 @@
 package com.fredboat.sentinel.listeners
 
 import com.fredboat.sentinel.QueueNames
-import com.fredboat.sentinel.entities.Guild
-import com.fredboat.sentinel.entities.GuildsRequest
-import com.fredboat.sentinel.entities.GuildsResponse
-import com.fredboat.sentinel.entities.SendMessageRequest
+import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
@@ -48,6 +45,17 @@ class EntityRequests(private val shardManager: ShardManager) {
         }
 
         channel.sendMessage(request.content).complete()
+    }
+
+    fun sendTyping(request: SendTypingRequest) {
+        val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
+
+        if (channel == null) {
+            log.error("Received SendTypingRequest for channel ${request.channel} which was not found")
+            return
+        }
+
+        channel.sendTyping().queue()
     }
 
 }

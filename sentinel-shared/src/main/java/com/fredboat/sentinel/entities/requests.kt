@@ -14,3 +14,7 @@ data class SendMessageRequest(
         val channel: String,
         val content: String
 )
+
+data class SendTypingRequest(
+        val channel: String
+)
