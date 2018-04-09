@@ -4,9 +4,11 @@ import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.Guild
 import com.fredboat.sentinel.entities.GuildsRequest
 import com.fredboat.sentinel.entities.GuildsResponse
+import com.fredboat.sentinel.entities.SendMessageRequest
 import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
+import net.dv8tion.jda.core.entities.TextChannel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -35,6 +37,17 @@ class EntityRequests(private val shardManager: ShardManager) {
         val list = mutableListOf<Guild>()
         jda.guilds.forEach { list.add(it.toEntity()) }
         return GuildsResponse(list)
+    }
+
+    fun sendMessage(request: SendMessageRequest) {
+        val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
+
+        if (channel == null) {
+            log.error("Received SendMessageRequest for channel ${request.channel} which was not found")
+            return
+        }
+
+        channel.sendMessage(request.content).complete()
     }
 
 }
