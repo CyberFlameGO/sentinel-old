@@ -15,6 +15,10 @@ data class SendMessageRequest(
         val content: String
 )
 
+data class SendMessageResponse(
+        val messageId: String
+)
+
 data class SendTypingRequest(
         val channel: String
 )

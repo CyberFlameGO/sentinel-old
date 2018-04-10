@@ -36,15 +36,16 @@ class EntityRequests(private val shardManager: ShardManager) {
         return GuildsResponse(list)
     }
 
-    fun sendMessage(request: SendMessageRequest) {
+    fun sendMessage(request: SendMessageRequest): SendMessageResponse? {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
         if (channel == null) {
             log.error("Received SendMessageRequest for channel ${request.channel} which was not found")
-            return
+            return null
         }
 
-        channel.sendMessage(request.content).complete()
+        val msg = channel.sendMessage(request.content).complete()
+        return SendMessageResponse(msg.id)
     }
 
     fun sendTyping(request: SendTypingRequest) {
