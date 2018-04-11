@@ -36,6 +36,15 @@ class EntityRequests(private val shardManager: ShardManager) {
         return GuildsResponse(list)
     }
 
+    @RabbitHandler
+    fun getGuild(request: GuildRequest): Guild? {
+        val guild: Guild? = shardManager.getGuildById(request.id)?.toEntity()
+
+        if (guild == null) log.error("Received GuildRequest but guild was not found")
+
+        return guild
+    }
+
     fun sendMessage(request: SendMessageRequest): SendMessageResponse? {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 

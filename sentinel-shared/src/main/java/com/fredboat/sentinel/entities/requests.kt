@@ -10,6 +10,11 @@ data class GuildsResponse(
     override fun toString() = "GuildsResponse(guilds.size=${guilds.size})"
 }
 
+/** Returns [Guild]*/
+data class GuildRequest(
+        val id: String
+)
+
 data class SendMessageRequest(
         val channel: String,
         val content: String
