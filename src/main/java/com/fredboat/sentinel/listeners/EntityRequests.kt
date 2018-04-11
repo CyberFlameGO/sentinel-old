@@ -45,6 +45,7 @@ class EntityRequests(private val shardManager: ShardManager) {
         return guild
     }
 
+    @RabbitHandler
     fun sendMessage(request: SendMessageRequest): SendMessageResponse? {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
@@ -57,6 +58,7 @@ class EntityRequests(private val shardManager: ShardManager) {
         return SendMessageResponse(msg.id)
     }
 
+    @RabbitHandler
     fun sendTyping(request: SendTypingRequest) {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
