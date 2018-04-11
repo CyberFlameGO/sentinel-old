@@ -4,11 +4,13 @@ import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.core.events.StatusChangeEvent
+import net.dv8tion.jda.core.events.guild.GenericGuildEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
+import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
@@ -81,6 +83,15 @@ class JdaRabbitEventListener(
                 event.message.contentRaw,
                 event.author.toEntity()
         ))
+    }
+
+    /* Guild invalidation */
+
+    override fun onGenericGuild(event: GenericGuildEvent) {
+        // Ignore message events
+        if (event !is GenericGuildMessageEvent) {
+            dispatch(GuildInvalidation(event.guild.id))
+        }
     }
 
     /* Util */
