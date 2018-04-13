@@ -3,6 +3,7 @@ package com.fredboat.sentinel.listeners
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
+import net.dv8tion.jda.core.entities.MessageType
 import net.dv8tion.jda.core.events.StatusChangeEvent
 import net.dv8tion.jda.core.events.guild.GenericGuildEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
@@ -69,6 +70,8 @@ class JdaRabbitEventListener(
 
     /* Message events */
     override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
+        if (event.message.type != MessageType.DEFAULT) return
+
         dispatch(MessageReceivedEvent(
                 event.message.id,
                 event.message.guild.id,
