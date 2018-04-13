@@ -27,6 +27,7 @@ data class Member(
         val id: String,
         val name: String,
         val discrim: Short,
+        val guildId: String,
         val bot: Boolean,
         val roles: List<Role>,
         val voiceChannel: VoiceChannel?

@@ -46,6 +46,7 @@ fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
             user.id,
             effectiveName,
             user.discriminator.toShort(),
+            guild.id,
             user.isBot,
             rolesMutable,
             voiceState?.channel?.toEntity())
