@@ -40,7 +40,7 @@ class EntityRequests(private val shardManager: ShardManager) {
     fun getGuild(request: GuildRequest): Guild? {
         val guild: Guild? = shardManager.getGuildById(request.id)?.toEntity()
 
-        if (guild == null) log.error("Received GuildRequest but guild was not found")
+        if (guild == null) log.error("Received GuildRequest but guild ${request.id} was not found")
 
         return guild
     }

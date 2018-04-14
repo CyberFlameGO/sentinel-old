@@ -5,8 +5,8 @@ import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.PermissionUtil
 
 fun net.dv8tion.jda.core.JDA.toEntity() = Shard(
-        shardInfo.shardId,
-        shardInfo.shardTotal,
+        if(shardInfo == null) 0 else shardInfo.shardId,
+        if(shardInfo == null) 1 else shardInfo.shardTotal,
         status.toEntity()
 )
 

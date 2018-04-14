@@ -9,5 +9,5 @@ data class JdaProperties(
         var discordToken: String = "",
         var shardStart: Int = 0,
         var shardEndExcl: Int = 0,
-        var shardCount: Int = 0
+        var shardCount: Int = 1
 )
