@@ -50,3 +50,14 @@ data class Role(
         val name: String,
         val permissions: Long
 )
+
+data class ApplicationInfo(
+        val id: String,
+        val requiresCodeGrant: Boolean,
+        val description: String,
+        val idconId: String,
+        val iconUrl: String,
+        val name: String,
+        val ownerId: String,
+        val public: Boolean
+)

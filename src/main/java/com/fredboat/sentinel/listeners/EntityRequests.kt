@@ -70,4 +70,23 @@ class EntityRequests(private val shardManager: ShardManager) {
         channel.sendTyping().queue()
     }
 
+    @RabbitHandler
+    fun getApplicationInfo(request: ApplicationInfoRequest): ApplicationInfo {
+        val info = shardManager.applicationInfo.complete()
+        lateinit var entity: ApplicationInfo
+        info.apply {
+            entity = ApplicationInfo(
+                    id,
+                    doesBotRequireCodeGrant(),
+                    description,
+                    iconId,
+                    iconUrl,
+                    name,
+                    owner.id,
+                    isBotPublic
+            )
+        }
+        return entity
+    }
+
 }

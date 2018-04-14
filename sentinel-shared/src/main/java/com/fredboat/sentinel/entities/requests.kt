@@ -27,3 +27,5 @@ data class SendMessageResponse(
 data class SendTypingRequest(
         val channel: String
 )
+
+class ApplicationInfoRequest()
