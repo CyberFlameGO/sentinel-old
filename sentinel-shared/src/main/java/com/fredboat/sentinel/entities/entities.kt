@@ -10,7 +10,7 @@ data class Guild(
         val id: String,
         val name: String,
         val owner: Member?, // Discord has a history of having guilds without owners :(
-        val members: List<Member>,
+        val members: Map<String, Member>,
         val textChannels: List<TextChannel>,
         val voiceChannels: List<VoiceChannel>,
         val roles: List<Role>

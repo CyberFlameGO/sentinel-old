@@ -11,13 +11,12 @@ fun net.dv8tion.jda.core.JDA.toEntity() = Shard(
 )
 
 fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
-    val membersMutable = mutableListOf<Member>()
+    val membersMutable = mutableMapOf<String, Member>()
     val textMutable = mutableListOf<TextChannel>()
     val voiceMutable = mutableListOf<VoiceChannel>()
     val rolesMutable = mutableListOf<Role>()
 
-
-    members.forEach { membersMutable.add(it.toEntity()) }
+    members.forEach { membersMutable[it.user.id] = it.toEntity() }
     textChannels.forEach { textMutable.add(it.toEntity()) }
     voiceChannels.forEach { voiceMutable.add(it.toEntity()) }
     roles.forEach { rolesMutable.add(it.toEntity()) }
