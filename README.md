@@ -1,5 +1,5 @@
 ![FredBoat](https://fred.moe/YY1.png)
-# Sentinel
+# Sentinel [![TeamCity (full build status)](https://img.shields.io/teamcity/https/ci.fredboat.com/e/Sentinel_Build.svg?style=flat-square)](https://ci.fredboat.com/viewType.html?buildTypeId=Sentinel_Build&guest=1) [![Docker Pulls](https://img.shields.io/docker/pulls/fredboat/sentinel.svg)](https://fredboat.com/docs/selfhosting) [![Docker Layers](https://images.microbadger.com/badges/image/fredboat/sentinel:dev-v0.svg)](https://microbadger.com/images/fredboat/sentinel:dev-v0 "Get your own image badge on microbadger.com") [![Docker Version](https://images.microbadger.com/badges/version/fredboat/sentinel:dev-v0.svg)](https://microbadger.com/images/fredboat/sentinel:dev-v0 "Get your own version badge on microbadger.com")
 Sentinel is still WIP.
 
 Sentinel is a gateway meant to be used between Discord and FredBoat.
