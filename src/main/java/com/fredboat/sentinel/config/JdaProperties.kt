@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component
 data class JdaProperties(
         var discordToken: String = "",
         var shardStart: Int = 0,
-        var shardEndExcl: Int = 0,
+        var shardEndExcl: Int = 1,
         var shardCount: Int = 1
 )

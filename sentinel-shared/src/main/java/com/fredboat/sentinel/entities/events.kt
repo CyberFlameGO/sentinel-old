@@ -14,6 +14,10 @@ data class GuildLeaveEvent(
         val guildId: String
 )
 
+data class GuildInvalidation(
+        val id: String
+)
+
 /* Voice events */
 data class VoiceJoinEvent(
         val guildId: String,
@@ -46,8 +50,4 @@ data class MessageReceivedEvent(
 data class PrivateMessageReceivedEvent(
         val content: String,
         val author: User
-)
-
-data class GuildInvalidation(
-        val id: String
 )
