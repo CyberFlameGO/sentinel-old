@@ -47,3 +47,7 @@ data class PrivateMessageReceivedEvent(
         val content: String,
         val author: User
 )
+
+data class GuildInvalidation(
+        val id: String
+)
