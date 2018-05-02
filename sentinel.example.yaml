@@ -8,3 +8,12 @@ sentinel:
      shardEndExcl: 1
      
      shardCount: 1 # The total number of shards of your entire bot
+
+
+spring:
+  rabbitmq:
+    # These default settings should work without configuring the server
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
