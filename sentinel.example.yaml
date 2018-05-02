@@ -1,3 +1,5 @@
+# Note: Make sure to rename this file to "sentinel.yaml" for Sentinel to pick it up
+
 sentinel:
      discordToken: "..."
      
