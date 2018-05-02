@@ -70,11 +70,11 @@ bootRun {
 }
 
 bootJar {
-    archiveName = "Quarterdeck.jar"
+    archiveName = "sentinel.jar"
     doLast {
         //copies the jar into a place where the Dockerfile can find it easily (and users maybe too)
         copy {
-            from 'build/libs/Quarterdeck.jar'
+            from 'build/libs/sentinel.jar'
             into '.'
         }
     }
