@@ -14,6 +14,7 @@ spring:
   rabbitmq:
     # These default settings should work without configuring the server
     host: "localhost"
+    #host: rabbitmq   # use this when running with the attached docker-compose file
     port: 5672
     username: "guest"
     password: "guest"
