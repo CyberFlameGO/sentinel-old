@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
 @Component
-@ConfigurationProperties(prefix = "jda")
+@ConfigurationProperties(prefix = "sentinel")
 data class JdaProperties(
         var discordToken: String = "",
         var shardStart: Int = 0,
