@@ -1,14 +1,13 @@
 # Note: Make sure to rename this file to "sentinel.yaml" for Sentinel to pick it up
 
 sentinel:
-     discordToken: "..."
-     
-     # The range of shards to start from shardStart (inclusively) to shardEndExcl (exclusively)
-     shardStart: 0
-     shardEndExcl: 1
-     
-     shardCount: 1 # The total number of shards of your entire bot
+  discordToken: "..."
 
+  # The range of shards to start from shardStart (inclusively) to shardEndExcl (exclusively)
+  shardStart: 0
+  shardEndExcl: 1
+
+  shardCount: 1 # The total number of shards of your entire bot
 
 spring:
   rabbitmq:

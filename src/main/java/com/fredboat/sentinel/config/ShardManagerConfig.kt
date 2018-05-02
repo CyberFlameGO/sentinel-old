@@ -30,7 +30,6 @@ open class ShardManagerConfig {
                 .setAudioEnabled(true)
                 .setAutoReconnect(true)
                 .setSessionController(SessionControllerAdapter())
-                .setContextEnabled(false)
                 .setShardsTotal(jdaProperties.shardCount)
                 .setShards(jdaProperties.shardStart, jdaProperties.shardEndExcl - 1)
                 //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder()
