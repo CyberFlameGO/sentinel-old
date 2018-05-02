@@ -21,4 +21,4 @@ There are two prerequisites for running Sentinel:
 1. A RabbitMQ server we can connect to as guest (default server config)
 2. A valid `sentinel.yaml`, usually in the working directory. An example is provided in this repo.
 
-Then just `java -jar sentinel.jar`
+Then just run the program, for instance with `java -jar sentinel.jar`
