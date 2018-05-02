@@ -1,5 +1,6 @@
 /.gradle/
 /.idea/
-/build/
+build/
 /out/
-/sentinel.yaml
+sentinel.yaml
+application.yaml
