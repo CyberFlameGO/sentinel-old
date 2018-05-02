@@ -20,7 +20,7 @@ open class ShardManagerConfig {
                 .setAutoReconnect(true)
                 .setContextEnabled(false)
                 .setShardsTotal(jdaProperties.shardCount)
-                .setShards(jdaProperties.shardStart, jdaProperties.shardEndExcl)
+                .setShards(jdaProperties.shardStart, jdaProperties.shardEndExcl - 1)
                 .addEventListeners(rabbitEventListener)
 
         val shardManager: ShardManager
