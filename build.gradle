@@ -22,6 +22,15 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'kotlin'
 
 sourceCompatibility = 9
+targetCompatibility = 9
+
+compileJava.dependsOn 'clean'
+compileJava.options.encoding = 'UTF-8'
+compileJava.options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
 
 repositories {
     mavenCentral()
