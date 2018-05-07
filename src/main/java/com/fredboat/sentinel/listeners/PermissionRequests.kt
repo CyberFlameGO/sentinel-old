@@ -3,9 +3,10 @@ package com.fredboat.sentinel.listeners
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.ChannelPermissionRequest
 import com.fredboat.sentinel.entities.GuildPermissionRequest
+import com.fredboat.sentinel.entities.PermissionCheckResponse
 import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Channel
+import net.dv8tion.jda.core.utils.PermissionUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -24,28 +25,26 @@ class PermissionRequests(private val shardManager: ShardManager) {
      * Returns true if the Role and/or Member has the given permissions in a Guild
      */
     @RabbitHandler
-    fun checkGuildPermissions(request: GuildPermissionRequest): Boolean {
+    fun checkGuildPermissions(request: GuildPermissionRequest): PermissionCheckResponse {
         val guild = shardManager.getGuildById(request.guild)
                 ?: throw RuntimeException("Got request for guild which isn't found")
 
         request.member?.apply {
-            val member = guild.getMemberById(this) ?: return false
-            if (!member.hasPermission(Permission.toEnumSet(request.rawPermissions))) return false
+            val member = guild.getMemberById(this) ?: return PermissionCheckResponse(0, true)
+            val effective = PermissionUtil.getEffectivePermission(member)
+            return PermissionCheckResponse(getMissing(request.rawPermissions, effective), false)
         }
 
-        request.role?.apply {
-            val role = guild.getRoleById(this) ?: return false
-            if (!role.hasPermission(Permission.toEnumSet(request.rawPermissions))) return false
-        }
-
-        return true
+        // Role must be specified then
+        val role = guild.getRoleById(request.role!!) ?: return PermissionCheckResponse(0, true)
+        return PermissionCheckResponse(getMissing(request.rawPermissions, role.permissionsRaw), false)
     }
 
     /**
      * Returns true if the Role and/or Member has the given permissions in a Channel
      */
     @RabbitHandler
-    fun checkChannelPermissions(request: ChannelPermissionRequest): Boolean {
+    fun checkChannelPermissions(request: ChannelPermissionRequest): PermissionCheckResponse {
         var channel: Channel? = shardManager.getTextChannelById(request.channel)
                 ?: shardManager.getVoiceChannelById(request.channel)
         channel = channel ?: shardManager.getCategoryById(request.channel)
@@ -53,18 +52,19 @@ class PermissionRequests(private val shardManager: ShardManager) {
 
         val guild = channel.guild
 
-        // These two apply blocks are the same as the two above, but with the channel
         request.member?.apply {
-            val member = guild.getMemberById(this) ?: return false
-            if (!member.hasPermission(channel, Permission.toEnumSet(request.rawPermissions))) return false
+            val member = guild.getMemberById(this) ?: return PermissionCheckResponse(0, true)
+            val effective = PermissionUtil.getEffectivePermission(channel, member)
+            return PermissionCheckResponse(getMissing(request.rawPermissions, effective), false)
         }
 
-        request.role?.apply {
-            val role = guild.getRoleById(this) ?: return false
-            if (!role.hasPermission(channel, Permission.toEnumSet(request.rawPermissions))) return false
-        }
-
-        return true
+        // Role must be specified then
+        val role = guild.getRoleById(request.role!!) ?: return PermissionCheckResponse(0, true)
+        val effective = PermissionUtil.getEffectivePermission(channel, role)
+        return PermissionCheckResponse(getMissing(request.rawPermissions, effective), false)
     }
+
+    /** Performs converse nonimplication */
+    private fun getMissing(expected: Long, actual: Long) = (expected.inv() or actual).inv()
 
 }

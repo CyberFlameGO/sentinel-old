@@ -35,7 +35,7 @@ data class SendTypingRequest(
 /** Returns [ApplicationInfo]*/
 class ApplicationInfoRequest
 
-/** Returns [Boolean]*/
+/** Returns [PermissionCheckResponse]*/
 data class GuildPermissionRequest(
         val guild: Long,
         val role: Long? = null,  // If present, the role to check (not mutually exclusive)
@@ -43,10 +43,18 @@ data class GuildPermissionRequest(
         val rawPermissions: Long
 )
 
-/** Returns [Boolean]*/
+/** Returns [PermissionCheckResponse]*/
 data class ChannelPermissionRequest(
         val channel: Long, // The channel to check
         val role: Long? = null,  // If present, the role to check (not mutually exclusive)
         val member: Long? = null,// If present, the member to check (not mutually exclusive)
         val rawPermissions: Long
 )
+
+data class PermissionCheckResponse(
+        val missingPermissions: Long,
+        val missingEntityFault: Boolean
+) {
+    val passed: Boolean
+        get() = !missingEntityFault && missingPermissions == 0L
+}
