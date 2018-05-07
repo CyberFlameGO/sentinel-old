@@ -7,7 +7,7 @@ data class Shard(
 )
 
 data class Guild(
-        val id: String,
+        val id: Long,
         val name: String,
         val owner: Member?, // Discord has a history of having guilds without owners :(
         val members: Map<String, Member>,
@@ -17,47 +17,47 @@ data class Guild(
 )
 
 data class User(
-        val id: String,
+        val id: Long,
         val name: String,
         val discrim: Short,
         val bot: Boolean
 )
 
 data class Member(
-        val id: String,
+        val id: Long,
         val name: String,
         val discrim: Short,
-        val guildId: String,
+        val guildId: Long,
         val bot: Boolean,
         val roles: List<Role>,
         val voiceChannel: VoiceChannel?
 )
 
 data class TextChannel(
-        val id: String,
+        val id: Long,
         val name: String,
         val ourEffectivePermissions: Long
 )
 
 data class VoiceChannel(
-        val id: String,
+        val id: Long,
         val name: String,
         val ourEffectivePermissions: Long
 )
 
 data class Role(
-        val id: String,
+        val id: Long,
         val name: String,
         val permissions: Long
 )
 
 data class ApplicationInfo(
-        val id: String,
+        val id: Long,
         val requiresCodeGrant: Boolean,
         val description: String,
-        val idconId: String,
+        val iconId: String,
         val iconUrl: String,
         val name: String,
-        val ownerId: String,
+        val ownerId: Long,
         val public: Boolean
 )

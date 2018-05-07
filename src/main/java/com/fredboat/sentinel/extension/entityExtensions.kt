@@ -22,7 +22,7 @@ fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
     roles.forEach { rolesMutable.add(it.toEntity()) }
 
     return Guild(
-            id,
+            idLong,
             name,
             owner?.toEntity(),
             membersMutable,
@@ -32,7 +32,7 @@ fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
 }
 
 fun net.dv8tion.jda.core.entities.User.toEntity() = User(
-        id,
+        idLong,
         name,
         discriminator.toShort(),
         isBot)
@@ -42,27 +42,27 @@ fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
     roles.forEach { rolesMutable.add(it.toEntity()) }
 
     return Member(
-            user.id,
+            user.idLong,
             effectiveName,
             user.discriminator.toShort(),
-            guild.id,
+            guild.idLong,
             user.isBot,
             rolesMutable,
             voiceState?.channel?.toEntity())
 }
 
 fun net.dv8tion.jda.core.entities.VoiceChannel.toEntity() = VoiceChannel(
-        id,
+        idLong,
         name,
         PermissionUtil.getExplicitPermission(this, guild.selfMember))
 
 fun net.dv8tion.jda.core.entities.TextChannel.toEntity() = TextChannel(
-        id,
+        idLong,
         name,
         PermissionUtil.getExplicitPermission(this, guild.selfMember))
 
 fun net.dv8tion.jda.core.entities.Role.toEntity() = Role(
-        id,
+        idLong,
         name,
         permissionsRaw
 )

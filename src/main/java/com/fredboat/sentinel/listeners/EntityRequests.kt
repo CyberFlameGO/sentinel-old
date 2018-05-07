@@ -70,19 +70,20 @@ class EntityRequests(private val shardManager: ShardManager) {
         channel.sendTyping().queue()
     }
 
+    @Suppress("UNUSED_PARAMETER")
     @RabbitHandler
     fun getApplicationInfo(request: ApplicationInfoRequest): ApplicationInfo {
         val info = shardManager.applicationInfo.complete()
         lateinit var entity: ApplicationInfo
         info.apply {
             entity = ApplicationInfo(
-                    id,
+                    idLong,
                     doesBotRequireCodeGrant(),
                     description,
                     iconId,
                     iconUrl,
                     name,
-                    owner.id,
+                    owner.idLong,
                     isBotPublic
             )
         }
