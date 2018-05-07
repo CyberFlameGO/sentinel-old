@@ -7,32 +7,32 @@ data class ShardStatusChange(
 
 /* Guild events */
 data class GuildJoinEvent(
-        val guildId: String
+        val guildId: Long
 )
 
 data class GuildLeaveEvent(
-        val guildId: String
+        val guildId: Long
 )
 
 data class GuildInvalidation(
-        val id: String
+        val id: Long
 )
 
 /* Voice events */
 data class VoiceJoinEvent(
-        val guildId: String,
+        val guildId: Long,
         val chanel: VoiceChannel,
         val member: Member
 )
 
 data class VoiceLeaveEvent(
-        val guildId: String,
+        val guildId: Long,
         val chanel: VoiceChannel,
         val member: Member
 )
 
 data class VoiceMoveEvent(
-        val guildId: String,
+        val guildId: Long,
         val oldChanel: VoiceChannel,
         val newChanel: VoiceChannel,
         val member: Member
@@ -40,8 +40,8 @@ data class VoiceMoveEvent(
 
 /* Messages */
 data class MessageReceivedEvent(
-        val id: String,
-        val guildId: String,
+        val id: Long,
+        val guildId: Long,
         val channel: TextChannel,
         val content: String,
         val author: Member

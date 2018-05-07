@@ -14,36 +14,39 @@ data class GuildsResponse(
 
 /** Returns [Guild]*/
 data class GuildRequest(
-        val id: String
+        val id: Long
 )
 
 /** Returns [SendMessageResponse]*/
 data class SendMessageRequest(
-        val channel: String,
+        val channel: Long,
         val content: String
 )
 
 data class SendMessageResponse(
-        val messageId: String
+        val messageId: Long
 )
 
 /** Returns [Void]*/
 data class SendTypingRequest(
-        val channel: String
+        val channel: Long
 )
 
+/** Returns [ApplicationInfo]*/
 class ApplicationInfoRequest
 
 /** Returns [Boolean]*/
-class GuildPermissionRequest(
-        val guild: String,
-        val role: String? = null,  // If present, the role to check (not mutually exclusive)
-        val member: String? = null // If present, the member to check (not mutually exclusive)
+data class GuildPermissionRequest(
+        val guild: Long,
+        val role: Long? = null,  // If present, the role to check (not mutually exclusive)
+        val member: Long? = null,// If present, the member to check (not mutually exclusive)
+        val rawPermissions: Long
 )
 
 /** Returns [Boolean]*/
-class ChannelPermissionRequest(
-        val channel: String, // The channel to check
-        val role: String? = null,  // If present, the role to check (not mutually exclusive)
-        val member: String? = null // If present, the member to check (not mutually exclusive)
+data class ChannelPermissionRequest(
+        val channel: Long, // The channel to check
+        val role: Long? = null,  // If present, the role to check (not mutually exclusive)
+        val member: Long? = null,// If present, the member to check (not mutually exclusive)
+        val rawPermissions: Long
 )

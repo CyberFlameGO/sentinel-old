@@ -55,7 +55,7 @@ class EntityRequests(private val shardManager: ShardManager) {
         }
 
         val msg = channel.sendMessage(request.content).complete()
-        return SendMessageResponse(msg.id)
+        return SendMessageResponse(msg.idLong)
     }
 
     @RabbitHandler

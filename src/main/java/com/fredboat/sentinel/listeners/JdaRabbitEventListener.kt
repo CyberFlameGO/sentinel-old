@@ -35,17 +35,17 @@ class JdaRabbitEventListener(
 
     /* Guild events */
     override fun onGuildJoin(event: GuildJoinEvent) {
-        dispatch(com.fredboat.sentinel.entities.GuildJoinEvent(event.guild.id))
+        dispatch(com.fredboat.sentinel.entities.GuildJoinEvent(event.guild.idLong))
     }
 
     override fun onGuildLeave(event: GuildLeaveEvent) {
-        dispatch(com.fredboat.sentinel.entities.GuildLeaveEvent(event.guild.id))
+        dispatch(com.fredboat.sentinel.entities.GuildLeaveEvent(event.guild.idLong))
     }
 
     /* Voice events */
     override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         dispatch(VoiceJoinEvent(
-                event.guild.id,
+                event.guild.idLong,
                 event.channelJoined.toEntity(),
                 event.member.toEntity()
         ))
@@ -53,7 +53,7 @@ class JdaRabbitEventListener(
 
     override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
         dispatch(VoiceLeaveEvent(
-                event.guild.id,
+                event.guild.idLong,
                 event.channelLeft.toEntity(),
                 event.member.toEntity()
         ))
@@ -61,7 +61,7 @@ class JdaRabbitEventListener(
 
     override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
         dispatch(VoiceMoveEvent(
-                event.guild.id,
+                event.guild.idLong,
                 event.channelLeft.toEntity(),
                 event.channelJoined.toEntity(),
                 event.member.toEntity()
@@ -73,8 +73,8 @@ class JdaRabbitEventListener(
         if (event.message.type != MessageType.DEFAULT) return
 
         dispatch(MessageReceivedEvent(
-                event.message.id,
-                event.message.guild.id,
+                event.message.idLong,
+                event.message.guild.idLong,
                 event.channel.toEntity(),
                 event.message.contentRaw,
                 event.member.toEntity()
@@ -93,7 +93,7 @@ class JdaRabbitEventListener(
     override fun onGenericGuild(event: GenericGuildEvent) {
         // Ignore message events
         if (event !is GenericGuildMessageEvent) {
-            dispatch(GuildInvalidation(event.guild.id))
+            dispatch(GuildInvalidation(event.guild.idLong))
         }
     }
 
