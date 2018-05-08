@@ -36,13 +36,13 @@ class JdaRabbitEventListener(
     }
 
     override fun onReady(event: ReadyEvent) =
-            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READY))
+            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READIED))
     override fun onDisconnect(event: DisconnectEvent) =
-            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.DISCONNECT))
+            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.DISCONNECTED))
     override fun onResume(event: ResumedEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.RESUMED))
     override fun onReconnect(event: ReconnectedEvent) =
-            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.RECONNECT))
+            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.RECONNECTED))
     override fun onShutdown(event: ShutdownEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.SHUTDOWN))
 
