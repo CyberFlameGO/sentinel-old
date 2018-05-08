@@ -4,7 +4,7 @@ import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.core.entities.MessageType
-import net.dv8tion.jda.core.events.StatusChangeEvent
+import net.dv8tion.jda.core.events.*
 import net.dv8tion.jda.core.events.guild.GenericGuildEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
@@ -29,9 +29,22 @@ class JdaRabbitEventListener(
         private val log: Logger = LoggerFactory.getLogger(JdaRabbitEventListener::class.java)
     }
 
-    override fun onStatusChange(event: StatusChangeEvent?) {
-        dispatch(ShardStatusChange(event!!.jda.toEntity()))
+    /* Shard lifecycle */
+
+    override fun onStatusChange(event: StatusChangeEvent) {
+        dispatch(ShardStatusChange(event.jda.toEntity()))
     }
+
+    override fun onReady(event: ReadyEvent) =
+            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READY))
+    override fun onDisconnect(event: DisconnectEvent) =
+            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.DISCONNECT))
+    override fun onResume(event: ResumedEvent) =
+            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.RESUMED))
+    override fun onReconnect(event: ReconnectedEvent) =
+            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.RECONNECT))
+    override fun onShutdown(event: ShutdownEvent) =
+            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.SHUTDOWN))
 
     /* Guild events */
     override fun onGuildJoin(event: GuildJoinEvent) {

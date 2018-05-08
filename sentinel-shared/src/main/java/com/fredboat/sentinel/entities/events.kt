@@ -5,6 +5,19 @@ data class ShardStatusChange(
         val shard: Shard
 )
 
+data class ShardLifecycleEvent(
+        val shard: Shard,
+        val change: LifecycleEventEnum
+)
+
+enum class LifecycleEventEnum {
+    READIED,
+    DISCONNECTED,
+    RESUMED,
+    RECONNECTED,
+    SHUTDOWN
+}
+
 /* Guild events */
 data class GuildJoinEvent(
         val guildId: Long
