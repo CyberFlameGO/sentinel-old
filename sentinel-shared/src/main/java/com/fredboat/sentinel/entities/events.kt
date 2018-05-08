@@ -21,20 +21,20 @@ data class GuildInvalidation(
 /* Voice events */
 data class VoiceJoinEvent(
         val guildId: Long,
-        val chanel: VoiceChannel,
+        val channel: VoiceChannel,
         val member: Member
 )
 
 data class VoiceLeaveEvent(
         val guildId: Long,
-        val chanel: VoiceChannel,
+        val channel: VoiceChannel,
         val member: Member
 )
 
 data class VoiceMoveEvent(
         val guildId: Long,
-        val oldChanel: VoiceChannel,
-        val newChanel: VoiceChannel,
+        val oldChannel: VoiceChannel,
+        val newChannel: VoiceChannel,
         val member: Member
 )
 
