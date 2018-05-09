@@ -118,6 +118,7 @@ class EntityRequests(private val shardManager: ShardManager) {
         info.apply {
             entity = ApplicationInfo(
                     idLong,
+                    shardManager.applicationInfo.jda.selfUser.idLong,
                     doesBotRequireCodeGrant(),
                     description,
                     iconId,

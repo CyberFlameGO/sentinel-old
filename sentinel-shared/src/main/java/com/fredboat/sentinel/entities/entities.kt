@@ -53,6 +53,7 @@ data class Role(
 
 data class ApplicationInfo(
         val id: Long,
+        val botId: Long,
         val requiresCodeGrant: Boolean,
         val description: String,
         val iconId: String,

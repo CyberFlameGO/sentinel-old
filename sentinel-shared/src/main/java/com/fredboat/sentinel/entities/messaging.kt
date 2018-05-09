@@ -8,6 +8,7 @@ interface IMessage {
 
 data class Message(override var content: String) : IMessage
 
+// Embed builder originally by Frostbyte, but is heavily modified
 data class Embed(
         override var content: String = "",
         var title: String? = null,
