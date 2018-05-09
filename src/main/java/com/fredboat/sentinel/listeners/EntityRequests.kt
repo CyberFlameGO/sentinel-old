@@ -59,6 +59,32 @@ class EntityRequests(private val shardManager: ShardManager) {
     }
 
     @RabbitHandler
+    fun sendPrivateMessage(request: SendPrivateMessageRequest): SendMessageResponse? {
+        val user = shardManager.getUserById(request.recipient)
+        val privateChannel = user.openPrivateChannel().complete(true)
+
+        if (user == null) {
+            log.error("User ${request.recipient} was not found when sending private message")
+            return null
+        }
+
+        val msg = privateChannel.sendMessage(request.content).complete()
+        return SendMessageResponse(msg.idLong)
+    }
+
+    @RabbitHandler
+    fun editMessage(request: EditMessageRequest) {
+        val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
+
+        if (channel == null) {
+            log.error("Received EditMessageRequest for channel ${request.channel} which was not found")
+            return
+        }
+
+        channel.editMessageById(request.messageId, request.content).queue()
+    }
+
+    @RabbitHandler
     fun sendTyping(request: SendTypingRequest) {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 

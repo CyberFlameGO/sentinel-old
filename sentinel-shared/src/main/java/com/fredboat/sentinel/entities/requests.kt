@@ -23,6 +23,19 @@ data class SendMessageRequest(
         val content: String
 )
 
+/** Returns [SendMessageResponse]*/
+data class SendPrivateMessageRequest(
+        val recipient: Long,
+        val content: String
+)
+
+/** Returns [Unit]*/
+data class EditMessageRequest(
+        val channel: Long,
+        val messageId: Long,
+        val content: String
+)
+
 data class SendMessageResponse(
         val messageId: Long
 )
