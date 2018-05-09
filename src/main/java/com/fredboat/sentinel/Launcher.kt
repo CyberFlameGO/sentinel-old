@@ -21,7 +21,7 @@ open class Launcher(private val shardManager: ShardManager) : ApplicationRunner 
 }
 
 fun main(args: Array<String>) {
-    System.setProperty("spring.config.name", "sentinel")
+    System.setProperty("spring.config.title", "sentinel")
     val app = SpringApplication(Launcher::class.java)
     app.webApplicationType = WebApplicationType.NONE
     app.run(*args)

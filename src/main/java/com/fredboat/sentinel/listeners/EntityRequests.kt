@@ -3,6 +3,7 @@ package com.fredboat.sentinel.listeners
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
+import com.fredboat.sentinel.extension.toJda
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.TextChannel
@@ -54,21 +55,30 @@ class EntityRequests(private val shardManager: ShardManager) {
             return null
         }
 
-        val msg = channel.sendMessage(request.content).complete()
+        val msg = when (request.message) {
+            is Message -> channel.sendMessage((request.message as Message).toJda()).complete()
+            is Embed -> channel.sendMessage((request.message as Embed).toJda()).complete()
+            else -> throw IllegalArgumentException("Unknown message type $request")
+        }
+
         return SendMessageResponse(msg.idLong)
     }
 
     @RabbitHandler
     fun sendPrivateMessage(request: SendPrivateMessageRequest): SendMessageResponse? {
         val user = shardManager.getUserById(request.recipient)
-        val privateChannel = user.openPrivateChannel().complete(true)
+        val channel = user.openPrivateChannel().complete(true)
 
         if (user == null) {
             log.error("User ${request.recipient} was not found when sending private message")
             return null
         }
 
-        val msg = privateChannel.sendMessage(request.content).complete()
+        val msg = when (request.message) {
+            is Message -> channel.sendMessage((request.message as Message).toJda()).complete()
+            is Embed -> channel.sendMessage((request.message as Embed).toJda()).complete()
+            else -> throw IllegalArgumentException("Unknown message type $request")
+        }
         return SendMessageResponse(msg.idLong)
     }
 
@@ -81,7 +91,11 @@ class EntityRequests(private val shardManager: ShardManager) {
             return
         }
 
-        channel.editMessageById(request.messageId, request.content).queue()
+        when (request.message) {
+            is Message -> channel.editMessageById(request.messageId, (request.message as Message).toJda()).queue()
+            is Embed -> channel.editMessageById(request.messageId, (request.message as Embed).toJda()).queue()
+            else -> throw IllegalArgumentException("Unknown message type $request")
+        }
     }
 
     @RabbitHandler
