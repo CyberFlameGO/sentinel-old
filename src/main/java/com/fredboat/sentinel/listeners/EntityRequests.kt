@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 @RabbitListener(queues = [QueueNames.SENTINEL_REQUESTS_QUEUE])
@@ -96,6 +97,20 @@ class EntityRequests(private val shardManager: ShardManager) {
             is Embed -> channel.editMessageById(request.messageId, (request.message as Embed).toJda()).queue()
             else -> throw IllegalArgumentException("Unknown message type $request")
         }
+    }
+
+    @RabbitHandler
+    fun deleteMessages(request: MessageDeleteRequest) {
+        val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
+
+        if (channel == null) {
+            log.error("Received MessageDeleteRequest for channel ${request.channel} which was not found")
+            return
+        }
+
+        val list = LinkedList<String>()
+        request.messages.forEach {list.add(it.toString())}
+        channel.deleteMessagesByIds(list).queue()
     }
 
     @RabbitHandler

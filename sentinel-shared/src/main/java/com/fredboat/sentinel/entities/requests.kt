@@ -40,7 +40,13 @@ data class SendMessageResponse(
         val messageId: Long
 )
 
-/** Returns [Void]*/
+/** Returns [Unit]*/
+data class MessageDeleteRequest(
+        val channel: Long,
+        val messages: List<Long>
+)
+
+/** Returns [Unit]*/
 data class SendTypingRequest(
         val channel: Long
 )
