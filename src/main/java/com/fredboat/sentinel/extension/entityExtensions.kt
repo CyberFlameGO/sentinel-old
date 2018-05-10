@@ -49,7 +49,7 @@ fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
             guild.idLong,
             user.isBot,
             roleIds,
-            voiceState?.channel?.toEntity())
+            voiceState?.channel?.idLong)
 }
 
 fun net.dv8tion.jda.core.entities.VoiceChannel.toEntity() = VoiceChannel(

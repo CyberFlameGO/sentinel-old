@@ -31,7 +31,7 @@ data class Member(
         val guildId: Long,
         val bot: Boolean,
         val roles: List<Long>,
-        val voiceChannel: VoiceChannel?
+        val voiceChannel: Long?
 )
 
 data class TextChannel(
