@@ -1,9 +1,7 @@
 package com.fredboat.sentinel.listeners
 
 import com.fredboat.sentinel.QueueNames
-import com.fredboat.sentinel.entities.ChannelPermissionRequest
-import com.fredboat.sentinel.entities.GuildPermissionRequest
-import com.fredboat.sentinel.entities.PermissionCheckResponse
+import com.fredboat.sentinel.entities.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Channel
 import net.dv8tion.jda.core.utils.PermissionUtil
@@ -62,6 +60,17 @@ class PermissionRequests(private val shardManager: ShardManager) {
         val role = guild.getRoleById(request.role!!) ?: return PermissionCheckResponse(0, true)
         val effective = PermissionUtil.getEffectivePermission(channel, role)
         return PermissionCheckResponse(getMissing(request.rawPermissions, effective), false)
+    }
+
+    @RabbitHandler
+    fun checkGuildPermissionsBulk(request: BulkGuildPermissionRequest): BulkGuildPermissionResponse {
+        val guild = shardManager.getGuildById(request.guild)
+                ?: throw RuntimeException("Got request for guild which isn't found")
+
+        return BulkGuildPermissionResponse(request.members.map {
+            val member = guild.getMemberById(it) ?: return@map null
+            PermissionUtil.getEffectivePermission(member)
+        })
     }
 
     /** Performs converse nonimplication */

@@ -85,3 +85,13 @@ data class PermissionCheckResponse(
     val passed: Boolean
         get() = !missingEntityFault && missingPermissions == 0L
 }
+
+/** Returns [BulkGuildPermissionRequest]*/
+data class BulkGuildPermissionRequest(
+        val guild: Long,
+        val members: List<Long>
+)
+
+data class BulkGuildPermissionResponse(
+        val effectivePermissions: List<Long?>
+)
