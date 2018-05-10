@@ -26,10 +26,11 @@ data class User(
 data class Member(
         val id: Long,
         val name: String,
+        val nickname: String?,
         val discrim: Short,
         val guildId: Long,
         val bot: Boolean,
-        val roles: List<Role>,
+        val roles: List<Long>,
         val voiceChannel: VoiceChannel?
 )
 

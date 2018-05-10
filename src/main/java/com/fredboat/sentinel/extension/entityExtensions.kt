@@ -38,16 +38,17 @@ fun net.dv8tion.jda.core.entities.User.toEntity() = User(
         isBot)
 
 fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
-    val rolesMutable = mutableListOf<Role>()
-    roles.forEach { rolesMutable.add(it.toEntity()) }
+    val roleIds = mutableListOf<Long>()
+    roles.forEach { roleIds.add(it.idLong) }
 
     return Member(
             user.idLong,
-            effectiveName,
+            user.name,
+            nickname,
             user.discriminator.toShort(),
             guild.idLong,
             user.isBot,
-            rolesMutable,
+            roleIds,
             voiceState?.channel?.toEntity())
 }
 
