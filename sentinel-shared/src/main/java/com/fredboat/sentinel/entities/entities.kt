@@ -43,6 +43,7 @@ data class TextChannel(
 data class VoiceChannel(
         val id: Long,
         val name: String,
+        val members: List<Long>,
         val ourEffectivePermissions: Long
 )
 

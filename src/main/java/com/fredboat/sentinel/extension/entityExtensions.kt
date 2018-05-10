@@ -12,23 +12,16 @@ fun net.dv8tion.jda.core.JDA.toEntity() = Shard(
 
 fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
     val membersMutable = mutableMapOf<String, Member>()
-    val textMutable = mutableListOf<TextChannel>()
-    val voiceMutable = mutableListOf<VoiceChannel>()
-    val rolesMutable = mutableListOf<Role>()
-
     members.forEach { membersMutable[it.user.id] = it.toEntity() }
-    textChannels.forEach { textMutable.add(it.toEntity()) }
-    voiceChannels.forEach { voiceMutable.add(it.toEntity()) }
-    roles.forEach { rolesMutable.add(it.toEntity()) }
 
     return Guild(
             idLong,
             name,
             owner?.toEntity(),
-            membersMutable,
-            textMutable,
-            voiceMutable,
-            rolesMutable)
+            membersMutable.toMap(),
+            textChannels.map { it.toEntity() },
+            voiceChannels.map { it.toEntity() },
+            roles.map { it.toEntity() })
 }
 
 fun net.dv8tion.jda.core.entities.User.toEntity() = User(
@@ -38,9 +31,6 @@ fun net.dv8tion.jda.core.entities.User.toEntity() = User(
         isBot)
 
 fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
-    val roleIds = mutableListOf<Long>()
-    roles.forEach { roleIds.add(it.idLong) }
-
     return Member(
             user.idLong,
             user.name,
@@ -48,13 +38,14 @@ fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
             user.discriminator.toShort(),
             guild.idLong,
             user.isBot,
-            roleIds,
+            roles.map { it.idLong },
             voiceState?.channel?.idLong)
 }
 
 fun net.dv8tion.jda.core.entities.VoiceChannel.toEntity() = VoiceChannel(
         idLong,
         name,
+        members.map { it.user.idLong },
         PermissionUtil.getExplicitPermission(this, guild.selfMember))
 
 fun net.dv8tion.jda.core.entities.TextChannel.toEntity() = TextChannel(
