@@ -3,7 +3,10 @@ package com.fredboat.sentinel.listeners
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
+import com.fredboat.sentinel.interceptors.VoiceServerUpdateInterceptor
+import com.fredboat.sentinel.interceptors.VoiceStateUpdateInterceptor
 import net.dv8tion.jda.core.entities.MessageType
+import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.events.*
 import net.dv8tion.jda.core.events.guild.GenericGuildEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
@@ -31,12 +34,17 @@ class JdaRabbitEventListener(
 
     /* Shard lifecycle */
 
-    override fun onStatusChange(event: StatusChangeEvent) {
-        dispatch(ShardStatusChange(event.jda.toEntity()))
+    override fun onStatusChange(event: StatusChangeEvent) =
+            dispatch(ShardStatusChange(event.jda.toEntity()))
+
+    override fun onReady(event: ReadyEvent) {
+        dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READIED))
+
+        val handlers = (event.jda as JDAImpl).client.handlers
+        handlers["VOICE_SERVER_UPDATE"] = VoiceServerUpdateInterceptor(event.jda as JDAImpl, rabbitTemplate)
+        handlers["VOICE_STATE_UPDATE"] = VoiceStateUpdateInterceptor(event.jda as JDAImpl)
     }
 
-    override fun onReady(event: ReadyEvent) =
-            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READIED))
     override fun onDisconnect(event: DisconnectEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.DISCONNECTED))
     override fun onResume(event: ResumedEvent) =
@@ -47,13 +55,11 @@ class JdaRabbitEventListener(
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.SHUTDOWN))
 
     /* Guild events */
-    override fun onGuildJoin(event: GuildJoinEvent) {
-        dispatch(com.fredboat.sentinel.entities.GuildJoinEvent(event.guild.idLong))
-    }
+    override fun onGuildJoin(event: GuildJoinEvent) =
+            dispatch(com.fredboat.sentinel.entities.GuildJoinEvent(event.guild.idLong))
 
-    override fun onGuildLeave(event: GuildLeaveEvent) {
-        dispatch(com.fredboat.sentinel.entities.GuildLeaveEvent(event.guild.idLong))
-    }
+    override fun onGuildLeave(event: GuildLeaveEvent) =
+            dispatch(com.fredboat.sentinel.entities.GuildLeaveEvent(event.guild.idLong))
 
     /* Voice events */
     override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
