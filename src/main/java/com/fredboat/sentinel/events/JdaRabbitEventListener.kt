@@ -1,10 +1,8 @@
-package com.fredboat.sentinel.listeners
+package com.fredboat.sentinel.events
 
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
-import com.fredboat.sentinel.interceptors.VoiceServerUpdateInterceptor
-import com.fredboat.sentinel.interceptors.VoiceStateUpdateInterceptor
 import net.dv8tion.jda.core.entities.MessageType
 import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.events.*

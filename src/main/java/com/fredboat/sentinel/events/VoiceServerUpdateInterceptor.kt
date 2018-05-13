@@ -1,4 +1,4 @@
-package com.fredboat.sentinel.interceptors
+package com.fredboat.sentinel.events
 
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.VoiceServerUpdate

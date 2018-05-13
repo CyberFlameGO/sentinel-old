@@ -1,6 +1,6 @@
 package com.fredboat.sentinel.config
 
-import com.fredboat.sentinel.listeners.JdaRabbitEventListener
+import com.fredboat.sentinel.events.JdaRabbitEventListener
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.utils.SessionControllerAdapter

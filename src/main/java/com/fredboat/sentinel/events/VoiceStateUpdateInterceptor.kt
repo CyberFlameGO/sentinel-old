@@ -1,4 +1,4 @@
-package com.fredboat.sentinel.interceptors
+package com.fredboat.sentinel.events
 
 import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.handle.VoiceStateUpdateHandler

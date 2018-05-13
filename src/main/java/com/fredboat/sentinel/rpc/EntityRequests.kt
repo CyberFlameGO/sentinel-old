@@ -1,4 +1,4 @@
-package com.fredboat.sentinel.listeners
+package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
