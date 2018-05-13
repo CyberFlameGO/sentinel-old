@@ -82,7 +82,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         }
 
         val list = LinkedList<String>()
-        request.messages.forEach {list.add(it.toString())}
+        request.messages.forEach { list.add(it.toString()) }
         channel.deleteMessagesByIds(list).queue()
     }
 
