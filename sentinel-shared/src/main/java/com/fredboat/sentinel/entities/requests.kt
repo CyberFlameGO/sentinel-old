@@ -79,11 +79,12 @@ data class ChannelPermissionRequest(
 }
 
 data class PermissionCheckResponse(
-        val missingPermissions: Long,
+        val effective: Long,
+        val missing: Long,
         val missingEntityFault: Boolean
 ) {
     val passed: Boolean
-        get() = !missingEntityFault && missingPermissions == 0L
+        get() = !missingEntityFault && missing == 0L
 }
 
 /** Returns [BulkGuildPermissionRequest]*/

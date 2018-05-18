@@ -5,8 +5,6 @@ import com.fredboat.sentinel.entities.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Channel
 import net.dv8tion.jda.core.utils.PermissionUtil
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
@@ -14,10 +12,6 @@ import org.springframework.stereotype.Service
 @Service
 @RabbitListener(queues = [QueueNames.SENTINEL_REQUESTS_QUEUE])
 class PermissionRequests(private val shardManager: ShardManager) {
-
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(PermissionRequests::class.java)
-    }
 
     /**
      * Returns true if the Role and/or Member has the given permissions in a Guild
@@ -28,14 +22,14 @@ class PermissionRequests(private val shardManager: ShardManager) {
                 ?: throw RuntimeException("Got request for guild which isn't found")
 
         request.member?.apply {
-            val member = guild.getMemberById(this) ?: return PermissionCheckResponse(0, true)
+            val member = guild.getMemberById(this) ?: return PermissionCheckResponse(0, 0, true)
             val effective = PermissionUtil.getEffectivePermission(member)
-            return PermissionCheckResponse(getMissing(request.rawPermissions, effective), false)
+            return PermissionCheckResponse(effective, getMissing(request.rawPermissions, effective), false)
         }
 
         // Role must be specified then
-        val role = guild.getRoleById(request.role!!) ?: return PermissionCheckResponse(0, true)
-        return PermissionCheckResponse(getMissing(request.rawPermissions, role.permissionsRaw), false)
+        val role = guild.getRoleById(request.role!!) ?: return PermissionCheckResponse(0, 0, true)
+        return PermissionCheckResponse(role.permissionsRaw, getMissing(request.rawPermissions, role.permissionsRaw), false)
     }
 
     /**
@@ -51,15 +45,19 @@ class PermissionRequests(private val shardManager: ShardManager) {
         val guild = channel.guild
 
         request.member?.apply {
-            val member = guild.getMemberById(this) ?: return PermissionCheckResponse(0, true)
+            val member = guild.getMemberById(this) ?: return PermissionCheckResponse(0, 0, true)
             val effective = PermissionUtil.getEffectivePermission(channel, member)
-            return PermissionCheckResponse(getMissing(request.rawPermissions, effective), false)
+            return PermissionCheckResponse(
+                    effective,
+                    getMissing(request.rawPermissions, effective),
+                    false
+            )
         }
 
         // Role must be specified then
-        val role = guild.getRoleById(request.role!!) ?: return PermissionCheckResponse(0, true)
+        val role = guild.getRoleById(request.role!!) ?: return PermissionCheckResponse(0, 0, true)
         val effective = PermissionUtil.getEffectivePermission(channel, role)
-        return PermissionCheckResponse(getMissing(request.rawPermissions, effective), false)
+        return PermissionCheckResponse(effective, getMissing(request.rawPermissions, effective), false)
     }
 
     @RabbitHandler
