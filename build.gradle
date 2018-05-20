@@ -29,6 +29,7 @@ ext {
     gsonVersion = '2.8.2'
     jacksonKotlinVersion = "2.9.+"
     logbackVersion = "1.2.3"
+    prometheusClientVersion = "0.3.0"
 }
 
 dependencies {
@@ -40,6 +41,12 @@ dependencies {
     compile "com.google.code.gson:gson:$gsonVersion"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
+
+    compile group: 'io.prometheus', name: 'simpleclient', version: prometheusClientVersion
+    compile group: 'io.prometheus', name: 'simpleclient_hotspot', version: prometheusClientVersion
+    compile group: 'io.prometheus', name: 'simpleclient_logback', version: prometheusClientVersion
+    compile group: 'io.prometheus', name: 'simpleclient_guava', version: prometheusClientVersion
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 

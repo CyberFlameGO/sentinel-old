@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
+import net.dv8tion.jda.core.events.http.HttpRequestEvent
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
@@ -128,6 +129,13 @@ class JdaRabbitEventListener(
     private fun dispatch(event: Any) {
         rabbitTemplate.convertAndSend(QueueNames.JDA_EVENTS_QUEUE, event)
         log.info("Sent $event")
+    }
+    
+    override fun onHttpRequest(event: HttpRequestEvent?) {
+        if (event!!.response.code >= 300) {
+            log.warn("Unsuccessful JDA HTTP Request:\n{}\nResponse:{}\n",
+                    event.requestRaw, event.responseRaw)
+        }
     }
 
 
