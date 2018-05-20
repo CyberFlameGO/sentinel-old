@@ -64,3 +64,9 @@ data class PrivateMessageReceivedEvent(
         val content: String,
         val author: User
 )
+
+data class MessageDeleteEvent(
+        val id: Long,
+        val guildId: Long,
+        val channel: TextChannel
+)
