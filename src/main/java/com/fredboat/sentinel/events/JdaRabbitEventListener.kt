@@ -59,7 +59,10 @@ class JdaRabbitEventListener(
             dispatch(com.fredboat.sentinel.entities.GuildJoinEvent(event.guild.idLong))
 
     override fun onGuildLeave(event: GuildLeaveEvent) =
-            dispatch(com.fredboat.sentinel.entities.GuildLeaveEvent(event.guild.idLong))
+            dispatch(com.fredboat.sentinel.entities.GuildLeaveEvent(
+                    event.guild.idLong,
+                    event.guild.selfMember.joinDate.toInstant()
+            ))
 
     /* Voice events */
     override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
@@ -130,7 +133,7 @@ class JdaRabbitEventListener(
         rabbitTemplate.convertAndSend(QueueNames.JDA_EVENTS_QUEUE, event)
         log.info("Sent $event")
     }
-    
+
     override fun onHttpRequest(event: HttpRequestEvent?) {
         if (event!!.response.code >= 300) {
             log.warn("Unsuccessful JDA HTTP Request:\n{}\nResponse:{}\n",
