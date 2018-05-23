@@ -83,6 +83,7 @@ data class PermissionCheckResponse(
         val missing: Long,
         val missingEntityFault: Boolean
 ) {
+    @Suppress("unused")
     val passed: Boolean
         get() = !missingEntityFault && missing == 0L
 }
