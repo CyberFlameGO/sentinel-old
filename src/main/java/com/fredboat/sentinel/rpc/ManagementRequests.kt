@@ -3,6 +3,7 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.ModRequest
 import com.fredboat.sentinel.entities.ModRequestType.*
+import com.fredboat.sentinel.entities.ReviveShardRequest
 import com.fredboat.sentinel.entities.SetAvatarRequest
 import net.dv8tion.jda.bot.sharding.DefaultShardManager
 import net.dv8tion.jda.core.entities.Icon
@@ -35,5 +36,8 @@ class ManagementRequests(private val shardManager: DefaultShardManager) {
         val decoded = Base64.getDecoder().decode(request.base64)
         shardManager.shards[0].selfUser.manager.setAvatar(Icon.from(decoded)).complete()
     }
+
+    @RabbitHandler
+    fun receive(request: ReviveShardRequest) = shardManager.restart(request.shardId)
 
 }
