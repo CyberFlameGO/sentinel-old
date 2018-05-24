@@ -1,11 +1,12 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.QueueNames
+import com.fredboat.sentinel.entities.LeaveGuildRequest
 import com.fredboat.sentinel.entities.ModRequest
 import com.fredboat.sentinel.entities.ModRequestType.*
 import com.fredboat.sentinel.entities.ReviveShardRequest
 import com.fredboat.sentinel.entities.SetAvatarRequest
-import net.dv8tion.jda.bot.sharding.DefaultShardManager
+import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -14,7 +15,7 @@ import java.util.*
 
 @Service
 @RabbitListener(queues = [QueueNames.SENTINEL_REQUESTS_QUEUE])
-class ManagementRequests(private val shardManager: DefaultShardManager) {
+class ManagementRequests(private val shardManager: ShardManager) {
 
     @RabbitHandler
     fun receive(modRequest: ModRequest) = modRequest.apply {
@@ -39,5 +40,12 @@ class ManagementRequests(private val shardManager: DefaultShardManager) {
 
     @RabbitHandler
     fun receive(request: ReviveShardRequest) = shardManager.restart(request.shardId)
+
+    @RabbitHandler
+    fun receive(request: LeaveGuildRequest) {
+        val guild = shardManager.getGuildById(request.guildId)
+                ?: throw RuntimeException("Guild ${request.guildId} not found")
+        guild.leave().complete()
+    }
 
 }
