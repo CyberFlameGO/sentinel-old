@@ -2,6 +2,8 @@
 
 package com.fredboat.sentinel.entities
 
+import java.awt.Color
+
 interface IMessage {
     var content: String
 }
@@ -41,6 +43,15 @@ data class Author(
 )
 
 inline fun embed(block: Embed.() -> Unit): Embed = Embed().apply(block)
+
+val FREDBOAT_COLOR = Color(28, 191, 226).rgb //#1CBFE2
+
+/** Like [embed] but with FredBoat's color */
+inline fun coloredEmbed(block: Embed.() -> Unit): Embed {
+    val embed = Embed()
+    embed.color = FREDBOAT_COLOR
+    return embed.apply(block)
+}
 
 inline fun Embed.footer(block: Footer.()->Unit) {
     footer = Footer().apply(block)
