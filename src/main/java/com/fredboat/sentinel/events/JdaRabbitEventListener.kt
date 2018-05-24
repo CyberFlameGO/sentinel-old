@@ -99,7 +99,8 @@ class JdaRabbitEventListener(
                 event.message.guild.idLong,
                 event.channel.toEntity(),
                 event.message.contentRaw,
-                event.member.toEntity()
+                event.member.toEntity(),
+                event.message.attachments.map { if (it.isImage) it.proxyUrl else it.url }
         ))
     }
 

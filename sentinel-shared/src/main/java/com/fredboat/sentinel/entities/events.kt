@@ -60,7 +60,8 @@ data class MessageReceivedEvent(
         val guildId: Long,
         val channel: TextChannel,
         val content: String,
-        val author: Member
+        val author: Member,
+        val attachments: List<String>
 )
 
 data class PrivateMessageReceivedEvent(
