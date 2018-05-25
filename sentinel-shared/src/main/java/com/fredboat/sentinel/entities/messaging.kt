@@ -64,3 +64,6 @@ inline fun Embed.author(block: Author.() -> Unit) {
 inline fun Embed.field(block: Field.()->Unit) {
     fields.add(Field().apply(block))
 }
+fun Embed.field(title: String = "", body: String, inline: Boolean = false) {
+    fields.add(Field(title, body, inline))
+}
