@@ -1,11 +1,8 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.QueueNames
-import com.fredboat.sentinel.entities.LeaveGuildRequest
-import com.fredboat.sentinel.entities.ModRequest
+import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
-import com.fredboat.sentinel.entities.ReviveShardRequest
-import com.fredboat.sentinel.entities.SetAvatarRequest
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -46,6 +43,12 @@ class ManagementRequests(private val shardManager: ShardManager) {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
         guild.leave().complete()
+    }
+
+    @RabbitHandler
+    fun receive(request: GetPingRequest): GetPingReponse {
+        val shard = shardManager.getShardById(request.shardId)
+        return GetPingReponse(shard?.ping ?: -1, shardManager.averagePing)
     }
 
 }
