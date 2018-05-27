@@ -52,6 +52,7 @@ class ManagementRequests(private val shardManager: ShardManager) {
         return GetPingReponse(shard?.ping ?: -1, shardManager.averagePing)
     }
 
+    @RabbitHandler
     fun receive(request: SentinelInfoRequest) = shardManager.run { SentinelInfoResponse(
             guildCache.size(),
             roleCache.size(),
