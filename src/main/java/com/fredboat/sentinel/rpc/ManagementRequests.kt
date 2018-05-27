@@ -3,6 +3,7 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.QueueNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
+import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -50,5 +51,18 @@ class ManagementRequests(private val shardManager: ShardManager) {
         val shard = shardManager.getShardById(request.shardId)
         return GetPingReponse(shard?.ping ?: -1, shardManager.averagePing)
     }
+
+    fun receive(request: SentinelInfoRequest) = shardManager.run { SentinelInfoResponse(
+            guildCache.size(),
+            roleCache.size(),
+            categoryCache.size(),
+            textChannelCache.size(),
+            voiceChannelCache.size(),
+            emoteCache.size(),
+            shards.map { it.toEntity() }
+    )}
+
+    @RabbitHandler
+    fun receive(request: UserListRequest) = shardManager.userCache.map { it.id }
 
 }

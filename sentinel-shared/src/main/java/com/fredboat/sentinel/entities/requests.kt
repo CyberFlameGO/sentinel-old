@@ -97,3 +97,21 @@ data class BulkGuildPermissionRequest(
 data class BulkGuildPermissionResponse(
         val effectivePermissions: List<Long?>
 )
+
+/** Returns [SentinelInfoResponse] */
+class SentinelInfoRequest
+
+/** Data about all shards */
+data class SentinelInfoResponse(
+        val guilds: Long,
+        val roles: Long,
+        val categories: Long,
+        val textChannels: Long,
+        val voiceChannels: Long,
+        val emotes: Long,
+        val shards: List<Shard>
+)
+
+/** Dump all user IDs to a [List] with [String]s for faster encoding/decoding */
+class UserListRequest
+
