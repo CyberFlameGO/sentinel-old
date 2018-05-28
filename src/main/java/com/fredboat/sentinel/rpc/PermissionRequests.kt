@@ -1,6 +1,6 @@
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.QueueNames
+import com.fredboat.sentinel.SentinelRabbitNames
 import com.fredboat.sentinel.entities.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Channel
@@ -10,7 +10,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = [QueueNames.SENTINEL_REQUESTS_QUEUE])
+@RabbitListener(queues = [SentinelRabbitNames.SENTINEL_REQUESTS_QUEUE])
 class PermissionRequests(private val shardManager: ShardManager) {
 
     /**

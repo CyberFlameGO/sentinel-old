@@ -1,6 +1,6 @@
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.QueueNames
+import com.fredboat.sentinel.SentinelRabbitNames
 import com.fredboat.sentinel.entities.AudioQueueRequest
 import com.fredboat.sentinel.entities.AudioQueueRequestEnum.*
 import net.dv8tion.jda.bot.sharding.ShardManager
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
  * Requests related to audio
  */
 @Service
-@RabbitListener(queues = [QueueNames.SENTINEL_REQUESTS_QUEUE])
+@RabbitListener(queues = [SentinelRabbitNames.SENTINEL_REQUESTS_QUEUE])
 class AudioRequests(private val shardManager: ShardManager) {
 
     @RabbitHandler

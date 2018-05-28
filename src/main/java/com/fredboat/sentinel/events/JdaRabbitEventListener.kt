@@ -1,6 +1,6 @@
 package com.fredboat.sentinel.events
 
-import com.fredboat.sentinel.QueueNames
+import com.fredboat.sentinel.SentinelRabbitNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.core.entities.MessageType
@@ -131,7 +131,7 @@ class JdaRabbitEventListener(
     /* Util */
 
     private fun dispatch(event: Any) {
-        rabbitTemplate.convertAndSend(QueueNames.JDA_EVENTS_QUEUE, event)
+        rabbitTemplate.convertAndSend(SentinelRabbitNames.JDA_EVENTS_QUEUE, event)
         log.info("Sent $event")
     }
 

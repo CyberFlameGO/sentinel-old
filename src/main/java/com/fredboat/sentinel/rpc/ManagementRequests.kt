@@ -1,6 +1,6 @@
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.QueueNames
+import com.fredboat.sentinel.SentinelRabbitNames
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
 import com.fredboat.sentinel.extension.toEntity
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-@RabbitListener(queues = [QueueNames.SENTINEL_REQUESTS_QUEUE])
+@RabbitListener(queues = [SentinelRabbitNames.SENTINEL_REQUESTS_QUEUE])
 class ManagementRequests(private val shardManager: ShardManager) {
 
     @RabbitHandler
