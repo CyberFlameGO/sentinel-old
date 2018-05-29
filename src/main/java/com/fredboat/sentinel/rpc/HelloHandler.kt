@@ -4,6 +4,8 @@ import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.config.JdaProperties
 import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -16,12 +18,19 @@ class HelloHandler(
         private val jdaProperties: JdaProperties
 ) {
 
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(HelloHandler::class.java)
+    }
+
     init {
         sendHello()
     }
 
     @RabbitHandler
-    fun onHello(request: FredBoatHello) = sendHello()
+    fun onHello(request: FredBoatHello) {
+        log.info("FredBoat says hello \uD83D\uDC4B")
+        sendHello()
+    }
 
     private fun sendHello() {
         val message = jdaProperties.run {  SentinelHello(
