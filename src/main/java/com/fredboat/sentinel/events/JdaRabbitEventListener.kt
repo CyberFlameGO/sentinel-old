@@ -34,8 +34,10 @@ class JdaRabbitEventListener(
 
     /* Shard lifecycle */
 
-    override fun onStatusChange(event: StatusChangeEvent) =
-            dispatch(ShardStatusChange(event.jda.toEntity()))
+    override fun onStatusChange(event: StatusChangeEvent) = event.run {
+        log.info("Shard ${jda.shardInfo}: $oldStatus -> $newStatus")
+        dispatch(ShardStatusChange(jda.toEntity()))
+    }
 
     override fun onReady(event: ReadyEvent) {
         dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READIED))

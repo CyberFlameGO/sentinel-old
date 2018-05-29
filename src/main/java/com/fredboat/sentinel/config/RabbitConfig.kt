@@ -58,16 +58,16 @@ open class RabbitConfig {
 
     /* Fanout */
 
-    /** The fanout where we will receive broadcast messages from FredBoat */
-    @Bean
-    open fun fanoutExchange(): FanoutExchange {
-        return FanoutExchange(SentinelExchanges.FANOUT)
-    }
-
     /** This queue auto-deletes */
     @Bean
     open fun fanoutQueue(): Queue {
         return AnonymousQueue()
+    }
+
+    /** The fanout where we will receive broadcast messages from FredBoat */
+    @Bean
+    open fun fanoutExchange(@Qualifier("fanoutQueue") fanoutQueue: Queue): FanoutExchange {
+        return FanoutExchange(SentinelExchanges.FANOUT, false, false)
     }
 
     /** Receive messages from [fanout] to [fanoutQueue] */
@@ -78,6 +78,5 @@ open class RabbitConfig {
     ): Binding {
         return BindingBuilder.bind(fanoutQueue).to(fanout)
     }
-
-
+    
 }

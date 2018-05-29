@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = [SentinelExchanges.FANOUT])
+@RabbitListener(queues = ["#{fanoutQueue}"]) // This refers to a bean
 class HelloHandler(
         private val template: RabbitTemplate,
         private val jdaProperties: JdaProperties,
