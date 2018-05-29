@@ -24,9 +24,7 @@ open class RabbitConfig {
 
     @Bean
     open fun sentinelId(): String {
-        val bytes = ByteArray(8)
-        Random().nextBytes(bytes)
-        val rand = Base64.getEncoder().encode(bytes)
+        val rand = UUID.randomUUID().toString().replace("-", "").substring(0, 8)
         val id = "${InetAddress.getLocalHost().hostName}-$rand"
         log.info("Unique identifier for this session: $id")
         return id
