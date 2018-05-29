@@ -8,5 +8,6 @@ class FredBoatHello
 data class SentinelHello(
         val shardStart: Int,
         val shardEndExcl: Int,
-        val shardCount: Int
+        val shardCount: Int,
+        val key: String
 )
