@@ -38,7 +38,7 @@ class HelloHandler(
     private fun sendHello() {
         val message = jdaProperties.run {  SentinelHello(
                 shardStart,
-                shardEndExcl,
+                shardEnd,
                 shardCount,
                 key
         )}

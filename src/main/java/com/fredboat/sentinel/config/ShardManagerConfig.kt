@@ -31,7 +31,7 @@ open class ShardManagerConfig {
                 .setAutoReconnect(true)
                 .setSessionController(SessionControllerAdapter())
                 .setShardsTotal(jdaProperties.shardCount)
-                .setShards(jdaProperties.shardStart, jdaProperties.shardEndExcl - 1)
+                .setShards(jdaProperties.shardStart, jdaProperties.shardEnd)
                 //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder()
                 //        .eventListener(OkHttpEventMetrics("jda", Metrics.httpEventCounter)))
                 .addEventListeners(rabbitEventListener)
