@@ -1,6 +1,6 @@
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.SentinelRabbitNames
+import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.config.JdaProperties
 import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
@@ -10,7 +10,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = [SentinelRabbitNames.SSENTINEL_FANOUT])
+@RabbitListener(queues = [SentinelExchanges.FANOUT])
 class HelloHandler(
         private val template: RabbitTemplate,
         private val jdaProperties: JdaProperties
@@ -29,7 +29,7 @@ class HelloHandler(
                 shardEndExcl,
                 shardCount
         )}
-        template.convertAndSend(SentinelRabbitNames.JDA_EVENTS_QUEUE, message)
+        template.convertAndSend(SentinelExchanges.EVENTS, message)
     }
 
 }

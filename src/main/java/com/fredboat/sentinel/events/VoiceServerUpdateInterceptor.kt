@@ -1,6 +1,6 @@
 package com.fredboat.sentinel.events
 
-import com.fredboat.sentinel.SentinelRabbitNames
+import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.VoiceServerUpdate
 import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.handle.SocketHandler
@@ -27,7 +27,7 @@ class VoiceServerUpdateInterceptor(jda: JDAImpl, private val template: RabbitTem
                 ?: throw IllegalArgumentException("Attempted to start audio connection with Guild that doesn't exist! JSON: $content")
 
         val event = VoiceServerUpdate(guild.selfMember.voiceState.sessionId, content.toString())
-        template.convertAndSend(SentinelRabbitNames.JDA_EVENTS_QUEUE, event)
+        template.convertAndSend(SentinelExchanges.EVENTS, event)
 
         return null
     }

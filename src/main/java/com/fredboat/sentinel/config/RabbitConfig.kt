@@ -2,7 +2,7 @@ package com.fredboat.sentinel.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.fredboat.sentinel.SentinelRabbitNames
+import com.fredboat.sentinel.SentinelExchanges
 import org.springframework.amqp.core.*
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
@@ -19,15 +19,15 @@ open class RabbitConfig {
     }
 
     @Bean
-    open fun eventQueue() = Queue(SentinelRabbitNames.JDA_EVENTS_QUEUE, false)//TODO
+    open fun eventQueue() = Queue(SentinelExchanges.EVENTS, false)//TODO
 
     @Bean
-    open fun requestQueue() = Queue(SentinelRabbitNames.SENTINEL_REQUESTS_QUEUE, false)//TODO
+    open fun requestQueue() = Queue(SentinelExchanges.REQUESTS, false)//TODO
 
     /** The fanout where we will receive broadcast messages from FredBoat */
     @Bean
     open fun fanout(): FanoutExchange {
-        return FanoutExchange(SentinelRabbitNames.SSENTINEL_FANOUT)
+        return FanoutExchange(SentinelExchanges.FANOUT)
     }
 
     /** This queue auto-deletes */
