@@ -78,5 +78,5 @@ open class RabbitConfig {
     ): Binding {
         return BindingBuilder.bind(fanoutQueue).to(fanout)
     }
-    
+
 }
