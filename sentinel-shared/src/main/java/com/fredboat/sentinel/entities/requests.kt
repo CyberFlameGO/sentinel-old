@@ -109,7 +109,14 @@ data class SentinelInfoResponse(
         val textChannels: Long,
         val voiceChannels: Long,
         val emotes: Long,
-        val shards: List<Shard>
+        val shards: List<ExtendedShardInfo>
+)
+
+/** For the ;;shards command */
+data class ExtendedShardInfo(
+        val shard: Shard,
+        val guilds: Int,
+        val users: Int
 )
 
 /** Dump all user IDs to a [List] with [String]s for faster encoding/decoding */

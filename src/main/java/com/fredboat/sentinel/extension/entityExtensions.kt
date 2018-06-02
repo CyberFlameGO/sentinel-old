@@ -10,6 +10,12 @@ fun net.dv8tion.jda.core.JDA.toEntity() = Shard(
         status.toEntity()
 )
 
+fun net.dv8tion.jda.core.JDA.toEntityExtended() = ExtendedShardInfo(
+        toEntity(),
+        guildCache.size().toInt(),
+        userCache.size().toInt()
+)
+
 fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
     val membersMutable = mutableMapOf<String, Member>()
     members.forEach { membersMutable[it.user.id] = it.toEntity() }

@@ -3,7 +3,7 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
-import com.fredboat.sentinel.extension.toEntity
+import com.fredboat.sentinel.extension.toEntityExtended
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -60,7 +60,7 @@ class ManagementRequests(private val shardManager: ShardManager) {
             textChannelCache.size(),
             voiceChannelCache.size(),
             emoteCache.size(),
-            shards.map { it.toEntity() }
+            shards.map { it.toEntityExtended() }
     )}
 
     @RabbitHandler
