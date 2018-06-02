@@ -1,10 +1,13 @@
 package com.fredboat.sentinel.entities
 
+@Suppress("MemberVisibilityCanBePrivate")
 data class Shard(
         val id: Int,
         val total: Int,
         val status: ShardStatus
-)
+){
+    val shardString: String get() = "[$id/$total]"
+}
 
 data class Guild(
         val id: Long,
