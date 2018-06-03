@@ -14,6 +14,7 @@ data class RoleInfoRequest(val id: Long)
 
 data class GuildInfo(
         val id: Long,
+        val iconUrl: String,
         val onlineMembers: Int,
         val verificationLevel: String
 )

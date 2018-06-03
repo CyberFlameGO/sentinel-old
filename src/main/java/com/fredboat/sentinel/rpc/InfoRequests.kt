@@ -35,6 +35,7 @@ class InfoRequests(private val shardManager: ShardManager) {
         return guild.run {
             GuildInfo(
                     idLong,
+                    guild.iconUrl,
                     guild.memberCache.count { it.onlineStatus != OnlineStatus.OFFLINE },
                     verificationLevel.name
             )
