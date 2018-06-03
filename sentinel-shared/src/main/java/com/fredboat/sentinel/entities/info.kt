@@ -6,7 +6,7 @@ data class RoleInfo(
         val id: Long,
         val colorRgb: Int,
         val isHoisted: Boolean,
-        val isMentiontionable: Boolean,
+        val isMentionable: Boolean,
         val isManaged: Boolean
 )
 
