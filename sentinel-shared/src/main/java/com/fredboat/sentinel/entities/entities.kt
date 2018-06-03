@@ -6,6 +6,7 @@ data class Shard(
         val total: Int,
         val status: ShardStatus
 ){
+    @Suppress("unused")
     val shardString: String get() = "[$id/$total]"
 }
 
