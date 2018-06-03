@@ -1,10 +1,7 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.SentinelExchanges
-import com.fredboat.sentinel.entities.GuildInfo
-import com.fredboat.sentinel.entities.GuildInfoRequest
-import com.fredboat.sentinel.entities.RoleInfo
-import com.fredboat.sentinel.entities.RoleInfoRequest
+import com.fredboat.sentinel.entities.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.OnlineStatus
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -16,15 +13,15 @@ import org.springframework.stereotype.Service
 class InfoRequests(private val shardManager: ShardManager) {
 
     @RabbitHandler
-    fun roles(request: RoleInfoRequest) {
-        val role = shardManager.getRoleById(request.id)
-        return role.run {
-            RoleInfo(
-                    idLong,
+    fun guilds(request: MemberInfoRequest) {
+        val member = shardManager.getGuildById(request.guildId).getMemberById(request.id)
+        return member.run {
+            MemberInfo(
+                    user.idLong,
+                    guild.idLong,
+                    user.avatarUrl,
                     color.rgb,
-                    isHoisted,
-                    isMentionable,
-                    isManaged
+                    joinDate.toInstant().toEpochMilli()
             )
         }
     }
@@ -38,6 +35,20 @@ class InfoRequests(private val shardManager: ShardManager) {
                     guild.iconUrl,
                     guild.memberCache.count { it.onlineStatus != OnlineStatus.OFFLINE },
                     verificationLevel.name
+            )
+        }
+    }
+
+    @RabbitHandler
+    fun roles(request: RoleInfoRequest) {
+        val role = shardManager.getRoleById(request.id)
+        return role.run {
+            RoleInfo(
+                    idLong,
+                    color.rgb,
+                    isHoisted,
+                    isMentionable,
+                    isManaged
             )
         }
     }
