@@ -11,3 +11,11 @@ data class RoleInfo(
 )
 
 data class RoleInfoRequest(val id: Long)
+
+data class GuildInfo(
+        val id: Long,
+        val onlineMembers: Int,
+        val verificationLevel: String
+)
+
+data class GuildInfoRequest(val id: Long)
