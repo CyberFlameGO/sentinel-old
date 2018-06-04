@@ -18,7 +18,9 @@ class HelloHandler(
         private val template: RabbitTemplate,
         private val jdaProperties: JdaProperties,
         @param:Qualifier("sentinelId")
-        private val key: String
+        private val key: String,
+        @param:Qualifier("guildSubscriptions")
+        private val subscriptions: MutableSet<Long>
 ) {
 
     companion object {
@@ -31,7 +33,9 @@ class HelloHandler(
 
     @RabbitHandler
     fun onHello(request: FredBoatHello) {
-        log.info("FredBoat says hello \uD83D\uDC4B")
+        log.info("FredBoat says hello \uD83D\uDC4B\nClearing subscriptions")
+        subscriptions.clear()
+
         sendHello()
     }
 

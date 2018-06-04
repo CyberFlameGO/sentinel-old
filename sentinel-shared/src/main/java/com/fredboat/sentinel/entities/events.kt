@@ -20,7 +20,7 @@ enum class LifecycleEventEnum {
     SHUTDOWN
 }
 
-/* Guild events */
+/* Guild leave/join */
 data class GuildJoinEvent(
         val guildId: Long
 )
@@ -30,8 +30,21 @@ data class GuildLeaveEvent(
         val joinTime: Instant
 )
 
-data class GuildInvalidation(
-        val id: Long
+/* Guild member events  */
+data class GuildMemberJoinEvent(
+        val guildId: Long,
+        val member: Member
+)
+
+data class GuildMemberLeaveEvent(
+        val guildId: Long,
+        val memberId: Long
+)
+
+/** When we are subscribed and one of the members change (presence, name, etc) */
+data class GuildMemberUpdate(
+        val guildId: Long,
+        val member: Member
 )
 
 /* Voice events */

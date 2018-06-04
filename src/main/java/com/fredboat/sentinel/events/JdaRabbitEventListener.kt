@@ -6,26 +6,39 @@ import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.core.entities.MessageType
 import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.events.*
+import net.dv8tion.jda.core.events.channel.category.GenericCategoryEvent
+import net.dv8tion.jda.core.events.channel.text.GenericTextChannelEvent
+import net.dv8tion.jda.core.events.channel.voice.GenericVoiceChannelEvent
 import net.dv8tion.jda.core.events.guild.GenericGuildEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
+import net.dv8tion.jda.core.events.guild.member.*
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent
+import net.dv8tion.jda.core.events.guild.update.GuildUpdateNameEvent
+import net.dv8tion.jda.core.events.guild.update.GuildUpdateOwnerEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
 import net.dv8tion.jda.core.events.http.HttpRequestEvent
-import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
+import net.dv8tion.jda.core.events.role.RoleCreateEvent
+import net.dv8tion.jda.core.events.role.RoleDeleteEvent
+import net.dv8tion.jda.core.events.user.update.GenericUserPresenceEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
 @Component
 class JdaRabbitEventListener(
-        private val rabbitTemplate: RabbitTemplate
+        private val rabbitTemplate: RabbitTemplate,
+        @param:Qualifier("guildSubscriptions")
+        private val subscriptions: MutableSet<Long>
 ) : ListenerAdapter() {
 
     companion object {
@@ -49,10 +62,13 @@ class JdaRabbitEventListener(
 
     override fun onDisconnect(event: DisconnectEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.DISCONNECTED))
+
     override fun onResume(event: ResumedEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.RESUMED))
+
     override fun onReconnect(event: ReconnectedEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.RECONNECTED))
+
     override fun onShutdown(event: ShutdownEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.SHUTDOWN))
 
@@ -66,8 +82,40 @@ class JdaRabbitEventListener(
                     event.guild.selfMember.joinDate.toInstant()
             ))
 
+    /* Member events */
+
+    override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
+        if (!subscriptions.contains(event.guild.idLong)) return
+        dispatch(com.fredboat.sentinel.entities.GuildMemberJoinEvent(
+                event.guild.idLong,
+                event.member.toEntity()
+        ))
+    }
+
+    override fun onGuildMemberLeave(event: GuildMemberLeaveEvent) {
+        if (!subscriptions.contains(event.guild.idLong)) return
+        dispatch(com.fredboat.sentinel.entities.GuildMemberLeaveEvent(
+                event.guild.idLong,
+                event.member.user.idLong
+        ))
+    }
+
+    override fun onGuildMemberRoleAdd(event: GuildMemberRoleAddEvent) = onMemberChange(event.member)
+    override fun onGuildMemberRoleRemove(event: GuildMemberRoleRemoveEvent) = onMemberChange(event.member)
+    override fun onGenericUserPresence(event: GenericUserPresenceEvent<*>) = onMemberChange(event.member)
+    override fun onGuildMemberNickChange(event: GuildMemberNickChangeEvent) = onMemberChange(event.member)
+
+    private fun onMemberChange(member: net.dv8tion.jda.core.entities.Member) {
+        if (!subscriptions.contains(member.guild.idLong)) return
+        dispatch(GuildMemberUpdate(
+                member.guild.idLong,
+                member.toEntity()
+        ))
+    }
+
     /* Voice events */
     override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
+        if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(VoiceJoinEvent(
                 event.guild.idLong,
                 event.channelJoined.toEntity(),
@@ -76,6 +124,7 @@ class JdaRabbitEventListener(
     }
 
     override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
+        if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(VoiceLeaveEvent(
                 event.guild.idLong,
                 event.channelLeft.toEntity(),
@@ -84,6 +133,7 @@ class JdaRabbitEventListener(
     }
 
     override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
+        if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(VoiceMoveEvent(
                 event.guild.idLong,
                 event.channelLeft.toEntity(),
@@ -121,13 +171,43 @@ class JdaRabbitEventListener(
         ))
     }
 
-    /* Guild invalidation */
+    /*
+    *** Guild invalidation ***
+
+    Things that we don't explicitly handle, but that we cache:
+    TODO: Who has roles
+    Guild name and owner
+    Roles
+    Channels
+    Channel names (text, voice, categories)
+    Our permissions in channels
+
+    We can improve performance by handling more of these
+     */
 
     override fun onGenericGuild(event: GenericGuildEvent) {
-        // Ignore message events
-        if (event !is GenericGuildMessageEvent) {
+        if (event is GuildUpdateNameEvent
+                || event is GuildUpdateOwnerEvent
+                || event is RoleCreateEvent
+                || event is RoleDeleteEvent) {
+            log.info("Invalidated guild because of ${event.javaClass.simpleName}")
             dispatch(GuildInvalidation(event.guild.idLong))
         }
+    }
+
+    override fun onGenericTextChannel(event: GenericTextChannelEvent) {
+        log.info("Invalidated guild because of ${event.javaClass.simpleName}")
+        dispatch(GuildInvalidation(event.guild.idLong))
+    }
+
+    override fun onGenericVoiceChannel(event: GenericVoiceChannelEvent) {
+        log.info("Invalidated guild because of ${event.javaClass.simpleName}")
+        dispatch(GuildInvalidation(event.guild.idLong))
+    }
+
+    override fun onGenericCategory(event: GenericCategoryEvent) {
+        log.info("Invalidated guild because of ${event.javaClass.simpleName}")
+        dispatch(GuildInvalidation(event.guild.idLong))
     }
 
     /* Util */

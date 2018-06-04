@@ -6,7 +6,9 @@ import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.utils.SessionControllerAdapter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.util.*
 import javax.security.auth.login.LoginException
+import kotlin.collections.HashSet
 
 @Configuration
 open class ShardManagerConfig {
@@ -50,5 +52,8 @@ open class ShardManagerConfig {
 
         return shardManager
     }
+
+    @Bean
+    open fun guildSubscriptions(): MutableSet<Long> = Collections.synchronizedSet(HashSet<Long>())
 
 }
