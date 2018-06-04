@@ -175,7 +175,7 @@ class JdaRabbitEventListener(
     *** Guild invalidation ***
 
     Things that we don't explicitly handle, but that we cache:
-    TODO: Who has roles
+    
     Guild name and owner
     Roles
     Channels
@@ -217,8 +217,8 @@ class JdaRabbitEventListener(
         log.info("Sent $event")
     }
 
-    override fun onHttpRequest(event: HttpRequestEvent?) {
-        if (event!!.response.code >= 300) {
+    override fun onHttpRequest(event: HttpRequestEvent) {
+        if (event.response.code >= 300) {
             log.warn("Unsuccessful JDA HTTP Request:\n{}\nResponse:{}\n",
                     event.requestRaw, event.responseRaw)
         }
