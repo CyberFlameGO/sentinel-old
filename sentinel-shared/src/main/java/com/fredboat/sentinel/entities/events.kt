@@ -22,68 +22,68 @@ enum class LifecycleEventEnum {
 
 /* Guild leave/join */
 data class GuildJoinEvent(
-        val guildId: Long
+        val guild: Long
 )
 
 data class GuildLeaveEvent(
-        val guildId: Long,
+        val guild: Long,
         val joinTime: Instant
 )
 
 /* Guild member events  */
 data class GuildMemberJoinEvent(
-        val guildId: Long,
-        val member: Member
+        val guild: Long,
+        val member: Long
 )
 
 data class GuildMemberLeaveEvent(
-        val guildId: Long,
-        val memberId: Long
+        val guild: Long,
+        val member: Long
 )
 
 /** When we are subscribed and one of the members change (presence, name, etc) */
 data class GuildMemberUpdate(
-        val guildId: Long,
-        val member: Member
+        val guild: Long,
+        val member: Long
 )
 
 /* Voice events */
 data class VoiceJoinEvent(
-        val guildId: Long,
-        val channel: VoiceChannel,
-        val member: Member
+        val guild: Long,
+        val channel: Long,
+        val member: Long
 )
 
 data class VoiceLeaveEvent(
         val guildId: Long,
-        val channel: VoiceChannel,
-        val member: Member
+        val channel: Long,
+        val member: Long
 )
 
 data class VoiceMoveEvent(
-        val guildId: Long,
-        val oldChannel: VoiceChannel,
-        val newChannel: VoiceChannel,
-        val member: Member
+        val guild: Long,
+        val oldChannel: Long,
+        val newChannel: Long,
+        val member: Long
 )
 
 /* Messages */
 data class MessageReceivedEvent(
         val id: Long,
-        val guildId: Long,
-        val channel: TextChannel,
+        val guild: Long,
+        val channel: Long,
         val content: String,
-        val author: Member,
+        val author: Long,
         val attachments: List<String>
 )
 
 data class PrivateMessageReceivedEvent(
         val content: String,
-        val author: User
+        val author: Long
 )
 
 data class MessageDeleteEvent(
         val id: Long,
-        val guildId: Long,
-        val channel: TextChannel
+        val guild: Long,
+        val channel: Long
 )
