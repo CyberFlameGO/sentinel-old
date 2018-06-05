@@ -16,19 +16,14 @@ fun net.dv8tion.jda.core.JDA.toEntityExtended() = ExtendedShardInfo(
         userCache.size().toInt()
 )
 
-fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
-    val membersMutable = mutableMapOf<String, Member>()
-    members.forEach { membersMutable[it.user.id] = it.toEntity() }
-
-    return Guild(
-            idLong,
-            name,
-            owner?.toEntity(),
-            membersMutable.toMap(),
-            textChannels.map { it.toEntity() },
-            voiceChannels.map { it.toEntity() },
-            roles.map { it.toEntity() })
-}
+fun net.dv8tion.jda.core.entities.Guild.toEntity() = Guild(
+        idLong,
+        name,
+        owner?.user?.idLong,
+        members.map { it.toEntity() },
+        textChannels.map { it.toEntity() },
+        voiceChannels.map { it.toEntity() },
+        roles.map { it.toEntity() })
 
 fun net.dv8tion.jda.core.entities.User.toEntity() = User(
         idLong,
@@ -52,6 +47,7 @@ fun net.dv8tion.jda.core.entities.VoiceChannel.toEntity() = VoiceChannel(
         idLong,
         name,
         members.map { it.user.idLong },
+        userLimit,
         PermissionUtil.getExplicitPermission(this, guild.selfMember))
 
 fun net.dv8tion.jda.core.entities.TextChannel.toEntity() = TextChannel(

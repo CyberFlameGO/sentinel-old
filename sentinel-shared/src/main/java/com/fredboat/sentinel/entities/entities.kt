@@ -13,8 +13,8 @@ data class Shard(
 data class Guild(
         val id: Long,
         val name: String,
-        val owner: Member?, // Discord has a history of having guilds without owners :(
-        val members: Map<String, Member>,
+        val owner: Long?, // Discord has a history of having guilds without owners :(
+        val members: List<Member>,
         val textChannels: List<TextChannel>,
         val voiceChannels: List<VoiceChannel>,
         val roles: List<Role>
@@ -48,6 +48,7 @@ data class VoiceChannel(
         val id: Long,
         val name: String,
         val members: List<Long>,
+        val userLimit: Int,
         val ourEffectivePermissions: Long
 )
 

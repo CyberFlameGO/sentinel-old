@@ -175,12 +175,12 @@ class JdaRabbitEventListener(
     *** Guild invalidation ***
 
     Things that we don't explicitly handle, but that we cache:
-    
+
     Guild name and owner
     Roles
     Channels
     Channel names (text, voice, categories)
-    Our permissions in channels
+    Our permissions in channels TODO
 
     We can improve performance by handling more of these
      */
