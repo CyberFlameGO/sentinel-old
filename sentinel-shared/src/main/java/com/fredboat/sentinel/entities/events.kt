@@ -55,7 +55,7 @@ data class VoiceJoinEvent(
 )
 
 data class VoiceLeaveEvent(
-        val guildId: Long,
+        val guild: Long,
         val channel: Long,
         val member: Long
 )
