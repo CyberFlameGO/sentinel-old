@@ -160,7 +160,7 @@ class JdaRabbitEventListener(
     override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
         dispatch(PrivateMessageReceivedEvent(
                 event.message.contentRaw,
-                event.author.idLong
+                event.author.toEntity()
         ))
     }
 

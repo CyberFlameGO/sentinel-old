@@ -80,7 +80,7 @@ data class MessageReceivedEvent(
 
 data class PrivateMessageReceivedEvent(
         val content: String,
-        val author: Long
+        val author: User
 )
 
 data class MessageDeleteEvent(
