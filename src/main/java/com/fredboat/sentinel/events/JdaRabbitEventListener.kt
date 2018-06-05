@@ -88,7 +88,7 @@ class JdaRabbitEventListener(
         if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(com.fredboat.sentinel.entities.GuildMemberJoinEvent(
                 event.guild.idLong,
-                event.member.toEntity()
+                event.member.user.idLong
         ))
     }
 
@@ -109,7 +109,7 @@ class JdaRabbitEventListener(
         if (!subscriptions.contains(member.guild.idLong)) return
         dispatch(GuildMemberUpdate(
                 member.guild.idLong,
-                member.toEntity()
+                member.user.idLong
         ))
     }
 
@@ -118,8 +118,8 @@ class JdaRabbitEventListener(
         if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(VoiceJoinEvent(
                 event.guild.idLong,
-                event.channelJoined.toEntity(),
-                event.member.toEntity()
+                event.channelJoined.idLong,
+                event.member.user.idLong
         ))
     }
 
@@ -127,8 +127,8 @@ class JdaRabbitEventListener(
         if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(VoiceLeaveEvent(
                 event.guild.idLong,
-                event.channelLeft.toEntity(),
-                event.member.toEntity()
+                event.channelLeft.idLong,
+                event.member.user.idLong
         ))
     }
 
@@ -136,9 +136,9 @@ class JdaRabbitEventListener(
         if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(VoiceMoveEvent(
                 event.guild.idLong,
-                event.channelLeft.toEntity(),
-                event.channelJoined.toEntity(),
-                event.member.toEntity()
+                event.channelLeft.idLong,
+                event.channelJoined.idLong,
+                event.member.user.idLong
         ))
     }
 
@@ -149,9 +149,9 @@ class JdaRabbitEventListener(
         dispatch(MessageReceivedEvent(
                 event.message.idLong,
                 event.message.guild.idLong,
-                event.channel.toEntity(),
+                event.channel.idLong,
                 event.message.contentRaw,
-                event.member.toEntity(),
+                event.member.user.idLong,
                 event.message.attachments.map { if (it.isImage) it.proxyUrl else it.url }
         ))
     }
@@ -159,7 +159,7 @@ class JdaRabbitEventListener(
     override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
         dispatch(PrivateMessageReceivedEvent(
                 event.message.contentRaw,
-                event.author.toEntity()
+                event.author.idLong
         ))
     }
 
@@ -167,7 +167,7 @@ class JdaRabbitEventListener(
         dispatch(MessageDeleteEvent(
                 event.messageIdLong,
                 event.guild.idLong,
-                event.channel.toEntity()
+                event.channel.idLong
         ))
     }
 
