@@ -74,6 +74,7 @@ data class MessageReceivedEvent(
         val channel: Long,
         val content: String,
         val author: Long,
+        val fromBot: Boolean,
         val attachments: List<String>
 )
 

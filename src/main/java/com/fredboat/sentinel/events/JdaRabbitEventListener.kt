@@ -152,6 +152,7 @@ class JdaRabbitEventListener(
                 event.channel.idLong,
                 event.message.contentRaw,
                 event.member.user.idLong,
+                event.author.isBot,
                 event.message.attachments.map { if (it.isImage) it.proxyUrl else it.url }
         ))
     }
