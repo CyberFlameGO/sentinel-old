@@ -28,6 +28,7 @@ import net.dv8tion.jda.core.events.role.RoleCreateEvent
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent
 import net.dv8tion.jda.core.events.user.update.GenericUserPresenceEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
+import net.dv8tion.jda.core.utils.PermissionUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -143,17 +144,18 @@ class JdaRabbitEventListener(
     }
 
     /* Message events */
-    override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        if (event.message.type != MessageType.DEFAULT) return
+    override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) = event.run {
+        if (message.type != MessageType.DEFAULT) return
 
         dispatch(MessageReceivedEvent(
-                event.message.idLong,
-                event.message.guild.idLong,
-                event.channel.idLong,
-                event.message.contentRaw,
-                event.member.user.idLong,
-                event.author.isBot,
-                event.message.attachments.map { if (it.isImage) it.proxyUrl else it.url }
+                message.idLong,
+                message.guild.idLong,
+                channel.idLong,
+                PermissionUtil.getEffectivePermission(channel, guild.selfMember),
+                message.contentRaw,
+                member.user.idLong,
+                author.isBot,
+                message.attachments.map { if (it.isImage) it.proxyUrl else it.url }
         ))
     }
 

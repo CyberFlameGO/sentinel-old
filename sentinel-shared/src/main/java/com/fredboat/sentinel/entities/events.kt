@@ -72,6 +72,7 @@ data class MessageReceivedEvent(
         val id: Long,
         val guild: Long,
         val channel: Long,
+        val channelPermissions: Long,
         val content: String,
         val author: Long,
         val fromBot: Boolean,
