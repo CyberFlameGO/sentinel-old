@@ -64,6 +64,6 @@ class ManagementRequests(private val shardManager: ShardManager) {
     )}
 
     @RabbitHandler
-    fun receive(request: UserListRequest) = shardManager.userCache.map { it.id }
+    fun receive(request: UserListRequest) = shardManager.userCache.map { it.idLong }
 
 }

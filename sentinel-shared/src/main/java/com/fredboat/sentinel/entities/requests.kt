@@ -99,7 +99,7 @@ data class BulkGuildPermissionResponse(
 )
 
 /** Returns [SentinelInfoResponse] */
-data class SentinelInfoRequest(val includeShards: Boolean = false)
+data class SentinelInfoRequest(val includeShards: Boolean)
 
 /** Data about all shards */
 data class SentinelInfoResponse(
@@ -119,6 +119,6 @@ data class ExtendedShardInfo(
         val users: Int
 )
 
-/** Dump all user IDs to a [List] with [String]s for faster encoding/decoding */
+/** Dump all user IDs to a [List] with [Long]s */
 class UserListRequest
 
