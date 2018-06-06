@@ -151,7 +151,11 @@ class JdaRabbitEventListener(
                 message.idLong,
                 message.guild.idLong,
                 channel.idLong,
-                PermissionUtil.getEffectivePermission(channel, guild.selfMember),   message.attachments.map { if (it.isImage) it.proxyUrl else it.url }
+                PermissionUtil.getEffectivePermission(channel, guild.selfMember),
+                message.contentRaw,
+                author.idLong,
+                author.isBot,
+                message.attachments.map { if (it.isImage) it.proxyUrl else it.url }
         ))
     }
 
