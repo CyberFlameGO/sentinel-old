@@ -60,7 +60,7 @@ class ManagementRequests(private val shardManager: ShardManager) {
             textChannelCache.size(),
             voiceChannelCache.size(),
             emoteCache.size(),
-            shards.map { it.toEntityExtended() }
+            if (request.includeShards) shards.map { it.toEntityExtended() } else null
     )}
 
     @RabbitHandler

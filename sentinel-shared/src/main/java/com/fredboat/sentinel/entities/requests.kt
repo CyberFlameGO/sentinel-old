@@ -99,7 +99,7 @@ data class BulkGuildPermissionResponse(
 )
 
 /** Returns [SentinelInfoResponse] */
-class SentinelInfoRequest
+data class SentinelInfoRequest(val includeShards: Boolean = false)
 
 /** Data about all shards */
 data class SentinelInfoResponse(
@@ -109,7 +109,7 @@ data class SentinelInfoResponse(
         val textChannels: Long,
         val voiceChannels: Long,
         val emotes: Long,
-        val shards: List<ExtendedShardInfo>
+        val shards: List<ExtendedShardInfo>?
 )
 
 /** For the ;;shards command */
