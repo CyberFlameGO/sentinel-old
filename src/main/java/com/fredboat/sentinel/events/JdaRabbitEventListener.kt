@@ -6,9 +6,17 @@ import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.core.entities.MessageType
 import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.events.*
+import net.dv8tion.jda.core.events.channel.category.CategoryDeleteEvent
 import net.dv8tion.jda.core.events.channel.category.GenericCategoryEvent
+import net.dv8tion.jda.core.events.channel.category.update.CategoryUpdatePermissionsEvent
+import net.dv8tion.jda.core.events.channel.category.update.CategoryUpdatePositionEvent
 import net.dv8tion.jda.core.events.channel.text.GenericTextChannelEvent
+import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent
+import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent
 import net.dv8tion.jda.core.events.channel.voice.GenericVoiceChannelEvent
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent
+import net.dv8tion.jda.core.events.channel.voice.update.VoiceChannelUpdatePositionEvent
 import net.dv8tion.jda.core.events.guild.GenericGuildEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
@@ -24,8 +32,11 @@ import net.dv8tion.jda.core.events.http.HttpRequestEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
+import net.dv8tion.jda.core.events.role.GenericRoleEvent
 import net.dv8tion.jda.core.events.role.RoleCreateEvent
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent
+import net.dv8tion.jda.core.events.role.update.RoleUpdatePermissionsEvent
+import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent
 import net.dv8tion.jda.core.events.user.update.GenericUserPresenceEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import net.dv8tion.jda.core.utils.PermissionUtil
@@ -110,7 +121,8 @@ class JdaRabbitEventListener(
         if (!subscriptions.contains(member.guild.idLong)) return
         dispatch(GuildMemberUpdate(
                 member.guild.idLong,
-                member.user.idLong
+                member.user.idLong,
+                member.toEntity()
         ))
     }
 
@@ -189,28 +201,79 @@ class JdaRabbitEventListener(
      */
 
     override fun onGenericGuild(event: GenericGuildEvent) {
+        if (!subscriptions.contains(event.guild.idLong)) return
         if (event is GuildUpdateNameEvent
-                || event is GuildUpdateOwnerEvent
-                || event is RoleCreateEvent
-                || event is RoleDeleteEvent) {
-            log.info("Invalidated guild because of ${event.javaClass.simpleName}")
-            dispatch(GuildInvalidation(event.guild.idLong))
+                || event is GuildUpdateOwnerEvent) {
+            updateGuild(event, event.guild)
         }
     }
 
     override fun onGenericTextChannel(event: GenericTextChannelEvent) {
-        log.info("Invalidated guild because of ${event.javaClass.simpleName}")
-        dispatch(GuildInvalidation(event.guild.idLong))
+        if (!subscriptions.contains(event.guild.idLong)) return
+        if (event is TextChannelDeleteEvent || event is TextChannelCreateEvent) {
+            updateGuild(event, event.guild)
+            return
+        } else if (event is RoleUpdatePositionEvent || event is RoleUpdatePermissionsEvent) {
+            updateChannelPermissions(event, event.guild)
+        }
+
+        dispatch(TextChannelUpdate(
+                event.guild.idLong,
+                event.channel.idLong,
+                event.channel.toEntity()
+        ))
     }
 
+    /** Note: voice state updates (join, move, leave, etc) are not handled as [GenericVoiceChannelEvent] */
     override fun onGenericVoiceChannel(event: GenericVoiceChannelEvent) {
-        log.info("Invalidated guild because of ${event.javaClass.simpleName}")
-        dispatch(GuildInvalidation(event.guild.idLong))
+        if (!subscriptions.contains(event.guild.idLong)) return
+        if (event is VoiceChannelDeleteEvent || event is VoiceChannelCreateEvent) {
+            updateGuild(event, event.guild)
+            return
+        } else if (event is VoiceChannelUpdatePositionEvent || event is RoleUpdatePermissionsEvent) {
+            updateChannelPermissions(event, event.guild)
+        }
+
+
+
+        dispatch(VoiceChannelUpdate(
+                event.guild.idLong,
+                event.channel.idLong,
+                event.channel.toEntity()
+        ))
     }
 
     override fun onGenericCategory(event: GenericCategoryEvent) {
-        log.info("Invalidated guild because of ${event.javaClass.simpleName}")
-        dispatch(GuildInvalidation(event.guild.idLong))
+        if (!subscriptions.contains(event.guild.idLong)) return
+        if (event is CategoryDeleteEvent
+                || event is CategoryUpdatePositionEvent
+                || event is CategoryUpdatePermissionsEvent) {
+            updateGuild(event, event.guild)
+        }
+    }
+
+    override fun onGenericRole(event: GenericRoleEvent) {
+        if (!subscriptions.contains(event.guild.idLong)) return
+        if (event is RoleCreateEvent || event is RoleDeleteEvent) {
+            updateGuild(event, event.guild)
+            return
+        } else if (event is RoleUpdatePermissionsEvent || event is RoleUpdatePositionEvent) {
+            updateChannelPermissions(event, event.guild)
+        }
+        dispatch(RoleUpdate(
+                event.guild.idLong,
+                event.role.idLong,
+                event.role.toEntity()
+        ))
+    }
+
+    private fun updateGuild(event: Event, guild: net.dv8tion.jda.core.entities.Guild) {
+        log.info("Updated ${guild.id} because of ${event.javaClass.simpleName}")
+        dispatch(GuildUpdateEvent(guild.toEntity()))
+    }
+
+    private fun updateChannelPermissions(event: Event, guild: net.dv8tion.jda.core.entities.Guild) {
+        // TODO
     }
 
     /* Util */

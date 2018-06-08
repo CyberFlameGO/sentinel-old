@@ -41,12 +41,6 @@ data class GuildMemberLeaveEvent(
         val member: Long
 )
 
-/** When we are subscribed and one of the members change (presence, name, etc) */
-data class GuildMemberUpdate(
-        val guild: Long,
-        val member: Long
-)
-
 /* Voice events */
 data class VoiceJoinEvent(
         val guild: Long,
