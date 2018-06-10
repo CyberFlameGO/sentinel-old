@@ -38,7 +38,7 @@ data class VoiceChannelUpdate(
         val channel: VoiceChannel
 )
 
-data class ChannelPermissionUpdate(
+data class ChannelPermissionsUpdate(
         val guild: Long,
         val changes: Map<String, Long>
 )

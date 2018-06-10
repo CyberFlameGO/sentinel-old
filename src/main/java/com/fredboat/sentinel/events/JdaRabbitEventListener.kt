@@ -3,6 +3,8 @@ package com.fredboat.sentinel.events
 import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
+import net.dv8tion.jda.core.entities.Channel
+import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.MessageType
 import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.events.*
@@ -195,7 +197,7 @@ class JdaRabbitEventListener(
     Roles
     Channels
     Channel names (text, voice, categories)
-    Our permissions in channels TODO
+    Our permissions in channels
 
     We can improve performance by handling more of these
      */
@@ -214,7 +216,7 @@ class JdaRabbitEventListener(
             updateGuild(event, event.guild)
             return
         } else if (event is RoleUpdatePositionEvent || event is RoleUpdatePermissionsEvent) {
-            updateChannelPermissions(event, event.guild)
+            updateChannelPermissions(event.guild)
         }
 
         dispatch(TextChannelUpdate(
@@ -231,7 +233,7 @@ class JdaRabbitEventListener(
             updateGuild(event, event.guild)
             return
         } else if (event is VoiceChannelUpdatePositionEvent || event is RoleUpdatePermissionsEvent) {
-            updateChannelPermissions(event, event.guild)
+            updateChannelPermissions(event.guild)
         }
 
 
@@ -258,7 +260,7 @@ class JdaRabbitEventListener(
             updateGuild(event, event.guild)
             return
         } else if (event is RoleUpdatePermissionsEvent || event is RoleUpdatePositionEvent) {
-            updateChannelPermissions(event, event.guild)
+            updateChannelPermissions(event.guild)
         }
         dispatch(RoleUpdate(
                 event.guild.idLong,
@@ -272,8 +274,21 @@ class JdaRabbitEventListener(
         dispatch(GuildUpdateEvent(guild.toEntity()))
     }
 
-    private fun updateChannelPermissions(event: Event, guild: net.dv8tion.jda.core.entities.Guild) {
-        // TODO
+    private fun updateChannelPermissions(guild: Guild) {
+        val permissions = mutableMapOf<String, Long>()
+        val self = guild.selfMember
+        val func = { channel: Channel ->
+            permissions[channel.id] = PermissionUtil.getEffectivePermission(channel, self)
+        }
+
+        guild.textChannels.forEach(func)
+        guild.voiceChannels.forEach(func)
+
+        dispatch(ChannelPermissionsUpdate(
+                guild.idLong,
+                permissions
+
+        ))
     }
 
     /* Util */
