@@ -102,7 +102,7 @@ class JdaRabbitEventListener(
         if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(com.fredboat.sentinel.entities.GuildMemberJoinEvent(
                 event.guild.idLong,
-                event.member.user.idLong
+                event.member.toEntity()
         ))
     }
 
@@ -123,7 +123,6 @@ class JdaRabbitEventListener(
         if (!subscriptions.contains(member.guild.idLong)) return
         dispatch(GuildMemberUpdate(
                 member.guild.idLong,
-                member.user.idLong,
                 member.toEntity()
         ))
     }
@@ -221,7 +220,6 @@ class JdaRabbitEventListener(
 
         dispatch(TextChannelUpdate(
                 event.guild.idLong,
-                event.channel.idLong,
                 event.channel.toEntity()
         ))
     }
@@ -240,7 +238,6 @@ class JdaRabbitEventListener(
 
         dispatch(VoiceChannelUpdate(
                 event.guild.idLong,
-                event.channel.idLong,
                 event.channel.toEntity()
         ))
     }
@@ -264,7 +261,6 @@ class JdaRabbitEventListener(
         }
         dispatch(RoleUpdate(
                 event.guild.idLong,
-                event.role.idLong,
                 event.role.toEntity()
         ))
     }

@@ -33,7 +33,7 @@ data class GuildLeaveEvent(
 /* Guild member events  */
 data class GuildMemberJoinEvent(
         val guild: Long,
-        val member: Long
+        val member: Member
 )
 
 data class GuildMemberLeaveEvent(

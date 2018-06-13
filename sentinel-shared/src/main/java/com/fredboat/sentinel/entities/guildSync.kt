@@ -16,25 +16,21 @@ data class GuildUpdateEvent(
 /** When we are subscribed and one of the members change (presence, name, etc) */
 data class GuildMemberUpdate(
         val guild: Long,
-        val memberid: Long,
         val member: Member
 )
 
 data class RoleUpdate(
         val guild: Long,
-        val roleId: Long,
         val role: Role
 )
 
 data class TextChannelUpdate(
         val guild: Long,
-        val channelId: Long,
         val channel: TextChannel
 )
 
 data class VoiceChannelUpdate(
         val guild: Long,
-        val channelId: Long,
         val channel: VoiceChannel
 )
 
