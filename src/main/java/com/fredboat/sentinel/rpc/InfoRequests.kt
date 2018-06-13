@@ -45,6 +45,7 @@ class InfoRequests(private val shardManager: ShardManager) {
         return role.run {
             RoleInfo(
                     idLong,
+                    position,
                     color.rgb,
                     isHoisted,
                     isMentionable,

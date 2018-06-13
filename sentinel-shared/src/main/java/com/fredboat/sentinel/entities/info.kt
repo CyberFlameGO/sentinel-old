@@ -23,6 +23,7 @@ data class MemberInfoRequest(val id: Long, val guildId: Long)
 
 data class RoleInfo(
         val id: Long,
+        val position: Int,
         val colorRgb: Int,
         val isHoisted: Boolean,
         val isMentionable: Boolean,
