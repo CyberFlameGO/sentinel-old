@@ -3,6 +3,7 @@ package com.fredboat.sentinel.events
 import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
+import com.fredboat.sentinel.metrics.Counters
 import net.dv8tion.jda.core.entities.Channel
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.MessageType
@@ -299,6 +300,10 @@ class JdaRabbitEventListener(
             log.warn("Unsuccessful JDA HTTP Request:\n{}\nResponse:{}\n",
                     event.requestRaw, event.responseRaw)
         }
+    }
+
+    override fun onGenericEvent(event: Event) {
+        Counters.jdaEvents.labels(event.javaClass.simpleName).inc()
     }
 
 
