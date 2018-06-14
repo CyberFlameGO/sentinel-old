@@ -58,14 +58,4 @@ data class Role(
         val permissions: Long
 )
 
-data class ApplicationInfo(
-        val id: Long,
-        val botId: Long,
-        val requiresCodeGrant: Boolean,
-        val description: String,
-        val iconId: String,
-        val iconUrl: String,
-        val name: String,
-        val ownerId: Long,
-        val public: Boolean
-)
+

@@ -1,7 +1,10 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.SentinelExchanges
-import com.fredboat.sentinel.entities.*
+import com.fredboat.sentinel.entities.Guild
+import com.fredboat.sentinel.entities.GuildRequest
+import com.fredboat.sentinel.entities.GuildsRequest
+import com.fredboat.sentinel.entities.GuildsResponse
 import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
@@ -42,27 +45,6 @@ class EntityRequests(private val shardManager: ShardManager) {
         if (guild == null) log.error("Received GuildRequest but guild ${request.id} was not found")
 
         return guild
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    @RabbitHandler
-    fun getApplicationInfo(request: ApplicationInfoRequest): ApplicationInfo {
-        val info = shardManager.applicationInfo.complete()
-        lateinit var entity: ApplicationInfo
-        info.apply {
-            entity = ApplicationInfo(
-                    idLong,
-                    shardManager.applicationInfo.jda.selfUser.idLong,
-                    doesBotRequireCodeGrant(),
-                    description,
-                    iconId,
-                    iconUrl,
-                    name,
-                    owner.idLong,
-                    isBotPublic
-            )
-        }
-        return entity
     }
 
 }
