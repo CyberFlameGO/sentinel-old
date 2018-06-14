@@ -37,6 +37,9 @@ open class RabbitConfig {
     }
 
     @Bean
+    open fun eventExchange() = DirectExchange(SentinelExchanges.EVENTS)
+
+    @Bean
     open fun eventQueue() = Queue(SentinelExchanges.EVENTS, false)
 
     /* Request */

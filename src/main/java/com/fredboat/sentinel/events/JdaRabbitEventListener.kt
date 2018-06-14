@@ -1,6 +1,5 @@
 package com.fredboat.sentinel.events
 
-import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
 import com.fredboat.sentinel.metrics.Counters
@@ -45,6 +44,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter
 import net.dv8tion.jda.core.utils.PermissionUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.amqp.core.DirectExchange
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
@@ -53,7 +53,9 @@ import org.springframework.stereotype.Component
 class JdaRabbitEventListener(
         private val rabbitTemplate: RabbitTemplate,
         @param:Qualifier("guildSubscriptions")
-        private val subscriptions: MutableSet<Long>
+        private val subscriptions: MutableSet<Long>,
+        @param:Qualifier("eventExchange")
+        private val eventsExchange: DirectExchange
 ) : ListenerAdapter() {
 
     companion object {
@@ -291,7 +293,7 @@ class JdaRabbitEventListener(
     /* Util */
 
     private fun dispatch(event: Any) {
-        rabbitTemplate.convertAndSend(SentinelExchanges.EVENTS, event)
+        rabbitTemplate.convertAndSend(eventsExchange.name, "", event)
         log.info("Sent $event")
     }
 
