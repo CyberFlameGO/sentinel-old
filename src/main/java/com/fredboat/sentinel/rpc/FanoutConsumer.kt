@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = ["#{fanoutQueue}"]) // This refers to a bean
-class HelloHandler(
+@RabbitListener(queues = ["#{fanoutQueue.name}"]) // This refers to a bean
+class FanoutConsumer(
         private val template: RabbitTemplate,
         private val jdaProperties: JdaProperties,
         @param:Qualifier("sentinelId")
@@ -24,7 +24,7 @@ class HelloHandler(
 ) {
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(HelloHandler::class.java)
+        private val log: Logger = LoggerFactory.getLogger(FanoutConsumer::class.java)
     }
 
     init {

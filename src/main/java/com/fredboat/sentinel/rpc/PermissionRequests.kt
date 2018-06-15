@@ -1,23 +1,18 @@
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Channel
 import net.dv8tion.jda.core.utils.PermissionUtil
-import org.springframework.amqp.rabbit.annotation.RabbitHandler
-import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = [SentinelExchanges.REQUESTS])
 class PermissionRequests(private val shardManager: ShardManager) {
 
     /**
      * Returns true if the Role and/or Member has the given permissions in a Guild
      */
-    @RabbitHandler
-    fun checkGuildPermissions(request: GuildPermissionRequest): PermissionCheckResponse {
+    fun consume(request: GuildPermissionRequest): PermissionCheckResponse {
         val guild = shardManager.getGuildById(request.guild)
                 ?: throw RuntimeException("Got request for guild which isn't found")
 
@@ -35,8 +30,7 @@ class PermissionRequests(private val shardManager: ShardManager) {
     /**
      * Returns true if the Role and/or Member has the given permissions in a Channel
      */
-    @RabbitHandler
-    fun checkChannelPermissions(request: ChannelPermissionRequest): PermissionCheckResponse {
+    fun consume(request: ChannelPermissionRequest): PermissionCheckResponse {
         var channel: Channel? = shardManager.getTextChannelById(request.channel)
                 ?: shardManager.getVoiceChannelById(request.channel)
         channel = channel ?: shardManager.getCategoryById(request.channel)
@@ -60,8 +54,7 @@ class PermissionRequests(private val shardManager: ShardManager) {
         return PermissionCheckResponse(effective, getMissing(request.rawPermissions, effective), false)
     }
 
-    @RabbitHandler
-    fun checkGuildPermissionsBulk(request: BulkGuildPermissionRequest): BulkGuildPermissionResponse {
+    fun consume(request: BulkGuildPermissionRequest): BulkGuildPermissionResponse {
         val guild = shardManager.getGuildById(request.guild)
                 ?: throw RuntimeException("Got request for guild which isn't found")
 

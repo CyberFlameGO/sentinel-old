@@ -1,27 +1,22 @@
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toJda
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.TextChannel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.amqp.rabbit.annotation.RabbitHandler
-import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-@RabbitListener(queues = [SentinelExchanges.REQUESTS])
 class MessageRequests(private val shardManager: ShardManager) {
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(EntityRequests::class.java)
+        private val log: Logger = LoggerFactory.getLogger(MessageRequests::class.java)
     }
 
-    @RabbitHandler
-    fun sendMessage(request: SendMessageRequest): SendMessageResponse? {
+    fun consume(request: SendMessageRequest): SendMessageResponse? {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
         if (channel == null) {
@@ -38,8 +33,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         return SendMessageResponse(msg.idLong)
     }
 
-    @RabbitHandler
-    fun sendPrivateMessage(request: SendPrivateMessageRequest): SendMessageResponse? {
+    fun consume(request: SendPrivateMessageRequest): SendMessageResponse? {
         val user = shardManager.getUserById(request.recipient)
         val channel = user.openPrivateChannel().complete(true)
 
@@ -56,8 +50,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         return SendMessageResponse(msg.idLong)
     }
 
-    @RabbitHandler
-    fun editMessage(request: EditMessageRequest) {
+    fun consume(request: EditMessageRequest) {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
         if (channel == null) {
@@ -72,8 +65,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         }
     }
 
-    @RabbitHandler
-    fun deleteMessages(request: MessageDeleteRequest) {
+    fun consume(request: MessageDeleteRequest) {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
         if (channel == null) {
@@ -86,8 +78,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         channel.deleteMessagesByIds(list).queue()
     }
 
-    @RabbitHandler
-    fun sendTyping(request: SendTypingRequest) {
+    fun consume(request: SendTypingRequest) {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
         if (channel == null) {
