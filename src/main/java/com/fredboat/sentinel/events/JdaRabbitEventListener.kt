@@ -293,7 +293,7 @@ class JdaRabbitEventListener(
     /* Util */
 
     private fun dispatch(event: Any) {
-        rabbitTemplate.convertAndSend(eventsExchange.name, "", event)
+        rabbitTemplate.convertAndSend(eventsExchange.name, event)
         log.info("Sent $event")
     }
 

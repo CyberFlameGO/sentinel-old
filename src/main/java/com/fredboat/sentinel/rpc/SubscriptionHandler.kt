@@ -1,8 +1,10 @@
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.SentinelExchanges
+import com.fredboat.sentinel.entities.Guild
 import com.fredboat.sentinel.entities.GuildSubscribeRequest
 import com.fredboat.sentinel.entities.GuildUnsubscribeRequest
+import com.fredboat.sentinel.extension.toEntity
+import net.dv8tion.jda.bot.sharding.ShardManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -11,10 +13,11 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = [SentinelExchanges.REQUESTS]) // This refers to a bean
+@RabbitListener(queues = ["#{requestQueue.name}"]) // This refers to a bean
 class SubscriptionHandler(
         @param:Qualifier("guildSubscriptions")
-        private val subscriptions: MutableSet<Long>
+        private val subscriptions: MutableSet<Long>,
+        private val shardManager: ShardManager
 ) {
 
     companion object {
@@ -22,7 +25,7 @@ class SubscriptionHandler(
     }
 
     @RabbitHandler
-    fun subscribe(request: GuildSubscribeRequest) {
+    fun subscribe(request: GuildSubscribeRequest): Guild {
         val added = subscriptions.add(request.id)
         if (!added) {
             if (subscriptions.contains(request.id)) {
@@ -30,7 +33,11 @@ class SubscriptionHandler(
             } else {
                 log.error("Failed to subscribe to ${request.id}")
             }
+        } else {
+            log.info("Subscribing to ${request.id}")
         }
+
+        return shardManager.getGuildById(request.id).toEntity()
     }
 
     @RabbitHandler

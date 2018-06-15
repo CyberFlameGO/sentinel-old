@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration
 import java.net.InetAddress
 import java.util.*
 
+
+
 @Configuration
 open class RabbitConfig {
 
@@ -48,7 +50,7 @@ open class RabbitConfig {
     open fun requestExchange() = DirectExchange(SentinelExchanges.REQUESTS)
 
     @Bean
-    open fun requestQueue() = Queue(SentinelExchanges.REQUESTS, false)
+    open fun requestQueue() = AnonymousQueue()
 
     @Bean
     open fun requestBinding(

@@ -5,10 +5,11 @@ data class Shard(
         val id: Int,
         val total: Int,
         val status: ShardStatus
-){
-    @Suppress("unused")
-    val shardString: String get() = "[$id/$total]"
-}
+)
+
+// Causes problems if member
+@Suppress("unused")
+val Shard.shardString: String get() = "[$id/$total]"
 
 data class Guild(
         val id: Long,
