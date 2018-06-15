@@ -24,7 +24,7 @@ data class Guild(
 data class User(
         val id: Long,
         val name: String,
-        val discrim: Short,
+        val discrim: String,
         val bot: Boolean
 )
 
@@ -32,7 +32,7 @@ data class Member(
         val id: Long,
         val name: String,
         val nickname: String?,
-        val discrim: Short,
+        val discrim: String,
         val guildId: Long,
         val bot: Boolean,
         val roles: List<Long>,

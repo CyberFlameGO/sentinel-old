@@ -28,7 +28,7 @@ fun net.dv8tion.jda.core.entities.Guild.toEntity() = Guild(
 fun net.dv8tion.jda.core.entities.User.toEntity() = User(
         idLong,
         name,
-        discriminator.toShort(),
+        discriminator,
         isBot)
 
 fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
@@ -36,7 +36,7 @@ fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
             user.idLong,
             user.name,
             nickname,
-            user.discriminator.toShort(),
+            user.discriminator,
             guild.idLong,
             user.isBot,
             roles.map { it.idLong },
