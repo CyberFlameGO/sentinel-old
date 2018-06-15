@@ -4,15 +4,11 @@ package com.fredboat.sentinel.entities
 
 import java.awt.Color
 
-interface IMessage {
-    var content: String
-}
-
-data class Message(override var content: String) : IMessage
+data class Message(val content: String)
 
 // Embed builder originally by Frostbyte, but is heavily modified
 data class Embed(
-        override var content: String = "",
+        var content: String = "",
         var title: String? = null,
         var url: String? = null,
         var description: String? = null,
@@ -23,7 +19,7 @@ data class Embed(
         var image: String? = null,
         var author: Author? = null,
         var fields: MutableList<Field> = mutableListOf()
-) : IMessage
+)
 
 data class Field(
         var title: String = "",

@@ -20,20 +20,26 @@ data class GuildRequest(
 /** Returns [SendMessageResponse]*/
 data class SendMessageRequest(
         val channel: Long,
-        val message: IMessage
+        val message: Message
+)
+
+/** Returns [SendMessageResponse]*/
+data class SendEmbedRequest(
+        val channel: Long,
+        val embed: Embed
 )
 
 /** Returns [SendMessageResponse]*/
 data class SendPrivateMessageRequest(
         val recipient: Long,
-        val message: IMessage
+        val message: Message
 )
 
 /** Returns [Unit]*/
 data class EditMessageRequest(
         val channel: Long,
         val messageId: Long,
-        val message: IMessage
+        val message: Message
 )
 
 data class SendMessageResponse(

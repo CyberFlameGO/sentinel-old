@@ -24,11 +24,20 @@ class MessageRequests(private val shardManager: ShardManager) {
             return null
         }
 
-        val msg = when (request.message) {
-            is Message -> channel.sendMessage((request.message as Message).toJda()).complete()
-            is Embed -> channel.sendMessage((request.message as Embed).toJda()).complete()
-            else -> throw IllegalArgumentException("Unknown message type $request")
+        val msg = channel.sendMessage(request.message.toJda()).complete()
+
+        return SendMessageResponse(msg.idLong)
+    }
+
+    fun consume(request: SendEmbedRequest): SendMessageResponse? {
+        val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
+
+        if (channel == null) {
+            log.error("Received SendEmbedRequest for channel ${request.channel} which was not found")
+            return null
         }
+
+        val msg = channel.sendMessage(request.embed.toJda()).complete()
 
         return SendMessageResponse(msg.idLong)
     }
@@ -42,11 +51,7 @@ class MessageRequests(private val shardManager: ShardManager) {
             return null
         }
 
-        val msg = when (request.message) {
-            is Message -> channel.sendMessage((request.message as Message).toJda()).complete()
-            is Embed -> channel.sendMessage((request.message as Embed).toJda()).complete()
-            else -> throw IllegalArgumentException("Unknown message type $request")
-        }
+        val msg = channel.sendMessage(request.message.toJda()).complete()
         return SendMessageResponse(msg.idLong)
     }
 
@@ -58,11 +63,7 @@ class MessageRequests(private val shardManager: ShardManager) {
             return
         }
 
-        when (request.message) {
-            is Message -> channel.editMessageById(request.messageId, (request.message as Message).toJda()).queue()
-            is Embed -> channel.editMessageById(request.messageId, (request.message as Embed).toJda()).queue()
-            else -> throw IllegalArgumentException("Unknown message type $request")
-        }
+        channel.editMessageById(request.messageId, request.message.toJda()).queue()
     }
 
     fun consume(request: MessageDeleteRequest) {
