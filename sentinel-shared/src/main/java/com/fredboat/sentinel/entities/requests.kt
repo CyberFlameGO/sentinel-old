@@ -20,7 +20,7 @@ data class GuildRequest(
 /** Returns [SendMessageResponse]*/
 data class SendMessageRequest(
         val channel: Long,
-        val message: Message
+        val message: String
 )
 
 /** Returns [SendMessageResponse]*/
@@ -32,14 +32,14 @@ data class SendEmbedRequest(
 /** Returns [SendMessageResponse]*/
 data class SendPrivateMessageRequest(
         val recipient: Long,
-        val message: Message
+        val message: String
 )
 
 /** Returns [Unit]*/
 data class EditMessageRequest(
         val channel: Long,
         val messageId: Long,
-        val message: Message
+        val message: String
 )
 
 data class SendMessageResponse(
@@ -56,9 +56,6 @@ data class MessageDeleteRequest(
 data class SendTypingRequest(
         val channel: Long
 )
-
-/** Returns [ApplicationInfo]*/
-class ApplicationInfoRequest
 
 /** Returns [PermissionCheckResponse]*/
 data class GuildPermissionRequest(

@@ -4,8 +4,6 @@ package com.fredboat.sentinel.entities
 
 import java.awt.Color
 
-data class Message(val content: String)
-
 // Embed builder originally by Frostbyte, but is heavily modified
 data class Embed(
         var content: String = "",

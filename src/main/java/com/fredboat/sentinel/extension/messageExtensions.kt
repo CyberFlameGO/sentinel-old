@@ -1,17 +1,13 @@
 package com.fredboat.sentinel.extension
 
 import com.fredboat.sentinel.entities.Embed
-import com.fredboat.sentinel.entities.Message
 import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
 import java.time.Instant
 
 typealias JdaMessage = net.dv8tion.jda.core.entities.Message
 
-private val threadLocal: ThreadLocal<EmbedBuilder> = ThreadLocal.withInitial({ EmbedBuilder() })
-
-fun Message.toJda(): JdaMessage = MessageBuilder(content).build()
+private val threadLocal: ThreadLocal<EmbedBuilder> = ThreadLocal.withInitial { EmbedBuilder() }
 
 fun Embed.toJda(): MessageEmbed {
     val builder = threadLocal.get().clear()

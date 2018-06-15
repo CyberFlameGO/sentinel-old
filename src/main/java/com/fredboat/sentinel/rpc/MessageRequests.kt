@@ -24,7 +24,7 @@ class MessageRequests(private val shardManager: ShardManager) {
             return null
         }
 
-        val msg = channel.sendMessage(request.message.toJda()).complete()
+        val msg = channel.sendMessage(request.message).complete()
 
         return SendMessageResponse(msg.idLong)
     }
@@ -51,7 +51,7 @@ class MessageRequests(private val shardManager: ShardManager) {
             return null
         }
 
-        val msg = channel.sendMessage(request.message.toJda()).complete()
+        val msg = channel.sendMessage(request.message).complete()
         return SendMessageResponse(msg.idLong)
     }
 
@@ -63,7 +63,7 @@ class MessageRequests(private val shardManager: ShardManager) {
             return
         }
 
-        channel.editMessageById(request.messageId, request.message.toJda()).queue()
+        channel.editMessageById(request.messageId, request.message).queue()
     }
 
     fun consume(request: MessageDeleteRequest) {
