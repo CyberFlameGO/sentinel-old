@@ -3,14 +3,12 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.entities.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.OnlineStatus
-import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.stereotype.Service
 
 @Service
 class InfoRequests(private val shardManager: ShardManager) {
 
-    @RabbitHandler
-    fun consume(request: MemberInfoRequest) {
+    fun consume(request: MemberInfoRequest): MemberInfo {
         val member = shardManager.getGuildById(request.guildId).getMemberById(request.id)
         return member.run {
             MemberInfo(
@@ -23,8 +21,7 @@ class InfoRequests(private val shardManager: ShardManager) {
         }
     }
 
-    @RabbitHandler
-    fun consume(request: GuildInfoRequest) {
+    fun consume(request: GuildInfoRequest): GuildInfo {
         val guild = shardManager.getGuildById(request.id)
         return guild.run {
             GuildInfo(
@@ -36,8 +33,7 @@ class InfoRequests(private val shardManager: ShardManager) {
         }
     }
 
-    @RabbitHandler
-    fun consume(request: RoleInfoRequest) {
+    fun consume(request: RoleInfoRequest): RoleInfo {
         val role = shardManager.getRoleById(request.id)
         return role.run {
             RoleInfo(
