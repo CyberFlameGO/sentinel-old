@@ -13,7 +13,7 @@ fun Embed.toJda(): MessageEmbed {
     val builder = threadLocal.get().clear()
     builder.setTitle(title, url)
     color?.let { builder.setColor(it) }
-    builder.appendDescription(description)
+    builder.setDescription(description)
     builder.setTimestamp(timestamp?.let { Instant.ofEpochMilli(it) })
     builder.setFooter(footer?.text, footer?.iconUrl)
     builder.setThumbnail(thumbnail)
