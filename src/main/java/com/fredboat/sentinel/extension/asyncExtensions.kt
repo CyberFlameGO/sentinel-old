@@ -1,8 +1,8 @@
 package com.fredboat.sentinel.extension
 
 import com.fredboat.sentinel.metrics.Counters
+import net.dv8tion.jda.core.exceptions.ErrorResponseException
 import net.dv8tion.jda.core.requests.RestAction
-import java.util.concurrent.CompletableFuture
 
 /*
 fun <T> RestAction<T>.toMono(name: String) = Mono.create<T> { sink ->
@@ -16,9 +16,11 @@ fun <T> RestAction<T>.toMono(name: String) = Mono.create<T> { sink ->
 
 fun <T> RestAction<T>.queue(name: String) = toFuture(name)
 
-fun <T> RestAction<T>.toFuture(name: String): CompletableFuture<T> {
-    return submit().whenComplete { _, t ->
-        val counter = if (t == null) Counters.successfulRestActions else Counters.failedRestActions
-        counter.labels(name).inc()
-    }.toCompletableFuture()
-}
+fun <T> RestAction<T>.toFuture(name: String) = submit().whenComplete { _, t ->
+    if (t == null) {
+        Counters.successfulRestActions.labels(name).inc()
+        return@whenComplete
+    }
+    val errCode = (t as? ErrorResponseException)?.errorCode?.toString() ?: "none"
+    Counters.failedRestActions.labels(name, errCode)
+}.toCompletableFuture()!!

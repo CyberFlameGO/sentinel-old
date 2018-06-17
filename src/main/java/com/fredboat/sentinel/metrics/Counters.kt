@@ -20,18 +20,16 @@ object Counters {
             .labelNames("class") //GuildJoinedEvent, MessageReceivedEvent, ReconnectEvent etc
             .register()!!
 
-    // TODO
     val successfulRestActions = Counter.build()
             .name("jda_restactions_successful_total")
             .help("Total successful JDA restactions sent by FredBoat")
             .labelNames("restaction") // sendMessage, deleteMessage, sendTyping etc
             .register()!!
 
-    // TODO
     val failedRestActions = Counter.build()
             .name("jda_restactions_failed_total")
             .help("Total failed JDA restactions sent by FredBoat")
-            .labelNames("error_response_code") //Use the error response codes like: 50013, 10008 etc
+            .labelNames("restaction", "error_response_code") //Use the error response codes like: 50013, 10008 etc
             .register()!!
 
 }
