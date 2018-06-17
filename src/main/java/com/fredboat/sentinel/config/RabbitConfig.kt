@@ -3,10 +3,12 @@ package com.fredboat.sentinel.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.fredboat.sentinel.SentinelExchanges
+import com.fredboat.sentinel.metrics.Counters
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.core.*
 import org.springframework.amqp.core.Queue
+import org.springframework.amqp.rabbit.listener.RabbitListenerErrorHandler
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.beans.factory.annotation.Qualifier
@@ -82,6 +84,14 @@ open class RabbitConfig {
             @Qualifier("fanoutExchange") fanout: FanoutExchange
     ): Binding {
         return BindingBuilder.bind(fanoutQueue).to(fanout)
+    }
+
+    @Bean
+    open fun rabbitListenerErrorHandler() = RabbitListenerErrorHandler { _, msg, exception ->
+        val name = msg.payload?.javaClass?.simpleName ?: "unknown"
+        Counters.failedRequests.labels().inc()
+        log.error("Failed to consume $name", exception)
+        null
     }
 
 }

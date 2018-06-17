@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = ["#{fanoutQueue.name}"]) // This refers to a bean
+@RabbitListener(queues = ["#{fanoutQueue.name}"], errorHandler = "#{rabbitListenerErrorHandler}") // This refers to a bean
 class FanoutConsumer(
         private val template: RabbitTemplate,
         private val jdaProperties: JdaProperties,

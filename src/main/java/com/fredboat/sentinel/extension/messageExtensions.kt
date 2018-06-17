@@ -5,8 +5,6 @@ import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
 import java.time.Instant
 
-typealias JdaMessage = net.dv8tion.jda.core.entities.Message
-
 private val threadLocal: ThreadLocal<EmbedBuilder> = ThreadLocal.withInitial { EmbedBuilder() }
 
 fun Embed.toJda(): MessageEmbed {

@@ -237,8 +237,6 @@ class JdaRabbitEventListener(
             updateChannelPermissions(event.guild)
         }
 
-
-
         dispatch(VoiceChannelUpdate(
                 event.guild.idLong,
                 event.channel.toEntity()
