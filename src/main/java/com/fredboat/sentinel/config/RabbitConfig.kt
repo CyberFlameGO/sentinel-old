@@ -8,6 +8,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.core.*
 import org.springframework.amqp.core.Queue
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.rabbit.listener.RabbitListenerErrorHandler
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
@@ -39,6 +41,9 @@ open class RabbitConfig {
         // We must register this Kotlin module to get deserialization to work with data classes
         return Jackson2JsonMessageConverter(ObjectMapper().registerKotlinModule())
     }
+
+    @Bean
+    open fun asyncTemplate(underlying: RabbitTemplate) = AsyncRabbitTemplate(underlying)
 
     @Bean
     open fun eventExchange() = DirectExchange(SentinelExchanges.EVENTS)

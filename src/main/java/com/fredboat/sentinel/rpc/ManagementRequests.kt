@@ -3,15 +3,17 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
 import com.fredboat.sentinel.extension.toEntityExtended
+import com.fredboat.sentinel.extension.toFuture
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
 import org.springframework.stereotype.Service
 import java.util.*
+import java.util.concurrent.Future
 
 @Service
 class ManagementRequests(private val shardManager: ShardManager) {
 
-    fun consume(modRequest: ModRequest) = modRequest.apply {
+    fun consume(modRequest: ModRequest): Future<Void> = modRequest.run {
         val guild = shardManager.getGuildById(guildId)
                 ?: throw RuntimeException("Guild $guildId not found")
         val control = guild.controller
@@ -21,21 +23,20 @@ class ManagementRequests(private val shardManager: ShardManager) {
             BAN -> control.ban(userId.toString(), banDeleteDays, reason)
             UNBAN -> control.unban(userId.toString())
         }
-
-        action.complete()
+        return action.toFuture(type.name.toLowerCase())
     }
 
-    fun consume(request: SetAvatarRequest) {
+    fun consume(request: SetAvatarRequest): Future<Void> {
         val decoded = Base64.getDecoder().decode(request.base64)
-        shardManager.shards[0].selfUser.manager.setAvatar(Icon.from(decoded)).complete()
+        return shardManager.shards[0].selfUser.manager.setAvatar(Icon.from(decoded)).toFuture("setAvatar")
     }
 
     fun consume(request: ReviveShardRequest) = shardManager.restart(request.shardId)
 
-    fun consume(request: LeaveGuildRequest) {
+    fun consume(request: LeaveGuildRequest): Future<Void> {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
-        guild.leave().complete()
+        return guild.leave().toFuture("leaveGuild")
     }
 
     fun consume(request: GetPingRequest): GetPingReponse {
