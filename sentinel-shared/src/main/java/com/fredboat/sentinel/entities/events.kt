@@ -30,7 +30,7 @@ data class GuildLeaveEvent(
         val joinTime: Instant
 )
 
-/* Guild member events  */
+/* Guild member jda  */
 data class GuildMemberJoinEvent(
         val guild: Long,
         val member: Member
@@ -41,7 +41,7 @@ data class GuildMemberLeaveEvent(
         val member: Long
 )
 
-/* Voice events */
+/* Voice jda */
 data class VoiceJoinEvent(
         val guild: Long,
         val channel: Long,

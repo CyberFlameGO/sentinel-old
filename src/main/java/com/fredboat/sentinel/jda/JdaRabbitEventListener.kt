@@ -1,4 +1,4 @@
-package com.fredboat.sentinel.events
+package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.extension.toEntity
@@ -89,7 +89,7 @@ class JdaRabbitEventListener(
     override fun onShutdown(event: ShutdownEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.SHUTDOWN))
 
-    /* Guild events */
+    /* Guild jda */
     override fun onGuildJoin(event: GuildJoinEvent) =
             dispatch(com.fredboat.sentinel.entities.GuildJoinEvent(event.guild.idLong))
 
@@ -99,7 +99,7 @@ class JdaRabbitEventListener(
                     event.guild.selfMember.joinDate.toInstant()
             ))
 
-    /* Member events */
+    /* Member jda */
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         if (!subscriptions.contains(event.guild.idLong)) return
@@ -130,7 +130,7 @@ class JdaRabbitEventListener(
         ))
     }
 
-    /* Voice events */
+    /* Voice jda */
     override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(VoiceJoinEvent(
@@ -159,7 +159,7 @@ class JdaRabbitEventListener(
         ))
     }
 
-    /* Message events */
+    /* Message jda */
     override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) = event.run {
         if (message.type != MessageType.DEFAULT) return
 

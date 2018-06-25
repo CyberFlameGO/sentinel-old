@@ -16,7 +16,7 @@ object Counters {
 
     val jdaEvents = Counter.build()
             .name("jda_events_received_total")
-            .help("All events that JDA provides us with by class")
+            .help("All jda that JDA provides us with by class")
             .labelNames("class") //GuildJoinedEvent, MessageReceivedEvent, ReconnectEvent etc
             .register()!!
 

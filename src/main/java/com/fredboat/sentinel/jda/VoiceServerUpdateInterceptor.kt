@@ -1,4 +1,4 @@
-package com.fredboat.sentinel.events
+package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.VoiceServerUpdate

@@ -1,4 +1,4 @@
-package com.fredboat.sentinel.events
+package com.fredboat.sentinel.jda
 
 import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.handle.VoiceStateUpdateHandler
@@ -24,7 +24,7 @@ class VoiceStateUpdateInterceptor(jda: JDAImpl) : VoiceStateUpdateHandler(jda) {
 
         val channel = if (channelId != null) guild.getVoiceChannelById(channelId) else null
 
-        /* These should be handled by JDA events on FredBoat
+        /* These should be handled by JDA jda on FredBoat
         if (channelId == null) {
             // Null channel means disconnected
             if (link.getState() !== Link.State.DESTROYED) {

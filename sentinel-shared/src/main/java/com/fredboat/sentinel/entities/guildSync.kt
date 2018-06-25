@@ -1,6 +1,6 @@
 package com.fredboat.sentinel.entities
 
-/** Returns [Guild] as well as events */
+/** Returns [Guild] as well as jda */
 data class GuildSubscribeRequest(val id: Long)
 
 /** Sent when the [Guild] gets uncached */
