@@ -3,6 +3,7 @@ package com.fredboat.sentinel.config
 import com.fredboat.sentinel.jda.JdaRabbitEventListener
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
+import net.dv8tion.jda.core.utils.SessionController
 import net.dv8tion.jda.core.utils.SessionControllerAdapter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -11,7 +12,7 @@ import javax.security.auth.login.LoginException
 import kotlin.collections.HashSet
 
 @Configuration
-open class ShardManagerConfig {
+class ShardManagerConfig {
 
     /*configProvider: ConfigPropertiesProvider, mainEventListener: EventListenerBoat,
                           audioConnectionFacade: AudioConnectionFacade, sessionController: SessionController,
@@ -20,8 +21,9 @@ open class ShardManagerConfig {
                           shutdownHandler: ShutdownHandler*/
 
     @Bean
-    open fun buildShardManager(jdaProperties: JdaProperties,
-                               rabbitEventListener: JdaRabbitEventListener
+    fun buildShardManager(jdaProperties: JdaProperties,
+                          rabbitEventListener: JdaRabbitEventListener,
+                          sessionController: SessionController
     ): ShardManager {
 
         val builder = DefaultShardManagerBuilder()
@@ -34,6 +36,7 @@ open class ShardManagerConfig {
                 .setSessionController(SessionControllerAdapter())
                 .setShardsTotal(jdaProperties.shardCount)
                 .setShards(jdaProperties.shardStart, jdaProperties.shardEnd)
+                .setSessionController(sessionController)
                 //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder()
                 //        .eventListener(OkHttpEventMetrics("jda", Metrics.httpEventCounter)))
                 .addEventListeners(rabbitEventListener)
@@ -54,6 +57,6 @@ open class ShardManagerConfig {
     }
 
     @Bean
-    open fun guildSubscriptions(): MutableSet<Long> = Collections.synchronizedSet(HashSet<Long>())
+    fun guildSubscriptions(): MutableSet<Long> = Collections.synchronizedSet(HashSet<Long>())
 
 }
