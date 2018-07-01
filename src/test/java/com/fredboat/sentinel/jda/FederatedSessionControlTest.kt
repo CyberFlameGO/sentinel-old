@@ -55,7 +55,7 @@ class FederatedSessionControlTest {
                         false, false, false
                 )
         ) { nodesStarted ->
-            // We should expect these session controllers to be finished after around 8*5+3 seconds (plus a bit a grace)
+            // We should expect these session controllers to be finished after around 5*5+3 seconds (plus a bit a grace)
             Thread.sleep(5 * delay + 5000)
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
