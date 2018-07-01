@@ -62,13 +62,13 @@ class RabbitQueuesConfig {
     /** This queue auto-deletes */
     @Bean
     fun sessionsQueue(): Queue {
-        return AnonymousQueue()
+        return Queue("asdasdasd", false, false, true)
     }
 
     /** The fanout where we will receive broadcast messages from FredBoat */
     @Bean
     fun sessionsExchange(@Qualifier("sessionsQueue") sessionsQueue: Queue): FanoutExchange {
-        return FanoutExchange(SentinelExchanges.FANOUT, false, false)
+        return FanoutExchange(SentinelExchanges.SESSIONS, false, false)
     }
 
     /** Receive messages from [sessionsFanout] to [sessionsQueue] */

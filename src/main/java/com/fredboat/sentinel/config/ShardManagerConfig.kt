@@ -1,10 +1,13 @@
 package com.fredboat.sentinel.config
 
+import com.fredboat.sentinel.ApplicationState
 import com.fredboat.sentinel.jda.JdaRabbitEventListener
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.utils.SessionController
 import net.dv8tion.jda.core.utils.SessionControllerAdapter
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.*
@@ -14,12 +17,9 @@ import kotlin.collections.HashSet
 @Configuration
 class ShardManagerConfig {
 
-    /*configProvider: ConfigPropertiesProvider, mainEventListener: EventListenerBoat,
-                          audioConnectionFacade: AudioConnectionFacade, sessionController: SessionController,
-                          eventLogger: EventLogger, jdaEventsMetricsListener: JdaEventsMetricsListener,
-                          shardReviveHandler: ShardReviveHandler, musicPersistenceHandler: MusicPersistenceHandler,
-                          shutdownHandler: ShutdownHandler*/
-
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(ShardManagerConfig::class.java)
+    }
     @Bean
     fun buildShardManager(jdaProperties: JdaProperties,
                           rabbitEventListener: JdaRabbitEventListener,
@@ -49,6 +49,16 @@ class ShardManagerConfig {
         val shardManager: ShardManager
         try {
             shardManager = builder.build()
+            if (ApplicationState.isTesting) {
+                log.info("Shutting down JDA because we are running tests")
+                try {
+                    shardManager.shutdown()
+                } catch (npe: NullPointerException) {
+                    // Race condition
+                    Thread.sleep(500)
+                    shardManager.shutdown()
+                }
+            }
         } catch (e: LoginException) {
             throw RuntimeException("Failed to log in to Discord! Is your token invalid?", e)
         }

@@ -22,6 +22,7 @@ sourceCompatibility = 9
 repositories {
     mavenCentral()
     jcenter()
+    maven { url 'https://dl.bintray.com/palantir/releases' }
 }
 
 ext {
@@ -32,6 +33,12 @@ ext {
     jacksonKotlinVersion = "2.9.+"
     logbackVersion = "1.2.3"
     prometheusClientVersion = "0.3.0"
+
+    //testing deps
+    junitVersion                = '5.1.0'
+    apiGuardianVersion          = '1.0.0'
+    dockerComposeRuleVersion    = '0.33.0'
+    mockitoVersion              = '2.+'
 }
 
 dependencies {
@@ -49,7 +56,16 @@ dependencies {
     compile group: 'io.prometheus', name: 'simpleclient_logback', version: prometheusClientVersion
     compile group: 'io.prometheus', name: 'simpleclient_guava', version: prometheusClientVersion
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    //tests
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
+    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
+    // To avoid compiler warnings about @API annotations in JUnit code.
+    testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: apiGuardianVersion
+    //required for the docker compose rule https://github.com/palantir/docker-compose-rule/issues/224
+    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: junitVersion
+    //allows us to fire up docker containers to test with, for example our postgres database
+    testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: dockerComposeRuleVersion
+    testCompile group: 'org.mockito', name: 'mockito-core', version: mockitoVersion
 }
 
 compileKotlin {
