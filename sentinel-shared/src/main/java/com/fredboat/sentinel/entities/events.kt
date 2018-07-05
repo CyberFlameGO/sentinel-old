@@ -1,53 +1,85 @@
 package com.fredboat.sentinel.entities
 
+import java.time.Instant
+
 /* Shard lifecycle */
 data class ShardStatusChange(
         val shard: Shard
 )
 
-/* Guild events */
+data class ShardLifecycleEvent(
+        val shard: Shard,
+        val change: LifecycleEventEnum
+)
+
+enum class LifecycleEventEnum {
+    READIED,
+    DISCONNECTED,
+    RESUMED,
+    RECONNECTED,
+    SHUTDOWN
+}
+
+/* Guild leave/join */
 data class GuildJoinEvent(
-        val guildId: String
+        val guild: Long
 )
 
 data class GuildLeaveEvent(
-        val guildId: String
+        val guild: Long,
+        val joinTime: Instant
 )
 
-data class GuildInvalidation(
-        val id: String
-)
-
-/* Voice events */
-data class VoiceJoinEvent(
-        val guildId: String,
-        val chanel: VoiceChannel,
+/* Guild member jda  */
+data class GuildMemberJoinEvent(
+        val guild: Long,
         val member: Member
+)
+
+data class GuildMemberLeaveEvent(
+        val guild: Long,
+        val member: Long
+)
+
+/* Voice jda */
+data class VoiceJoinEvent(
+        val guild: Long,
+        val channel: Long,
+        val member: Long
 )
 
 data class VoiceLeaveEvent(
-        val guildId: String,
-        val chanel: VoiceChannel,
-        val member: Member
+        val guild: Long,
+        val channel: Long,
+        val member: Long
 )
 
 data class VoiceMoveEvent(
-        val guildId: String,
-        val oldChanel: VoiceChannel,
-        val newChanel: VoiceChannel,
-        val member: Member
+        val guild: Long,
+        val oldChannel: Long,
+        val newChannel: Long,
+        val member: Long
 )
 
 /* Messages */
 data class MessageReceivedEvent(
-        val id: String,
-        val guildId: String,
-        val channel: TextChannel,
+        val id: Long,
+        val guild: Long,
+        val channel: Long,
+        val channelPermissions: Long,
         val content: String,
-        val author: Member
+        val author: Long,
+        val fromBot: Boolean,
+        val attachments: List<String>
 )
 
 data class PrivateMessageReceivedEvent(
         val content: String,
         val author: User
+)
+
+data class MessageDeleteEvent(
+        val id: Long,
+        val guild: Long,
+        val channel: Long
 )

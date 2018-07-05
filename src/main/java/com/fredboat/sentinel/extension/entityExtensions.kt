@@ -10,59 +10,53 @@ fun net.dv8tion.jda.core.JDA.toEntity() = Shard(
         status.toEntity()
 )
 
-fun net.dv8tion.jda.core.entities.Guild.toEntity(): Guild {
-    val membersMutable = mutableMapOf<String, Member>()
-    val textMutable = mutableListOf<TextChannel>()
-    val voiceMutable = mutableListOf<VoiceChannel>()
-    val rolesMutable = mutableListOf<Role>()
+fun net.dv8tion.jda.core.JDA.toEntityExtended() = ExtendedShardInfo(
+        toEntity(),
+        guildCache.size().toInt(),
+        userCache.size().toInt()
+)
 
-    members.forEach { membersMutable[it.user.id] = it.toEntity() }
-    textChannels.forEach { textMutable.add(it.toEntity()) }
-    voiceChannels.forEach { voiceMutable.add(it.toEntity()) }
-    roles.forEach { rolesMutable.add(it.toEntity()) }
-
-    return Guild(
-            id,
-            name,
-            owner?.toEntity(),
-            membersMutable,
-            textMutable,
-            voiceMutable,
-            rolesMutable)
-}
+fun net.dv8tion.jda.core.entities.Guild.toEntity() = Guild(
+        idLong,
+        name,
+        owner?.user?.idLong,
+        members.map { it.toEntity() },
+        textChannels.map { it.toEntity() },
+        voiceChannels.map { it.toEntity() },
+        roles.map { it.toEntity() })
 
 fun net.dv8tion.jda.core.entities.User.toEntity() = User(
-        id,
+        idLong,
         name,
-        discriminator.toShort(),
+        discriminator,
         isBot)
 
 fun net.dv8tion.jda.core.entities.Member.toEntity(): Member {
-    val rolesMutable = mutableListOf<Role>()
-    roles.forEach { rolesMutable.add(it.toEntity()) }
-
     return Member(
-            user.id,
-            effectiveName,
-            user.discriminator.toShort(),
-            guild.id,
+            user.idLong,
+            user.name,
+            nickname,
+            user.discriminator,
+            guild.idLong,
             user.isBot,
-            rolesMutable,
-            voiceState?.channel?.toEntity())
+            roles.map { it.idLong },
+            voiceState?.channel?.idLong)
 }
 
 fun net.dv8tion.jda.core.entities.VoiceChannel.toEntity() = VoiceChannel(
-        id,
+        idLong,
         name,
+        members.map { it.user.idLong },
+        userLimit,
         PermissionUtil.getExplicitPermission(this, guild.selfMember))
 
 fun net.dv8tion.jda.core.entities.TextChannel.toEntity() = TextChannel(
-        id,
+        idLong,
         name,
         PermissionUtil.getExplicitPermission(this, guild.selfMember))
 
 fun net.dv8tion.jda.core.entities.Role.toEntity() = Role(
-        id,
+        idLong,
         name,
         permissionsRaw
 )

@@ -5,7 +5,7 @@ sentinel:
 
   # The range of shards to start from shardStart (inclusively) to shardEndExcl (exclusively)
   shardStart: 0
-  shardEndExcl: 1
+  shardEnd: 0
 
   shardCount: 1 # The total number of shards of your entire bot
 

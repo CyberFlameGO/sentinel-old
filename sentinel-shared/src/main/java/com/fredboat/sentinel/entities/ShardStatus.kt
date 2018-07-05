@@ -20,7 +20,7 @@ enum class ShardStatus {
     /**JDA is populating internal objects.
      * This process often takes the longest of all Statuses (besides CONNECTED) */
     LOADING_SUBSYSTEMS,
-    /**JDA has finished loading everything, is receiving information from Discord and is firing events. */
+    /**JDA has finished loading everything, is receiving information from Discord and is firing jda. */
     CONNECTED,
     /**JDA's main websocket has been disconnected. This **DOES NOT** mean JDA has shutdown permanently.
      * This is an in-between status. Most likely ATTEMPTING_TO_RECONNECT or SHUTTING_DOWN/SHUTDOWN will soon follow. */

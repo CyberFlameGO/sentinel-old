@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlin_version = '1.2.41'
+        kotlin_version = '1.2.50'
         bootVersion = '2.0.1.RELEASE'
     }
 
@@ -11,6 +11,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootVersion"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
     }
 }
 
@@ -20,6 +21,7 @@ version '0.1'
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'kotlin'
+apply plugin: "kotlin-spring"
 
 sourceCompatibility = 10
 targetCompatibility = 10
@@ -35,6 +37,7 @@ tasks.withType(JavaCompile) {
 repositories {
     mavenCentral()
     jcenter()
+    maven { url 'https://dl.bintray.com/palantir/releases' }
 }
 
 ext {
@@ -43,6 +46,13 @@ ext {
     gsonVersion = '2.8.2'
     jacksonKotlinVersion = "2.9.+"
     logbackVersion = "1.2.3"
+    prometheusClientVersion = "0.3.0"
+
+    //testing deps
+    junitVersion                = '5.1.0'
+    apiGuardianVersion          = '1.0.0'
+    dockerComposeRuleVersion    = '0.33.0'
+    mockitoVersion              = '2.+'
 }
 
 dependencies {
@@ -54,7 +64,22 @@ dependencies {
     compile "com.google.code.gson:gson:$gsonVersion"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile group: 'io.prometheus', name: 'simpleclient', version: prometheusClientVersion
+    compile group: 'io.prometheus', name: 'simpleclient_hotspot', version: prometheusClientVersion
+    compile group: 'io.prometheus', name: 'simpleclient_logback', version: prometheusClientVersion
+    compile group: 'io.prometheus', name: 'simpleclient_guava', version: prometheusClientVersion
+
+    //tests
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
+    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
+    // To avoid compiler warnings about @API annotations in JUnit code.
+    testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: apiGuardianVersion
+    //required for the docker compose rule https://github.com/palantir/docker-compose-rule/issues/224
+    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: junitVersion
+    //allows us to fire up docker containers to test with, for example our postgres database
+    testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: dockerComposeRuleVersion
+    testCompile group: 'org.mockito', name: 'mockito-core', version: mockitoVersion
 }
 
 bootRun {
@@ -99,3 +124,9 @@ void versionTxt() {
 }
 
 versionTxt()
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
