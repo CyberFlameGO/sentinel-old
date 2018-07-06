@@ -45,7 +45,7 @@ class RabbitConfig {
     fun rabbitListenerErrorHandler() = RabbitListenerErrorHandler { _, msg, exception ->
         val name = msg.payload?.javaClass?.simpleName ?: "unknown"
         Counters.failedRequests.labels().inc()
-        throw exception
+        throw RuntimeException("Failed to consume $name", exception)
     }
 
     /* Don't retry ad infinitum */
