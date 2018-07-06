@@ -12,6 +12,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.retry.interceptor.RetryInterceptorBuilder
 import java.net.InetAddress
 import java.util.*
 
@@ -44,8 +45,14 @@ class RabbitConfig {
     fun rabbitListenerErrorHandler() = RabbitListenerErrorHandler { _, msg, exception ->
         val name = msg.payload?.javaClass?.simpleName ?: "unknown"
         Counters.failedRequests.labels().inc()
-        log.error("Failed to consume $name", exception)
-        null
+        throw exception
     }
+
+    /* Don't retry ad infinitum */
+    @Bean
+    fun retryOperationsInterceptor() = RetryInterceptorBuilder
+            .stateful()
+            .maxAttempts(3)
+            .build()!!
 
 }
