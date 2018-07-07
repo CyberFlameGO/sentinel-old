@@ -22,6 +22,7 @@ apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'kotlin'
 apply plugin: "kotlin-spring"
+apply plugin: "maven"
 
 sourceCompatibility = 10
 targetCompatibility = 10
