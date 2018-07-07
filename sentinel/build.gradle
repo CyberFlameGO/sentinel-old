@@ -66,6 +66,9 @@ bootJar {
     }
 }
 
+// Makes sure JitPack packages the jar
+install.dependsOn bootJar
+
 test {
     useJUnitPlatform()
     testLogging {
