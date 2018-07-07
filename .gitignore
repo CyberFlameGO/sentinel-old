@@ -6,3 +6,4 @@ sentinel.yaml
 application.yaml
 VERSION.txt
 *.jar
+/logs/
