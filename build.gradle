@@ -22,7 +22,7 @@ apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'kotlin'
 apply plugin: "kotlin-spring"
-apply plugin: "maven"
+apply plugin: "maven-publish"
 
 sourceCompatibility = 10
 targetCompatibility = 10
@@ -103,12 +103,6 @@ bootJar {
             from 'build/libs/sentinel.jar'
             into '.'
         }
-
-        copy {
-            from 'build/libs/sentinel.jar'
-            into 'build/libs/'
-            rename {"sentinel-${rootProject.version}.jar"}
-        }
     }
 }
 
@@ -135,5 +129,15 @@ test {
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
+    }
+}
+
+publishToMavenLocal.dependsOn jar
+// called by jitpack
+task install {
+    dependsOn build
+    dependsOn publishToMavenLocal
+    doLast {
+        println 'Version: ' + version
     }
 }
