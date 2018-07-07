@@ -21,7 +21,14 @@ class SubscriptionHandler(
         private val log: Logger = LoggerFactory.getLogger(SubscriptionHandler::class.java)
     }
 
-    fun consume(request: GuildSubscribeRequest): Guild {
+    fun consume(request: GuildSubscribeRequest): Guild? {
+        val guild = shardManager.getGuildById(request.id)
+
+        if (guild == null) {
+            log.warn("Attempt to subscribe to unknown guild ${request.id}")
+            return null
+        }
+
         val added = subscriptions.add(request.id)
         if (!added) {
             if (subscriptions.contains(request.id)) {
@@ -29,11 +36,11 @@ class SubscriptionHandler(
             } else {
                 log.error("Failed to subscribe to ${request.id}")
             }
-        } else {
-            log.info("Subscribing to ${request.id}")
         }
 
-        return shardManager.getGuildById(request.id).toEntity()
+        val entity = guild.toEntity()
+        log.info("Subscribed to ${request.id}")
+        return entity
     }
 
     fun consume(request: GuildUnsubscribeRequest) {
