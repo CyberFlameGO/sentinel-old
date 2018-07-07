@@ -85,11 +85,12 @@ data class PermissionCheckResponse(
         val effective: Long,
         val missing: Long,
         val missingEntityFault: Boolean
-) {
-    @Suppress("unused")
-    val passed: Boolean
-        get() = !missingEntityFault && missing == 0L
-}
+)
+
+/* Extension because of serialization problems */
+@Suppress("unused")
+val PermissionCheckResponse.passed: Boolean
+    get() = !missingEntityFault && missing == 0L
 
 /** Returns [BulkGuildPermissionRequest]*/
 data class BulkGuildPermissionRequest(
