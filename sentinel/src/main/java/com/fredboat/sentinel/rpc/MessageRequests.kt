@@ -78,7 +78,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         }
 
         if (request.messages.size == 1) {
-            channel.deleteWebhookById(request.messages[0].toString()).queue("deleteMessage")
+            channel.deleteMessageById(request.messages[0].toString()).queue("deleteMessage")
         }
 
         val list = LinkedList<String>()
