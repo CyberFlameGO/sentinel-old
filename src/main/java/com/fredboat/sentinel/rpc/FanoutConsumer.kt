@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = ["#{fanoutQueue.name}"], errorHandler = "#{rabbitListenerErrorHandler}") // This refers to a bean
+@RabbitListener(queues = ["#{fanoutQueue.name}"], errorHandler = "#{rabbitListenerErrorHandler}")
 class FanoutConsumer(
         private val template: RabbitTemplate,
         private val jdaProperties: JdaProperties,
@@ -33,7 +33,7 @@ class FanoutConsumer(
 
     @RabbitHandler
     fun onHello(request: FredBoatHello) {
-        log.info("FredBoat says hello \uD83D\uDC4B\nClearing subscriptions")
+        log.info("FredBoat says hello \uD83D\uDC4B - Clearing subscriptions")
         subscriptions.clear()
 
         sendHello()

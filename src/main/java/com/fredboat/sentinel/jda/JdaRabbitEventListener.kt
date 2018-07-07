@@ -127,7 +127,7 @@ class JdaRabbitEventListener(
         dispatch(GuildMemberUpdate(
                 member.guild.idLong,
                 member.toEntity()
-        ))
+        ), print = false)
     }
 
     /* Voice jda */
@@ -172,7 +172,7 @@ class JdaRabbitEventListener(
                 author.idLong,
                 author.isBot,
                 message.attachments.map { if (it.isImage) it.proxyUrl else it.url }
-        ))
+        ), print = false)
     }
 
     override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
@@ -290,9 +290,9 @@ class JdaRabbitEventListener(
 
     /* Util */
 
-    private fun dispatch(event: Any) {
+    private fun dispatch(event: Any, print: Boolean = false) {
         rabbitTemplate.convertAndSend(eventsExchange.name, event)
-        log.info("Sent $event")
+        if(print) log.info("Sent $event")
     }
 
     override fun onHttpRequest(event: HttpRequestEvent) {
