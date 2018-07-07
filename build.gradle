@@ -104,10 +104,10 @@ bootJar {
             into '.'
         }
 
-        // Copies so jitpack can find the jar
         copy {
             from 'build/libs/sentinel.jar'
-            into "build/libs/sentinel-${rootProject.version}.jar"
+            into 'build/libs/'
+            rename {"sentinel-${rootProject.version}.jar"}
         }
     }
 }
