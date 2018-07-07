@@ -104,6 +104,13 @@ bootJar {
             from 'build/libs/sentinel.jar'
             into '.'
         }
+
+        // For publishing
+        copy {
+            from 'build/libs/sentinel.jar'
+            into 'build/libs'
+            rename {"sentinel-${rootProject.version}.jar"}
+        }
     }
 }
 
