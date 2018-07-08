@@ -4,6 +4,8 @@ import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.config.JdaProperties
 import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
+import net.dv8tion.jda.bot.sharding.ShardManager
+import net.dv8tion.jda.core.entities.Game
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -20,7 +22,8 @@ class FanoutConsumer(
         @param:Qualifier("sentinelId")
         private val key: String,
         @param:Qualifier("guildSubscriptions")
-        private val subscriptions: MutableSet<Long>
+        private val subscriptions: MutableSet<Long>,
+        private val shardManager: ShardManager
 ) {
 
     companion object {
@@ -33,10 +36,17 @@ class FanoutConsumer(
 
     @RabbitHandler
     fun onHello(request: FredBoatHello) {
-        log.info("FredBoat says hello \uD83D\uDC4B - Clearing subscriptions")
-        subscriptions.clear()
+        if (request.startup) {
+            log.info("FredBoat says hello \uD83D\uDC4B - Clearing subscriptions")
+            subscriptions.clear()
+        } else {
+            log.info("FredBoat says hello \uD83D\uDC4B")
+        }
 
         sendHello()
+        val game = if (request.game.isBlank()) null else Game.playing(request.game)
+        // Null means reset
+        shardManager.setGame(game)
     }
 
     private fun sendHello() {
