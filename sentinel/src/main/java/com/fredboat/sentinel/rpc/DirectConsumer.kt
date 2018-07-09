@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = ["#{requestQueue.name}"], errorHandler = "#{rabbitListenerErrorHandler}")
+@RabbitListener(queues = ["#{requestQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
 class DirectConsumer(
         private val audio: AudioRequests,
         private val info: InfoRequests,

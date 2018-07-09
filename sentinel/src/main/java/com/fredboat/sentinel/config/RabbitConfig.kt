@@ -57,7 +57,7 @@ class RabbitConfig {
     @Bean
     fun retryOperationsInterceptor() = RetryInterceptorBuilder
             .stateless()
-            .maxAttempts(3)
+            .maxAttempts(1)
             .build()!!
 
     @Bean

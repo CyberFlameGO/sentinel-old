@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
-@RabbitListener(queues = ["#{fanoutQueue.name}"], errorHandler = "#{rabbitListenerErrorHandler}")
+@RabbitListener(queues = ["#{fanoutQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
 class FanoutConsumer(
         private val template: RabbitTemplate,
         private val jdaProperties: JdaProperties,

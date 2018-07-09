@@ -21,7 +21,7 @@ private const val BROADCAST_INTERVAL = 50_000
 private const val STATUS_TIMEOUT = 12_000
 
 @Service
-@RabbitListener(queues = ["#{sessionsQueue.name}"], errorHandler = "#{rabbitListenerErrorHandler}")
+@RabbitListener(queues = ["#{sessionsQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
 class FederatedSessionControl(
         val jdaProps: JdaProperties,
         val rabbit: RabbitTemplate
