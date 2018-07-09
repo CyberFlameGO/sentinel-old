@@ -62,7 +62,7 @@ class RabbitQueuesConfig {
     /** This queue auto-deletes */
     @Bean
     fun sessionsQueue(): Queue {
-        return Queue("asdasdasd", false, false, true)
+        return AnonymousQueue()
     }
 
     /** The fanout where we will receive broadcast messages from FredBoat */
