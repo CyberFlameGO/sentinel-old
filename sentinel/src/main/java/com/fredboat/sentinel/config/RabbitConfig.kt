@@ -47,10 +47,10 @@ class RabbitConfig {
     fun asyncTemplate(underlying: RabbitTemplate) = AsyncRabbitTemplate(underlying)
 
     @Bean
-    fun rabbitListenerErrorHandler() = RabbitListenerErrorHandler { _, msg, exception ->
+    fun rabbitListenerErrorHandler() = RabbitListenerErrorHandler { _, msg, _ ->
         val name = msg.payload?.javaClass?.simpleName ?: "unknown"
         Counters.failedRequests.labels(name).inc()
-        throw RuntimeException("Failed to consume $name", exception)
+        null
     }
 
     /* Don't retry ad infinitum */
