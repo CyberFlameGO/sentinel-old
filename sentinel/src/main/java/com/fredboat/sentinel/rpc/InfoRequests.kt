@@ -6,6 +6,8 @@ import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.OnlineStatus
+import net.dv8tion.jda.core.exceptions.ErrorResponseException
+import net.dv8tion.jda.core.requests.ErrorResponse
 import org.springframework.stereotype.Service
 
 @Service
@@ -58,8 +60,9 @@ class InfoRequests(private val shardManager: ShardManager) {
             if (shard.status != JDA.Status.CONNECTED) continue
             return try {
                 shard.retrieveUserById(request.id).complete("fetchUser").toEntity()
-            } catch (e: Exception) {
-                null
+            } catch (e: ErrorResponseException) {
+                if (e.errorResponse == ErrorResponse.UNKNOWN_USER) return null
+                throw e
             }
         }
 
