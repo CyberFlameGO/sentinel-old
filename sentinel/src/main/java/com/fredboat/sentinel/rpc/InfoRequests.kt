@@ -1,7 +1,10 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
+import com.fredboat.sentinel.extension.complete
+import com.fredboat.sentinel.extension.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
+import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.OnlineStatus
 import org.springframework.stereotype.Service
 
@@ -45,6 +48,22 @@ class InfoRequests(private val shardManager: ShardManager) {
                     isManaged
             )
         }
+    }
+
+    fun consume(request: GetUserRequest): User? {
+        val user = shardManager.getUserById(request.id)
+        if(user != null) return user.toEntity()
+
+        for (shard in shardManager.shards) {
+            if (shard.status != JDA.Status.CONNECTED) continue
+            return try {
+                shard.retrieveUserById(request.id).complete("fetchUser").toEntity()
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        throw RuntimeException("No shards connected")
     }
 
 }

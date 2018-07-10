@@ -21,6 +21,7 @@ class DirectConsumer(
     @RabbitHandler fun consume(request: MemberInfoRequest) = info.consume(request)
     @RabbitHandler fun consume(request: GuildInfoRequest) = info.consume(request)
     @RabbitHandler fun consume(request: RoleInfoRequest) = info.consume(request)
+    @RabbitHandler fun consume(request: GetUserRequest) = info.consume(request)
 
     @RabbitHandler fun consume(request: ModRequest) = management.consume(request)
     @RabbitHandler fun consume(request: SetAvatarRequest) = management.consume(request)

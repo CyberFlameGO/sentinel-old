@@ -31,3 +31,6 @@ data class RoleInfo(
 )
 
 data class RoleInfoRequest(val id: Long)
+
+/** Returns a [User] if found */
+data class GetUserRequest(val id: Long)
