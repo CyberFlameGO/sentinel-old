@@ -2,6 +2,7 @@ package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
+import com.fredboat.sentinel.extension.complete
 import com.fredboat.sentinel.extension.queue
 import com.fredboat.sentinel.extension.toEntity
 import com.fredboat.sentinel.extension.toEntityExtended
@@ -59,7 +60,7 @@ class ManagementRequests(private val shardManager: ShardManager) {
     fun consume(request: BanListRequest): List<Ban> {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
-        return guild.banList.complete().map {
+        return guild.banList.complete("getBanList").map {
             Ban(it.user.toEntity(), it.reason)
         }
     }
