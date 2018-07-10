@@ -3,6 +3,7 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
 import com.fredboat.sentinel.extension.queue
+import com.fredboat.sentinel.extension.toEntity
 import com.fredboat.sentinel.extension.toEntityExtended
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
@@ -54,5 +55,13 @@ class ManagementRequests(private val shardManager: ShardManager) {
     )}
 
     fun consume(request: UserListRequest) = shardManager.userCache.map { it.idLong }
+
+    fun consume(request: BanListRequest): List<Ban> {
+        val guild = shardManager.getGuildById(request.guildId)
+                ?: throw RuntimeException("Guild ${request.guildId} not found")
+        return guild.banList.complete().map {
+            Ban(it.user.toEntity(), it.reason)
+        }
+    }
 
 }

@@ -22,3 +22,7 @@ data class LeaveGuildRequest(val guildId: Long)
 data class GetPingRequest(val shardId: Int)
 
 data class GetPingReponse(val shardPing: Long, val average: Double)
+
+/** Responds with [List] of [Ban]*/
+data class BanListRequest(val guildId: Long)
+data class Ban(val user: User, val reason: String?)
