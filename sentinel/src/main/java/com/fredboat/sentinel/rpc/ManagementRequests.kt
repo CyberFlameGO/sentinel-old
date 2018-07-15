@@ -57,12 +57,12 @@ class ManagementRequests(private val shardManager: ShardManager) {
 
     fun consume(request: UserListRequest) = shardManager.userCache.map { it.idLong }
 
-    fun consume(request: BanListRequest): List<Ban> {
+    fun consume(request: BanListRequest): Array<Ban> {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
         return guild.banList.complete("getBanList").map {
             Ban(it.user.toEntity(), it.reason)
-        }
+        }.toTypedArray()
     }
 
 }
