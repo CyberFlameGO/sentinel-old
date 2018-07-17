@@ -14,7 +14,7 @@ import java.util.*
 @Service
 class ManagementRequests(private val shardManager: ShardManager) {
 
-    fun consume(modRequest: ModRequest) = modRequest.run {
+    fun consume(modRequest: ModRequest): String = modRequest.run {
         val guild = shardManager.getGuildById(guildId)
                 ?: throw RuntimeException("Guild $guildId not found")
         val control = guild.controller
@@ -24,7 +24,8 @@ class ManagementRequests(private val shardManager: ShardManager) {
             BAN -> control.ban(userId.toString(), banDeleteDays, reason)
             UNBAN -> control.unban(userId.toString())
         }
-        action.queue(type.name.toLowerCase())
+        action.complete(type.name.toLowerCase())
+        return ""
     }
 
     fun consume(request: SetAvatarRequest) {
