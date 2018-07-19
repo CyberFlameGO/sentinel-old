@@ -15,7 +15,7 @@ data class MemberInfo(
         val id: Long,
         val guildId: Long,
         val iconUrl: String,
-        val color: Int,
+        val color: Int?,
         val joinDateMillis: Long
 )
 
