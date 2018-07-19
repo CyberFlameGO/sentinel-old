@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.exceptions.ErrorResponseException
 import net.dv8tion.jda.core.requests.ErrorResponse
 import org.springframework.stereotype.Service
+import java.awt.Color
 
 @Service
 class InfoRequests(private val shardManager: ShardManager) {
@@ -20,7 +21,7 @@ class InfoRequests(private val shardManager: ShardManager) {
                     user.idLong,
                     guild.idLong,
                     user.avatarUrl,
-                    color.rgb,
+                    color?.rgb ?: Color.WHITE.rgb,
                     joinDate.toInstant().toEpochMilli()
             )
         }
