@@ -76,10 +76,9 @@ class MessageRequests(private val shardManager: ShardManager) {
             return
         }
 
-        log.debug("Deleting ${request.messages.size} messages")
-
         if (request.messages.size < 2) {
             channel.deleteMessageById(request.messages[0].toString()).queue("deleteMessage")
+            return
         }
 
         val list = request.messages.map { toString() }
