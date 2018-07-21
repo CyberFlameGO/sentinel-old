@@ -96,7 +96,7 @@ class JdaRabbitEventListener(
     override fun onGuildLeave(event: GuildLeaveEvent) =
             dispatch(com.fredboat.sentinel.entities.GuildLeaveEvent(
                     event.guild.idLong,
-                    event.guild.selfMember.joinDate.toInstant()
+                    event.guild.selfMember.joinDate.toEpochSecond() * 1000
             ))
 
     /* Member jda */

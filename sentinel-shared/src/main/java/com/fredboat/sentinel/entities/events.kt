@@ -1,7 +1,5 @@
 package com.fredboat.sentinel.entities
 
-import java.time.Instant
-
 /* Shard lifecycle */
 data class ShardStatusChange(
         val shard: Shard
@@ -27,7 +25,8 @@ data class GuildJoinEvent(
 
 data class GuildLeaveEvent(
         val guild: Long,
-        val joinTime: Instant
+        /** Millis */
+        val joinTime: Long
 )
 
 /* Guild member jda  */
