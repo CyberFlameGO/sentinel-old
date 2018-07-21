@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.entities.TextChannel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class MessageRequests(private val shardManager: ShardManager) {
@@ -77,12 +76,13 @@ class MessageRequests(private val shardManager: ShardManager) {
             return
         }
 
-        if (request.messages.size == 1) {
+        log.debug("Deleting ${request.messages.size} messages")
+
+        if (request.messages.size < 2) {
             channel.deleteMessageById(request.messages[0].toString()).queue("deleteMessage")
         }
 
-        val list = LinkedList<String>()
-        request.messages.forEach { list.add(it.toString()) }
+        val list = request.messages.map { toString() }
         channel.deleteMessagesByIds(list).queue("deleteMessages")
     }
 
