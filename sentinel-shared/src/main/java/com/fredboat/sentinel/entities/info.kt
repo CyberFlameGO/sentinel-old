@@ -15,7 +15,7 @@ data class MemberInfo(
         val id: Long,
         val guildId: Long,
         val iconUrl: String,
-        val color: Int?,
+        val colorRgb: Int?,
         val joinDateMillis: Long
 )
 
@@ -24,7 +24,7 @@ data class MemberInfoRequest(val id: Long, val guildId: Long)
 data class RoleInfo(
         val id: Long,
         val position: Int,
-        val colorRgb: Int,
+        val colorRgb: Int?,
         val isHoisted: Boolean,
         val isMentionable: Boolean,
         val isManaged: Boolean
