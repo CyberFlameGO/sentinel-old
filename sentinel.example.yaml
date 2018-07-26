@@ -1,7 +1,7 @@
 # Note: Make sure to rename this file to "sentinel.yaml" for Sentinel to pick it up
 
 sentinel:
-  discordToken: "..."
+  discordToken: ""
 
   # The range of shards to start from shardStart (inclusively) to shardEndExcl (exclusively)
   shardStart: 0
