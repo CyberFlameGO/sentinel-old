@@ -4,6 +4,7 @@ import com.fredboat.sentinel.entities.Guild
 import com.fredboat.sentinel.entities.GuildSubscribeRequest
 import com.fredboat.sentinel.entities.GuildUnsubscribeRequest
 import com.fredboat.sentinel.extension.toEntity
+import com.fredboat.sentinel.jda.VoiceServerUpdateCache
 import net.dv8tion.jda.bot.sharding.ShardManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Service
 class SubscriptionHandler(
         @param:Qualifier("guildSubscriptions")
         private val subscriptions: MutableSet<Long>,
-        private val shardManager: ShardManager
+        private val shardManager: ShardManager,
+        private val voiceServerUpdateCache: VoiceServerUpdateCache
 ) {
 
     companion object {
@@ -38,7 +40,7 @@ class SubscriptionHandler(
             }
         }
 
-        val entity = guild.toEntity()
+        val entity = guild.toEntity(voiceServerUpdateCache)
         log.info("Subscribed to ${request.id}")
         return entity
     }

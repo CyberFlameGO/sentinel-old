@@ -1,6 +1,7 @@
 package com.fredboat.sentinel.extension
 
 import com.fredboat.sentinel.entities.*
+import com.fredboat.sentinel.jda.VoiceServerUpdateCache
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.PermissionUtil
 
@@ -16,14 +17,15 @@ fun net.dv8tion.jda.core.JDA.toEntityExtended() = ExtendedShardInfo(
         userCache.size().toInt()
 )
 
-fun net.dv8tion.jda.core.entities.Guild.toEntity() = Guild(
+fun net.dv8tion.jda.core.entities.Guild.toEntity(updateCache: VoiceServerUpdateCache) = Guild(
         idLong,
         name,
         owner?.user?.idLong,
         members.map { it.toEntity() },
         textChannels.map { it.toEntity() },
         voiceChannels.map { it.toEntity() },
-        roles.map { it.toEntity() })
+        roles.map { it.toEntity() },
+        updateCache[idLong])
 
 fun net.dv8tion.jda.core.entities.User.toEntity() = User(
         idLong,

@@ -55,7 +55,8 @@ class JdaRabbitEventListener(
         @param:Qualifier("guildSubscriptions")
         private val subscriptions: MutableSet<Long>,
         @param:Qualifier("eventExchange")
-        private val eventsExchange: DirectExchange
+        private val eventsExchange: DirectExchange,
+        private val voiceServerUpdateCache: VoiceServerUpdateCache
 ) : ListenerAdapter() {
 
     companion object {
@@ -73,7 +74,7 @@ class JdaRabbitEventListener(
         dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READIED))
 
         val handlers = (event.jda as JDAImpl).client.handlers
-        handlers["VOICE_SERVER_UPDATE"] = VoiceServerUpdateInterceptor(event.jda as JDAImpl, rabbitTemplate)
+        handlers["VOICE_SERVER_UPDATE"] = VoiceServerUpdateInterceptor(event.jda as JDAImpl, rabbitTemplate, voiceServerUpdateCache)
         handlers["VOICE_STATE_UPDATE"] = VoiceStateUpdateInterceptor(event.jda as JDAImpl)
     }
 
@@ -147,6 +148,7 @@ class JdaRabbitEventListener(
                 event.channelLeft.idLong,
                 event.member.user.idLong
         ))
+        voiceServerUpdateCache.onVoiceLeave(event.guild.idLong)
     }
 
     override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
@@ -268,7 +270,7 @@ class JdaRabbitEventListener(
 
     private fun updateGuild(event: Event, guild: net.dv8tion.jda.core.entities.Guild) {
         log.info("Updated ${guild.id} because of ${event.javaClass.simpleName}")
-        dispatch(GuildUpdateEvent(guild.toEntity()))
+        dispatch(GuildUpdateEvent(guild.toEntity(voiceServerUpdateCache)))
     }
 
     private fun updateChannelPermissions(guild: Guild) {

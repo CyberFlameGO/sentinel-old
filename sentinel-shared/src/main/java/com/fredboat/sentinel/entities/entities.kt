@@ -18,7 +18,8 @@ data class Guild(
         val members: List<Member>,
         val textChannels: List<TextChannel>,
         val voiceChannels: List<VoiceChannel>,
-        val roles: List<Role>
+        val roles: List<Role>,
+        val voiceServerUpdate: VoiceServerUpdate?
 )
 
 data class User(

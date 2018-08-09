@@ -9,7 +9,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 
-class VoiceServerUpdateInterceptor(jda: JDAImpl, private val template: RabbitTemplate) : SocketHandler(jda) {
+class VoiceServerUpdateInterceptor(
+        jda: JDAImpl,
+        private val template: RabbitTemplate,
+        private val voiceServerUpdateCache: VoiceServerUpdateCache
+) : SocketHandler(jda) {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(VoiceServerUpdateInterceptor::class.java)
@@ -27,6 +31,7 @@ class VoiceServerUpdateInterceptor(jda: JDAImpl, private val template: RabbitTem
                 ?: throw IllegalArgumentException("Attempted to start audio connection with Guild that doesn't exist! JSON: $content")
 
         val event = VoiceServerUpdate(guild.selfMember.voiceState.sessionId, content.toString())
+        voiceServerUpdateCache[idLong] = event
         template.convertAndSend(SentinelExchanges.EVENTS, event)
 
         return null
