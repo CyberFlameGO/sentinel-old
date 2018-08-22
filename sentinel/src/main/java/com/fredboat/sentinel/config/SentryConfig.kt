@@ -19,7 +19,7 @@ import java.util.*
 class SentryConfig(sentryProperties: SentryProperties) {
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(JdaProperties::class.java)
+        private val log: Logger = LoggerFactory.getLogger(SentryProperties::class.java)
     }
 
     private val sentryAppenderName = "SENTRY"
