@@ -142,13 +142,16 @@ class JdaRabbitEventListener(
     }
 
     override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
+        if (event.member.user.idLong == event.guild.selfMember.user.idLong) {
+            voiceServerUpdateCache.onVoiceLeave(event.guild.idLong)
+        }
+
         if (!subscriptions.contains(event.guild.idLong)) return
         dispatch(VoiceLeaveEvent(
                 event.guild.idLong,
                 event.channelLeft.idLong,
                 event.member.user.idLong
         ))
-        voiceServerUpdateCache.onVoiceLeave(event.guild.idLong)
     }
 
     override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
