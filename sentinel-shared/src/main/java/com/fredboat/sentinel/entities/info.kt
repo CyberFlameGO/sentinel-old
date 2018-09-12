@@ -14,7 +14,7 @@ data class GuildInfoRequest(val id: Long)
 data class MemberInfo(
         val id: Long,
         val guildId: Long,
-        val iconUrl: String,
+        val iconUrl: String?,
         val colorRgb: Int?,
         val joinDateMillis: Long
 )
