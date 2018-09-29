@@ -23,11 +23,11 @@ class VoiceServerUpdateInterceptor(
         log.debug(content.toString())
         val idLong = content.getLong("guild_id")
 
-        if (api.guildLock.isLocked(idLong))
+        if (jda.guildSetupController.isLocked(idLong))
             return idLong
 
         // Get session
-        val guild = api.guildMap.get(idLong)
+        val guild = jda.guildMap.get(idLong)
                 ?: throw IllegalArgumentException("Attempted to start audio connection with Guild that doesn't exist! JSON: $content")
 
         val event = VoiceServerUpdate(guild.selfMember.voiceState.sessionId, content.toString())
