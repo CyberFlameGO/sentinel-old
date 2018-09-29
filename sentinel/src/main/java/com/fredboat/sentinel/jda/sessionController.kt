@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val log: Logger = LoggerFactory.getLogger(FederatedSessionControl::class.java)
 /** Time between broadcasting status */
-private const val BROADCAST_INTERVAL = 50_000
+private const val BROADCAST_INTERVAL = 1_000 // TODO: Increase this
 /** Status updates older than this timeout are ignored to prevent ghosts */
 private const val STATUS_TIMEOUT = 12_000
 
@@ -102,7 +102,7 @@ class FederatedSessionControl(
                 log.error("Unexpected exception in session worker", e)
             }
             Thread.sleep(300)
-            if (lastBroadcast + BROADCAST_INTERVAL > System.currentTimeMillis()) sendSessionInfo()
+            if (lastBroadcast + BROADCAST_INTERVAL < System.currentTimeMillis()) sendSessionInfo()
         }
     }
 
