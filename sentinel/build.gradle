@@ -11,6 +11,11 @@ apply plugin: "maven-publish"
 apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'net.ltgt.apt'
 
+configurations {
+    // Screws up the Spring Boot jar
+    compile.exclude module: 'opus-java'
+}
+
 dependencies {
     compile project(":sentinel-shared")
     compile "net.dv8tion:JDA:$jdaVersion"
