@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val log: Logger = LoggerFactory.getLogger(FederatedSessionControl::class.java)
 /** Time between broadcasting status */
-private const val BROADCAST_INTERVAL = 1_000 // TODO: Increase this
+private const val BROADCAST_INTERVAL = 5_000
 /** Status updates older than this timeout are ignored to prevent ghosts */
 private const val STATUS_TIMEOUT = 12_000
 
