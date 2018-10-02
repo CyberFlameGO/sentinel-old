@@ -23,9 +23,10 @@ class FederatedSessionControlTest {
         private const val DELAY = SessionController.IDENTIFY_DELAY * 1000L
         /**
          * Note that we wait 2000ms to sync with other sessions in the beginning.
-         * This is really just a 500ms leeway.
+         * 100ms is simulated by the mock when we run a shard.
+         * This is really just a 300ms leeway for 9 shards.
          */
-        private const val LEEYWAY = 2500L
+        private const val LEEYWAY = 2000 + 150 * 9 + 300
     }
 
     @Test

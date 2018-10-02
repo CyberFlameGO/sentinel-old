@@ -101,7 +101,7 @@ class FederatedSessionControl(
                 if (e is InterruptedException) throw e
                 log.error("Unexpected exception in session worker", e)
             }
-            Thread.sleep(300)
+            Thread.sleep(50)
             if (lastBroadcast + BROADCAST_INTERVAL < System.currentTimeMillis()) sendSessionInfo()
         }
     }
