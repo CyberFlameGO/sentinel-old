@@ -18,8 +18,11 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 
 class FederatedSessionControlTest {
 
-    private val log: Logger = LoggerFactory.getLogger(FederatedSessionControlTest::class.java)
-    private val delay = SessionController.IDENTIFY_DELAY * 1000L
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(FederatedSessionControlTest::class.java)
+        private const val DELAY = SessionController.IDENTIFY_DELAY * 1000L
+        private const val LEEYWAY = 1000L
+    }
 
     @Test
     @Tag("slow")
@@ -33,7 +36,7 @@ class FederatedSessionControlTest {
         )
         doTest(controllers) { nodesStarted ->
             // We should expect these session controllers to be finished after around 8*5+3 seconds (plus a bit a grace)
-            Thread.sleep(8 * delay + 5000)
+            Thread.sleep(8 * DELAY + LEEYWAY)
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
     }
@@ -56,7 +59,7 @@ class FederatedSessionControlTest {
                 )
         ) { nodesStarted ->
             // We should expect these session controllers to be finished after around 5*5+3 seconds (plus a bit a grace)
-            Thread.sleep(5 * delay + 5000)
+            Thread.sleep(5 * DELAY + LEEYWAY)
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
     }
@@ -79,7 +82,7 @@ class FederatedSessionControlTest {
                 )
         ) { nodesStarted ->
             // We should expect these session controllers to be finished after around 8*5+3 seconds (plus a bit a grace)
-            Thread.sleep(2 * delay + 5000)
+            Thread.sleep(2 * DELAY + LEEYWAY)
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
     }
@@ -135,8 +138,8 @@ class FederatedSessionControlTest {
                     }
                 }
                 if(hasFirstNodeRun) assertTrue(
-                        "Attempted to run $i. Must wait at least $delay ms before next run",
-                        lastConnect + delay < System.currentTimeMillis()
+                        "Attempted to run $i. Must wait at least $DELAY ms before next run",
+                        lastConnect + DELAY < System.currentTimeMillis()
                 )
                 hasFirstNodeRun = true
                 nodesStarted[i] = true
