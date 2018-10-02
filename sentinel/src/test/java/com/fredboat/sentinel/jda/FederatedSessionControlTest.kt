@@ -35,7 +35,7 @@ class FederatedSessionControlTest {
                 createController(rabbit, 2)
         )
         doTest(controllers) { nodesStarted ->
-            // We should expect these session controllers to be finished after around 8*5+3 seconds (plus a bit a grace)
+            // We should expect these session controllers to be finished after around 8*5+LEEYWAY seconds
             Thread.sleep(8 * DELAY + LEEYWAY)
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
@@ -58,7 +58,7 @@ class FederatedSessionControlTest {
                         false, false, false
                 )
         ) { nodesStarted ->
-            // We should expect these session controllers to be finished after around 5*5+3 seconds (plus a bit a grace)
+            // We should expect these session controllers to be finished after around 5*5+LEEYWAY seconds
             Thread.sleep(5 * DELAY + LEEYWAY)
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
@@ -81,7 +81,7 @@ class FederatedSessionControlTest {
                         true, true, true
                 )
         ) { nodesStarted ->
-            // We should expect these session controllers to be finished after around 8*5+3 seconds (plus a bit a grace)
+            // We should expect these session controllers to be finished after around 8*5+LEEYWAY seconds
             Thread.sleep(2 * DELAY + LEEYWAY)
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
