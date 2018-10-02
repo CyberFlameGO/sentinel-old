@@ -21,12 +21,7 @@ class FederatedSessionControlTest {
     companion object {
         private val log: Logger = LoggerFactory.getLogger(FederatedSessionControlTest::class.java)
         private const val DELAY = SessionController.IDENTIFY_DELAY * 1000L
-        /**
-         * Note that we wait 2000ms to sync with other sessions in the beginning.
-         * 100ms is simulated by the mock when we run a shard.
-         * This is really just a 300ms leeway for 9 shards.
-         */
-        private const val LEEYWAY = 2000 + 150 * 9 + 300
+        private const val LEEYWAY_PER_SHARD = 50
     }
 
     @Test
@@ -40,8 +35,8 @@ class FederatedSessionControlTest {
                 createController(rabbit, 2)
         )
         doTest(controllers) { nodesStarted ->
-            // We should expect these session controllers to be finished after around 8*5+LEEYWAY seconds
-            Thread.sleep(8 * DELAY + LEEYWAY)
+            // We should expect these session controllers to be finished after around 8*5+LEEYWAY_PER_SHARD seconds
+            Thread.sleep(getAcceptableLatency(controllers))
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
     }
@@ -63,8 +58,8 @@ class FederatedSessionControlTest {
                         false, false, false
                 )
         ) { nodesStarted ->
-            // We should expect these session controllers to be finished after around 5*5+LEEYWAY seconds
-            Thread.sleep(5 * DELAY + LEEYWAY)
+            // We should expect these session controllers to be finished after around 5*5+LEEYWAY_PER_SHARD seconds
+            Thread.sleep(getAcceptableLatency(controllers))
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
     }
@@ -86,8 +81,8 @@ class FederatedSessionControlTest {
                         true, true, true
                 )
         ) { nodesStarted ->
-            // We should expect these session controllers to be finished after around 8*5+LEEYWAY seconds
-            Thread.sleep(2 * DELAY + LEEYWAY)
+            // We should expect these session controllers to be finished after around 8*5+LEEYWAY_PER_SHARD seconds
+            Thread.sleep(getAcceptableLatency(controllers))
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
         }
     }
@@ -158,6 +153,19 @@ class FederatedSessionControlTest {
 
         nodes.forEachIndexed { i, node -> controllers[i/3]?.appendSession(node) }
         validator(nodesStarted)
+    }
+
+    /**
+     * Sentinel waits 2000ms to gather info.
+     * Each shard is simulated to take 100ms to load.
+     * The leeway is how much extra latency is acceptable.
+     */
+    private fun getAcceptableLatency(controllers: List<FederatedSessionControl?>): Long {
+        val shards = controllers.asSequence()
+                .filterNotNull()
+                .sumBy { it.jdaProps.shardEnd - it.jdaProps.shardStart + 1 }
+        val identifyRatelimitTime = 5000 * (shards - 1)
+        return 2000 + (LEEYWAY_PER_SHARD + 100L) * shards + identifyRatelimitTime
     }
 
 }
