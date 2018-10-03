@@ -1,7 +1,11 @@
 package com.fredboat.sentinel.entities
 
 /** Returns [Guild] as well as jda */
-data class GuildSubscribeRequest(val id: Long)
+data class GuildSubscribeRequest(
+        val id: Long,
+        /** Optionally a channel to post a warning in, if the guild is very large */
+        val channelInvoked: Long?
+)
 
 /** Sent when the [Guild] gets uncached */
 data class GuildUnsubscribeRequest(val id: Long)

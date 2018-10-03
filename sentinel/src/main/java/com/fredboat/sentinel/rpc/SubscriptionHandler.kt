@@ -21,6 +21,9 @@ class SubscriptionHandler(
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(SubscriptionHandler::class.java)
+        /** Threshold at which we will send a warning if the guild being loaded is large */
+        private const val LARGE_GUILD_THRESHOLD = 50000L
+        private const val LARGE_GUILD_WARNING = "Preparing to play in a large server, give me a moment to get ready..."
     }
 
     fun consume(request: GuildSubscribeRequest): Guild? {
@@ -37,6 +40,14 @@ class SubscriptionHandler(
                 log.warn("Attempt to subscribe ${request.id} while we are already subscribed")
             } else {
                 log.error("Failed to subscribe to ${request.id}")
+            }
+        } else if (request.channelInvoked != null && guild.memberCache.size() > LARGE_GUILD_THRESHOLD) {
+            try {
+                guild.getTextChannelById(request.channelInvoked!!)
+                        ?.sendMessage(LARGE_GUILD_WARNING)
+                        ?.queue()
+            } catch (e: Exception) {
+                log.error("Failed to send subscription warning", e)
             }
         }
 
