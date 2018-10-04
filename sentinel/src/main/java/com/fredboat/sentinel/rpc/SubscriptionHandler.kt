@@ -28,6 +28,11 @@ class SubscriptionHandler(
 
     fun consume(request: GuildSubscribeRequest): Guild? {
         val guild = shardManager.getGuildById(request.id)
+        log.info(
+                "Request to subscribe to {} received after {}ms",
+                guild,
+                request.requestTime - System.currentTimeMillis()
+        )
 
         if (guild == null) {
             log.warn("Attempt to subscribe to unknown guild ${request.id}")
@@ -52,7 +57,11 @@ class SubscriptionHandler(
         }
 
         val entity = guild.toEntity(voiceServerUpdateCache)
-        log.info("Subscribed to ${request.id}")
+        log.info(
+                "Request to subscribe to {} processed after {}ms",
+                guild,
+                request.requestTime - System.currentTimeMillis()
+        )
         return entity
     }
 
