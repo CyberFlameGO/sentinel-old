@@ -31,7 +31,7 @@ class SubscriptionHandler(
         log.info(
                 "Request to subscribe to {} received after {}ms",
                 guild,
-                request.requestTime - System.currentTimeMillis()
+                System.currentTimeMillis() - request.requestTime
         )
 
         if (guild == null) {
@@ -60,7 +60,7 @@ class SubscriptionHandler(
         log.info(
                 "Request to subscribe to {} processed after {}ms",
                 guild,
-                request.requestTime - System.currentTimeMillis()
+                System.currentTimeMillis() - request.requestTime
         )
         return entity
     }
