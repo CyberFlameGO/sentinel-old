@@ -1,3 +1,10 @@
+/*
+ * Copyright © 2018 Frederik Mikkelsen <fred at frederikam.com>
+ * FredBoat microservice for handling JDA and Lavalink over RabbitMQ.
+ *
+ * This program is licensed under GNU AGPLv3 under no warranty.
+ */
+
 @file:Suppress("unused")
 
 package com.fredboat.sentinel.entities

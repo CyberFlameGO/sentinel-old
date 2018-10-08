@@ -1,4 +1,9 @@
-apply plugin: 'org.springframework.boot'
+/*
+ * Copyright © 2018 Frederik Mikkelsen <fred at frederikam.com>
+ * FredBoat microservice for handling JDA and Lavalink over RabbitMQ.
+ *
+ * This program is licensed under GNU AGPLv3 under no warranty.
+ */
 
 group 'com.fredboat'
 version '0.1'
@@ -8,6 +13,7 @@ apply plugin: 'kotlin'
 apply plugin: "kotlin-spring"
 apply plugin: "maven"
 apply plugin: "maven-publish"
+apply plugin: 'org.springframework.boot'
 apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'net.ltgt.apt'
 
