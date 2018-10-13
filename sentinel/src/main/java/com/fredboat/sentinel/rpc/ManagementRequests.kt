@@ -9,17 +9,17 @@ package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
-import com.fredboat.sentinel.util.complete
-import com.fredboat.sentinel.util.queue
-import com.fredboat.sentinel.util.toEntity
-import com.fredboat.sentinel.util.toEntityExtended
+import com.fredboat.sentinel.util.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class ManagementRequests(private val shardManager: ShardManager) {
+class ManagementRequests(
+        private val shardManager: ShardManager,
+        private val eval: EvalService
+) {
 
     fun consume(modRequest: ModRequest): String = modRequest.run {
         val guild = shardManager.getGuildById(guildId)
@@ -71,6 +71,27 @@ class ManagementRequests(private val shardManager: ShardManager) {
         return guild.banList.complete("getBanList").map {
             Ban(it.user.toEntity(), it.reason)
         }.toTypedArray()
+    }
+
+    @Volatile
+    var blockingEvalThread: Thread? = null
+
+    fun consume(request: EvalRequest): String {
+        if (request.kill) {
+            blockingEvalThread ?: return "No task is running"
+            blockingEvalThread?.interrupt()
+            return "Task killed"
+        } else {
+            val mono = eval.evalScript(request.script!!, request.timeout)
+            blockingEvalThread = Thread.currentThread()
+            return try {
+                mono.block()!!
+            } catch (ex: Exception) {
+                "${ex.javaClass.simpleName}: ${ex.message ?: "null"}"
+            } finally {
+                blockingEvalThread = null
+            }
+        }
     }
 
 }

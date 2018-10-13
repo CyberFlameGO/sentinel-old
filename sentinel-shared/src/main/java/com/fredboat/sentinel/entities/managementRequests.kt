@@ -33,3 +33,14 @@ data class GetPingReponse(val shardPing: Long, val average: Double)
 /** Responds with [List] of [Ban]*/
 data class BanListRequest(val guildId: Long)
 data class Ban(val user: User, val reason: String?)
+
+/**
+ * @param script the script to run.
+ * @param timeout max time in seconds, if any
+ * @param kill if we should kill the last running task instead of running a new one.
+ */
+data class EvalRequest(
+        val script: String?,
+        val timeout: Int?,
+        val kill: Boolean
+)
