@@ -5,7 +5,7 @@
  * This program is licensed under GNU AGPLv3 under no warranty.
  */
 
-package com.fredboat.sentinel.api
+package com.fredboat.sentinel.metrics
 
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.common.TextFormat
