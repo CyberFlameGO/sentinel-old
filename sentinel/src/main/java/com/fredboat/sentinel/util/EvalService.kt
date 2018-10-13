@@ -49,7 +49,7 @@ class EvalService(
     }
 
     private fun createMono(source: String): Mono<String> = Mono.create { sink ->
-        val engine: ScriptEngine = ScriptEngineManager().getEngineByExtension("kts").factory.scriptEngine
+        val engine: ScriptEngine = ScriptEngineManager().getEngineByExtension("kts")
 
         engine.put("key", key.id)
         engine.put("shards", shards)
