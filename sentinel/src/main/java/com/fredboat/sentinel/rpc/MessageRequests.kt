@@ -8,9 +8,9 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
-import com.fredboat.sentinel.extension.complete
-import com.fredboat.sentinel.extension.queue
-import com.fredboat.sentinel.extension.toJda
+import com.fredboat.sentinel.util.complete
+import com.fredboat.sentinel.util.queue
+import com.fredboat.sentinel.util.toJda
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.TextChannel
 import org.slf4j.Logger

@@ -5,7 +5,7 @@
  * This program is licensed under GNU AGPLv3 under no warranty.
  */
 
-package com.fredboat.sentinel.extension
+package com.fredboat.sentinel.util
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.jda.VoiceServerUpdateCache

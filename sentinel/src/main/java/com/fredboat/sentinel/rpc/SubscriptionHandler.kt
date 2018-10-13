@@ -10,7 +10,7 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.entities.Guild
 import com.fredboat.sentinel.entities.GuildSubscribeRequest
 import com.fredboat.sentinel.entities.GuildUnsubscribeRequest
-import com.fredboat.sentinel.extension.toEntity
+import com.fredboat.sentinel.util.toEntity
 import com.fredboat.sentinel.jda.VoiceServerUpdateCache
 import net.dv8tion.jda.bot.sharding.ShardManager
 import org.slf4j.Logger

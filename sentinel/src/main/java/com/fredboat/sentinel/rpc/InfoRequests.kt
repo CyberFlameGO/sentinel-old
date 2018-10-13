@@ -8,8 +8,8 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
-import com.fredboat.sentinel.extension.complete
-import com.fredboat.sentinel.extension.toEntity
+import com.fredboat.sentinel.util.complete
+import com.fredboat.sentinel.util.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.OnlineStatus

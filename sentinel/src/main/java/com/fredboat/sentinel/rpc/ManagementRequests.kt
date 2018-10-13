@@ -9,10 +9,10 @@ package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
-import com.fredboat.sentinel.extension.complete
-import com.fredboat.sentinel.extension.queue
-import com.fredboat.sentinel.extension.toEntity
-import com.fredboat.sentinel.extension.toEntityExtended
+import com.fredboat.sentinel.util.complete
+import com.fredboat.sentinel.util.queue
+import com.fredboat.sentinel.util.toEntity
+import com.fredboat.sentinel.util.toEntityExtended
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
 import org.springframework.stereotype.Service

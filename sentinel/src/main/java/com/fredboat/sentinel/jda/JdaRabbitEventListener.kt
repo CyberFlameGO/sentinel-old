@@ -8,7 +8,7 @@
 package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.entities.*
-import com.fredboat.sentinel.extension.toEntity
+import com.fredboat.sentinel.util.toEntity
 import com.fredboat.sentinel.metrics.Counters
 import net.dv8tion.jda.core.entities.Channel
 import net.dv8tion.jda.core.entities.Guild

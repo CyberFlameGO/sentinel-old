@@ -5,7 +5,7 @@
  * This program is licensed under GNU AGPLv3 under no warranty.
  */
 
-package com.fredboat.sentinel.extension
+package com.fredboat.sentinel.util
 
 import com.fredboat.sentinel.metrics.Counters
 import net.dv8tion.jda.core.exceptions.ErrorResponseException
