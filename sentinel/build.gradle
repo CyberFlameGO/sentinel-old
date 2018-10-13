@@ -55,6 +55,11 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: mockitoVersion
 }
 
+springBoot  {
+    // Required for kotlin eval
+    requiresUnpack = ['org.jetbrains.kotlin:kotlin-compiler']
+}
+
 bootRun {
     //compiling tests during bootRun increases the likelihood of catching broken tests locally instead of on the CI
     dependsOn compileTestJava
