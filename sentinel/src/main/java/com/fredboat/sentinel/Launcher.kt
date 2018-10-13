@@ -12,14 +12,23 @@ import org.springframework.boot.WebApplicationType
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import java.util.function.Supplier
 
 @SpringBootApplication
 @ComponentScan(basePackages = ["com.fredboat"])
 class Launcher : ApplicationContextAware {
+
+    lateinit var springContext: ApplicationContext
+
     override fun setApplicationContext(applicationContext: ApplicationContext) {
         ApplicationState.integrationCallback(applicationContext)
+        springContext = applicationContext
     }
+
+    @Bean
+    fun springContextSupplier() = Supplier { this.springContext }
 }
 
 fun main(args: Array<String>) {

@@ -12,9 +12,11 @@ import com.fredboat.sentinel.config.RoutingKey
 import net.dv8tion.jda.bot.sharding.ShardManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.time.Duration
+import java.util.function.Supplier
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
@@ -22,7 +24,8 @@ import javax.script.ScriptEngineManager
 class EvalService(
         private val key: RoutingKey,
         private val shards: ShardManager,
-        private val jdaProps: JdaProperties
+        private val jdaProps: JdaProperties,
+        private val springContext: Supplier<ApplicationContext>
 ) {
 
     companion object {
@@ -51,6 +54,7 @@ class EvalService(
         engine.put("key", key.id)
         engine.put("shards", shards)
         engine.put("jdaProps", jdaProps)
+        engine.put("spring", springContext.get())
 
         val out = engine.eval(source)
 
