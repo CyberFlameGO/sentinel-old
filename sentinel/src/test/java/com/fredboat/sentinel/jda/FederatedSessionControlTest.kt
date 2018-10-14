@@ -105,7 +105,7 @@ class FederatedSessionControlTest {
                 createController(rabbit, 0),
                 createController(rabbit, 1)
         )
-        doTest(controllers) { nodesStarted ->
+        doTest(controllers, jittery = true) { nodesStarted ->
             // We should expect these session controllers to be finished after around 8*5+LEEYWAY_PER_SHARD seconds
             Thread.sleep(getAcceptableLatency(controllers) + 2000) // Additional time since it is jittery
             nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
@@ -142,7 +142,10 @@ class FederatedSessionControlTest {
         )
     }
 
-    /** Tests that the session controllers run shards in the correct order without clashes */
+    /** Tests that the session controllers run shards in the correct order without clashes
+     * @param jittery If we should add a delay between controller starts.
+     * Messes with the order, so we don't test for that.
+     * */
     private fun doTest(
             controllers: List<FederatedSessionControl?>,
             nodesStarted: MutableList<Boolean> = mutableListOf(
@@ -161,7 +164,7 @@ class FederatedSessionControlTest {
             nodes.add(i, mock)
             `when`(mock.run(false)).then {
                 assertFalse("Node must not be started twice", nodesStarted[i])
-                if (i > 0) {
+                if (!jittery && i > 0) {
                     nodesStarted.subList(0, i-1).forEachIndexed { j, bool ->
                         if (i == 8) { //8 is the home shard id of FBH with a total of 9 shards, it should start first
                             assertFalse("The node holding the home guild should start first", hasFirstNodeRun)
