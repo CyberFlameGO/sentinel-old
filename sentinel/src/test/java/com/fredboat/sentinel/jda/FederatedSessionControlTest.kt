@@ -22,13 +22,14 @@ import org.mockito.Mockito.mock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import kotlin.concurrent.thread
 
 class FederatedSessionControlTest {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(FederatedSessionControlTest::class.java)
         private const val DELAY = SessionController.IDENTIFY_DELAY * 1000L
-        private const val LEEYWAY_PER_SHARD = 50
+        private const val LEEYWAY_PER_SHARD = 150
     }
 
     @Test
@@ -94,19 +95,39 @@ class FederatedSessionControlTest {
         }
     }
 
+    @Test
+    @Tag("slow")
+    fun testJittery() {
+        lateinit var controllers: List<FederatedSessionControl>
+        val rabbit = mockRabbit { controllers }
+        controllers = listOf(
+                createController(rabbit, 2),
+                createController(rabbit, 0),
+                createController(rabbit, 1)
+        )
+        doTest(controllers) { nodesStarted ->
+            // We should expect these session controllers to be finished after around 8*5+LEEYWAY_PER_SHARD seconds
+            Thread.sleep(getAcceptableLatency(controllers) + 2000) // Additional time since it is jittery
+            nodesStarted.forEachIndexed { i, b -> assertTrue("Node $i was not started", b) }
+        }
+    }
+
     private fun mockRabbit(controllers: () -> List<FederatedSessionControl?>): RabbitTemplate {
         val mockRabbit = mock(RabbitTemplate::class.java)
-        `when`(mockRabbit.convertAndSend(anyString(), anyString(), any<Any>())).thenAnswer {
+        `when`(mockRabbit.convertAndSend(anyString(), anyString(), any<Any>())).thenAnswer { it ->
 
             assertEquals("Wrong exchange", SentinelExchanges.SESSIONS, it.arguments[0])
             assertEquals("Expected no routing key", "", it.arguments[1])
 
-            val msg = it.arguments[2]
-            when(msg) {
-                is SessionSyncRequest -> controllers().forEach { it?.onSyncRequest(msg) }
-                is SessionInfo -> controllers().forEach { it?.onShardInfo(msg) }
-                is ShardConnectEvent -> controllers().forEach { it?.onShardConnect(msg) }
-                else -> throw IllegalArgumentException()
+            thread {
+                Thread.sleep(100)
+                val msg = it.arguments[2]
+                when (msg) {
+                    is SessionSyncRequest -> controllers().forEach { it?.onSyncRequest(msg) }
+                    is SessionInfo -> controllers().forEach { it?.onShardInfo(msg) }
+                    is ShardConnectEvent -> controllers().forEach { it?.onShardConnect(msg) }
+                    else -> throw IllegalArgumentException()
+                }
             }
             return@thenAnswer null
         }
@@ -129,6 +150,7 @@ class FederatedSessionControlTest {
                     false, false, false,
                     false, false, false
             ),
+            jittery: Boolean = false,
             validator: (nodesStarted: List<Boolean>) -> Unit
     ) {
         val nodes = mutableListOf<SessionConnectNode>()
@@ -162,7 +184,10 @@ class FederatedSessionControlTest {
             `when`(nodes[i].shardInfo).thenReturn(JDA.ShardInfo(i, 9))
         }
 
-        nodes.forEachIndexed { i, node -> controllers[i/3]?.appendSession(node) }
+        nodes.forEachIndexed { i, node ->
+            if (jittery) Thread.sleep(1000)
+            controllers[i/3]?.appendSession(node)
+        }
         validator(nodesStarted)
     }
 
