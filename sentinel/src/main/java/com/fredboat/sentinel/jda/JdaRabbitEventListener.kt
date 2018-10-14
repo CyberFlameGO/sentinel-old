@@ -66,13 +66,14 @@ class JdaRabbitEventListener(
         private val subscriptions: MutableSet<Long>,
         @param:Qualifier("eventExchange")
         private val eventsExchange: DirectExchange,
-        private val voiceServerUpdateCache: VoiceServerUpdateCache,
-        private val shardManager: ShardManager
+        private val voiceServerUpdateCache: VoiceServerUpdateCache
 ) : ListenerAdapter() {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(JdaRabbitEventListener::class.java)
     }
+
+    lateinit var shardManager: ShardManager
 
     /* Shard lifecycle */
 

@@ -35,7 +35,6 @@ class ShardManagerConfig {
 
         val builder = DefaultShardManagerBuilder()
                 .setToken(jdaProperties.discordToken)
-                //.setGame(Game.playing(configProvider.getAppConfig().getStatus()))
                 .setBulkDeleteSplittingEnabled(false)
                 .setEnableShutdownHook(false)
                 .setAudioEnabled(true)
@@ -44,18 +43,14 @@ class ShardManagerConfig {
                 .setShardsTotal(jdaProperties.shardCount)
                 .setShards(jdaProperties.shardStart, jdaProperties.shardEnd)
                 .setSessionController(sessionController)
-                //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder()
+                //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder() TODO
                 //        .eventListener(OkHttpEventMetrics("jda", Metrics.httpEventCounter)))
                 .addEventListeners(rabbitEventListener)
-                //.addEventListeners(jdaEventsMetricsListener)
-                //.addEventListeners(eventLogger)
-                //.addEventListeners(shardReviveHandler)
-                //.addEventListeners(musicPersistenceHandler)
-                //.addEventListeners(audioConnectionFacade)
 
         val shardManager: ShardManager
         try {
             shardManager = builder.build()
+            rabbitEventListener.shardManager = shardManager
             if (ApplicationState.isTesting) {
                 log.info("Shutting down JDA because we are running tests")
                 try {
