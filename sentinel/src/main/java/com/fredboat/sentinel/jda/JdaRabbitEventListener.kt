@@ -8,8 +8,10 @@
 package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.entities.*
-import com.fredboat.sentinel.util.toEntity
 import com.fredboat.sentinel.metrics.Counters
+import com.fredboat.sentinel.util.toEntity
+import net.dv8tion.jda.bot.sharding.ShardManager
+import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Channel
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.MessageType
@@ -55,6 +57,7 @@ import org.springframework.amqp.core.DirectExchange
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
+import java.io.File
 
 @Component
 class JdaRabbitEventListener(
@@ -63,7 +66,8 @@ class JdaRabbitEventListener(
         private val subscriptions: MutableSet<Long>,
         @param:Qualifier("eventExchange")
         private val eventsExchange: DirectExchange,
-        private val voiceServerUpdateCache: VoiceServerUpdateCache
+        private val voiceServerUpdateCache: VoiceServerUpdateCache,
+        private val shardManager: ShardManager
 ) : ListenerAdapter() {
 
     companion object {
@@ -83,6 +87,11 @@ class JdaRabbitEventListener(
         val handlers = (event.jda as JDAImpl).client.handlers
         handlers["VOICE_SERVER_UPDATE"] = VoiceServerUpdateInterceptor(event.jda as JDAImpl, rabbitTemplate, voiceServerUpdateCache)
         handlers["VOICE_STATE_UPDATE"] = VoiceStateUpdateInterceptor(event.jda as JDAImpl)
+
+        if (shardManager.shards.all { it.status == JDA.Status.CONNECTED }) {
+            // This file can be used by Ansible playbooks
+            File("readyfile").createNewFile()
+        }
     }
 
     override fun onDisconnect(event: DisconnectEvent) =
