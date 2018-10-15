@@ -46,6 +46,7 @@ class FederatedSessionControl(
     private var lastConnect = 0L
     private val sessionInfo = ConcurrentHashMap<Int, ShardSessionInfo>()
     private var lastBroadcast = 0L
+    private val homeShardId: Int get() = ((homeGuildId shr 22) % jdaProps.shardCount).toInt()
 
     override fun getGlobalRatelimit() = globalRatelimit
 
@@ -60,6 +61,10 @@ class FederatedSessionControl(
     }
 
     override fun appendSession(node: SessionConnectNode) {
+        if (node.shardInfo.shardId < jdaProps.shardStart || node.shardInfo.shardId > jdaProps.shardEnd) {
+            throw IllegalArgumentException("Shard ${node.shardInfo.shardId} is out of bounds from $jdaProps")
+        }
+
         localQueue[node.shardInfo.shardId] = node
         if (worker == null || worker?.state == Thread.State.TERMINATED) {
             if (worker?.state == Thread.State.TERMINATED) log.warn("Session worker was terminated. Starting a new one")
@@ -78,11 +83,8 @@ class FederatedSessionControl(
             log.warn("Attempted to remove ${node.shardInfo.shardString}, but it was already removed")
     }
 
-    @Suppress("HasPlatformType")
-    override fun getGateway(api: JDA) = adapter.getGateway(api)
-
-    @Suppress("HasPlatformType")
-    override fun getGatewayBot(api: JDA) = adapter.getGatewayBot(api)
+    override fun getGateway(api: JDA) = adapter.getGateway(api)!!
+    override fun getGatewayBot(api: JDA) = adapter.getGatewayBot(api)!!
 
     private val workerRunnable = Runnable {
         log.info("Session worker started, requesting data from other Sentinels")
@@ -123,21 +125,12 @@ class FederatedSessionControl(
         return@reduceEntries if (entry.key < acc.key || isHomeShard(entry.value)) entry else acc
     }.value
 
-    private fun isHomeShard(node: SessionConnectNode): Boolean {
-        return homeShardId() == node.shardInfo.shardId
-    }
-
-    private fun homeShardId(): Int {
-        return ((homeGuildId shr 22) % jdaProps.shardCount).toInt()
-    }
-
-    private fun isHomeShardOurs(): Boolean {
-        return jdaProps.shardStart <= homeShardId() && homeShardId() <= jdaProps.shardEnd
-    }
+    private fun isHomeShard(node: SessionConnectNode) = homeShardId == node.shardInfo.shardId
+    private fun isHomeShardOurs() = jdaProps.shardStart <= homeShardId && homeShardId <= jdaProps.shardEnd
 
     private fun isWaitingOnOtherInstances(): Boolean {
         // if we manage the home shard and it needs connecting we have priority
-        if (isHomeShardOurs() && localQueue.containsKey(homeShardId())) {
+        if (isHomeShardOurs() && localQueue.containsKey(homeShardId)) {
             return false
         }
         for (id in 0..(jdaProps.shardCount - 1)) {
@@ -149,7 +142,7 @@ class FederatedSessionControl(
                     return@let
                 }
                 if (it.queued && id < jdaProps.shardStart) return true  // a shard below the ones managed by us is queued
-                if (it.queued && id == homeShardId()) return true       // the home shard is queued on one of the other nodes
+                if (it.queued && id == homeShardId) return true       // the home shard is queued on one of the other nodes
             }
         }
         return false

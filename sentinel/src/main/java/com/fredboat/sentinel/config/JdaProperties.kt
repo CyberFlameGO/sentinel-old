@@ -56,4 +56,6 @@ class JdaProperties(
             return _discordToken
         }
         set(value) { _discordToken = value }
+
+    override fun toString() = "[$shardStart..$shardEnd/$shardCount]"
 }
