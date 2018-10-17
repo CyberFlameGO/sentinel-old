@@ -7,6 +7,7 @@
 
 package com.fredboat.sentinel.jda
 
+import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.metrics.Counters
 import com.fredboat.sentinel.util.toEntity
@@ -306,14 +307,13 @@ class JdaRabbitEventListener(
         dispatch(ChannelPermissionsUpdate(
                 guild.idLong,
                 permissions
-
         ))
     }
 
     /* Util */
 
     private fun dispatch(event: Any, print: Boolean = false) {
-        rabbitTemplate.convertAndSend(eventsExchange.name, event)
+        rabbitTemplate.convertAndSend(SentinelExchanges.EVENTS, rabbitTemplate.routingKey, event)
         if(print) log.info("Sent $event")
     }
 
