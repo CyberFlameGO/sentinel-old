@@ -1,0 +1,14 @@
+[Unit]
+Description=PLACEHOLDER
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/PLACEHOLDER
+ExecStart=/root/PLACEHOLDER/launch.sh
+LimitNOFILE=500000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
