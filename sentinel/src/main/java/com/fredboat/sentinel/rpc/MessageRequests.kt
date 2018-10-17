@@ -45,23 +45,23 @@ class MessageRequests(private val shardManager: ShardManager) {
             return null
         }
 
-        return channel.sendMessage(request.embed.toJda())
-                .complete("sendEmbed")
-                .let { SendMessageResponse(it.idLong) }
+        return SendMessageResponse(
+                channel.sendMessage(request.embed.toJda()).complete("sendEmbed").idLong
+        )
     }
 
     fun consume(request: SendPrivateMessageRequest): SendMessageResponse? {
         val user = shardManager.getUserById(request.recipient)
-        val channel = user.openPrivateChannel().complete(true)
+        val channel = user.openPrivateChannel().complete(true)!!
 
         if (user == null) {
             log.error("User ${request.recipient} was not found when sending private message")
             return null
         }
 
-        return channel.sendMessage(request.message)
-                .complete("sendPrivate")
-                .let { SendMessageResponse(it.idLong) }
+        return SendMessageResponse(
+                channel.sendMessage(request.message).complete("sendPrivate").idLong
+        )
     }
 
     fun consume(request: EditMessageRequest) {
