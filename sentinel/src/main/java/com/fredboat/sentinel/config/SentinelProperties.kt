@@ -17,15 +17,16 @@ import java.io.FileInputStream
 
 @Component
 @ConfigurationProperties(prefix = "sentinel")
-class JdaProperties(
+class SentinelProperties(
         discordToken: String = "",
         var shardStart: Int = 0,
         var shardEnd: Int = 0,
-        var shardCount: Int = 1
+        var shardCount: Int = 1,
+        var instance: String = "unknown"
 ) {
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(JdaProperties::class.java)
+        private val log: Logger = LoggerFactory.getLogger(SentinelProperties::class.java)
     }
 
     private var _discordToken = discordToken
@@ -57,5 +58,5 @@ class JdaProperties(
         }
         set(value) { _discordToken = value }
 
-    override fun toString() = "[$shardStart..$shardEnd/$shardCount]"
+    override fun toString() = "$instance: [$shardStart..$shardEnd/$shardCount]"
 }

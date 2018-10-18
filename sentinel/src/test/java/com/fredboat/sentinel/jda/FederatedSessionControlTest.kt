@@ -8,7 +8,7 @@
 package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.SentinelExchanges
-import com.fredboat.sentinel.config.JdaProperties
+import com.fredboat.sentinel.config.SentinelProperties
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.SessionController
 import net.dv8tion.jda.core.utils.SessionController.SessionConnectNode
@@ -137,7 +137,7 @@ class FederatedSessionControlTest {
 
     private fun createController(rabbit: RabbitTemplate, i: Int): FederatedSessionControl {
         return FederatedSessionControl(
-                JdaProperties(shardCount = 9, shardStart = i * 3, shardEnd = i*3 + 2),
+                SentinelProperties(shardCount = 9, shardStart = i * 3, shardEnd = i*3 + 2),
                 rabbit
         )
     }
@@ -191,7 +191,7 @@ class FederatedSessionControlTest {
             it ?: return@forEach
             if (jittery) Thread.sleep(1000)
             for (i in 0..2) {
-                it.appendSession(nodes[it.jdaProps.shardStart + i])
+                it.appendSession(nodes[it.sentinelProps.shardStart + i])
             }
         }
         validator(nodesStarted)
@@ -205,7 +205,7 @@ class FederatedSessionControlTest {
     private fun getAcceptableLatency(controllers: List<FederatedSessionControl?>): Long {
         val shards = controllers.asSequence()
                 .filterNotNull()
-                .sumBy { it.jdaProps.shardEnd - it.jdaProps.shardStart + 1 }
+                .sumBy { it.sentinelProps.shardEnd - it.sentinelProps.shardStart + 1 }
         val identifyRatelimitTime = 5000 * (shards - 1)
         return 2000 + (LEEYWAY_PER_SHARD + 100L) * shards + identifyRatelimitTime
     }

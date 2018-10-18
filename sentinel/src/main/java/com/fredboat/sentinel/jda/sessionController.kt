@@ -8,7 +8,7 @@
 package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.SentinelExchanges
-import com.fredboat.sentinel.config.JdaProperties
+import com.fredboat.sentinel.config.SentinelProperties
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.SessionController
 import net.dv8tion.jda.core.utils.SessionController.SessionConnectNode
@@ -32,7 +32,7 @@ private const val homeGuildId = 174820236481134592L
 @Service
 @RabbitListener(queues = ["#{sessionsQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
 class FederatedSessionControl(
-        val jdaProps: JdaProperties,
+        val sentinelProps: SentinelProperties,
         val rabbit: RabbitTemplate
 ) : SessionController {
 
@@ -46,7 +46,7 @@ class FederatedSessionControl(
     private var lastConnect = 0L
     private val sessionInfo = ConcurrentHashMap<Int, ShardSessionInfo>()
     private var lastBroadcast = 0L
-    private val homeShardId: Int get() = ((homeGuildId shr 22) % jdaProps.shardCount).toInt()
+    private val homeShardId: Int get() = ((homeGuildId shr 22) % sentinelProps.shardCount).toInt()
 
     override fun getGlobalRatelimit() = globalRatelimit
 
@@ -61,8 +61,8 @@ class FederatedSessionControl(
     }
 
     override fun appendSession(node: SessionConnectNode) {
-        if (node.shardInfo.shardId < jdaProps.shardStart || node.shardInfo.shardId > jdaProps.shardEnd) {
-            throw IllegalArgumentException("Shard ${node.shardInfo.shardId} is out of bounds from $jdaProps")
+        if (node.shardInfo.shardId < sentinelProps.shardStart || node.shardInfo.shardId > sentinelProps.shardEnd) {
+            throw IllegalArgumentException("Shard ${node.shardInfo.shardId} is out of bounds from $sentinelProps")
         }
 
         localQueue[node.shardInfo.shardId] = node
@@ -90,8 +90,8 @@ class FederatedSessionControl(
         log.info("Session worker started, requesting data from other Sentinels")
         rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", SessionSyncRequest())
         Thread.sleep(2000) // Ample time
-        val ourShards = jdaProps.run { shardEnd - shardStart + 1 }
-        log.info("Gathered info for [${sessionInfo.size + ourShards}/${jdaProps.shardCount}] shards.")
+        val ourShards = sentinelProps.run { shardEnd - shardStart + 1 }
+        log.info("Gathered info for [${sessionInfo.size + ourShards}/${sentinelProps.shardCount}] shards.")
 
         while (true) {
             try {
@@ -104,7 +104,7 @@ class FederatedSessionControl(
                     node.run(false) // We'll always want to use false to get the right timestamp
                     localQueue.remove(node.shardInfo.shardId)
                     lastConnect = System.currentTimeMillis()
-                    rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", ShardConnectEvent(jdaProps.shardCount))
+                    rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", ShardConnectEvent(sentinelProps.shardCount))
                     sendSessionInfo()
                     Thread.sleep(SessionController.IDENTIFY_DELAY * 1000L)
                 }
@@ -126,14 +126,14 @@ class FederatedSessionControl(
     }.value
 
     private fun isHomeShard(node: SessionConnectNode) = homeShardId == node.shardInfo.shardId
-    private fun isHomeShardOurs() = jdaProps.shardStart <= homeShardId && homeShardId <= jdaProps.shardEnd
+    private fun isHomeShardOurs() = sentinelProps.shardStart <= homeShardId && homeShardId <= sentinelProps.shardEnd
 
     private fun isWaitingOnOtherInstances(): Boolean {
         // if we manage the home shard and it needs connecting we have priority
         if (isHomeShardOurs() && localQueue.containsKey(homeShardId)) {
             return false
         }
-        for (id in 0..(jdaProps.shardCount - 1)) {
+        for (id in 0..(sentinelProps.shardCount - 1)) {
             sessionInfo[id]?.let {
                 // Is this shard queued and is it not too old?
                 if (it.messageTime + STATUS_TIMEOUT < System.currentTimeMillis()) {
@@ -141,7 +141,7 @@ class FederatedSessionControl(
                     sessionInfo.remove(id)
                     return@let
                 }
-                if (it.queued && id < jdaProps.shardStart) return true  // a shard below the ones managed by us is queued
+                if (it.queued && id < sentinelProps.shardStart) return true  // a shard below the ones managed by us is queued
                 if (it.queued && id == homeShardId) return true       // the home shard is queued on one of the other nodes
             }
         }
@@ -150,8 +150,8 @@ class FederatedSessionControl(
 
     @RabbitHandler
     fun onShardConnect(event: ShardConnectEvent) {
-        if (jdaProps.shardCount != event.shardCount) {
-            log.warn("Conflicting shard count, ignoring. ${jdaProps.shardCount} != ${event.shardCount}")
+        if (sentinelProps.shardCount != event.shardCount) {
+            log.warn("Conflicting shard count, ignoring. ${sentinelProps.shardCount} != ${event.shardCount}")
             return
         }
         lastConnect = Math.max(lastConnect, event.connectTime)
@@ -159,23 +159,23 @@ class FederatedSessionControl(
 
     @RabbitHandler
     fun onShardInfo(event: SessionInfo) {
-        if (jdaProps.shardCount != event.shardCount) {
-            log.warn("Conflicting shard count, ignoring. ${jdaProps.shardCount} != ${event.shardCount}")
+        if (sentinelProps.shardCount != event.shardCount) {
+            log.warn("Conflicting shard count, ignoring. ${sentinelProps.shardCount} != ${event.shardCount}")
             return
         }
         event.info.forEach {
             // Ignore shards we own
-            if (it.id >= jdaProps.shardStart && it.id <= jdaProps.shardEnd) return@forEach
+            if (it.id >= sentinelProps.shardStart && it.id <= sentinelProps.shardEnd) return@forEach
             sessionInfo[it.id] = it
         }
     }
 
     fun sendSessionInfo() {
         val list = mutableListOf<ShardSessionInfo>()
-        for (id in jdaProps.shardStart..jdaProps.shardEnd) {
+        for (id in sentinelProps.shardStart..sentinelProps.shardEnd) {
             list.add(ShardSessionInfo(id, localQueue.containsKey(id), System.currentTimeMillis()))
         }
-        rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", SessionInfo(jdaProps.shardCount, list))
+        rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", SessionInfo(sentinelProps.shardCount, list))
         lastBroadcast = System.currentTimeMillis()
     }
 

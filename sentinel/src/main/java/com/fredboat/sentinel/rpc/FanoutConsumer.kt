@@ -8,7 +8,7 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.SentinelExchanges
-import com.fredboat.sentinel.config.JdaProperties
+import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.config.RoutingKey
 import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service
 @RabbitListener(queues = ["#{fanoutQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
 class FanoutConsumer(
         private val template: RabbitTemplate,
-        private val jdaProperties: JdaProperties,
+        private val sentinelProperties: SentinelProperties,
         private val key: RoutingKey,
         @param:Qualifier("guildSubscriptions")
         private val subscriptions: MutableSet<Long>,
@@ -57,7 +57,7 @@ class FanoutConsumer(
     }
 
     private fun sendHello() {
-        val message = jdaProperties.run {  SentinelHello(
+        val message = sentinelProperties.run {  SentinelHello(
                 shardStart,
                 shardEnd,
                 shardCount,

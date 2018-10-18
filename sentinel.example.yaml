@@ -8,6 +8,7 @@ sentinel:
   shardEnd: 0
 
   shardCount: 1 # The total number of shards of your entire bot
+  instance: dev # A human-readable identifier
 
 sentry:
   dsn: ""

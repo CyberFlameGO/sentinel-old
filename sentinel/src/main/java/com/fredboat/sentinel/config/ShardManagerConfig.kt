@@ -28,20 +28,20 @@ class ShardManagerConfig {
         private val log: Logger = LoggerFactory.getLogger(ShardManagerConfig::class.java)
     }
     @Bean
-    fun buildShardManager(jdaProperties: JdaProperties,
+    fun buildShardManager(sentinelProperties: SentinelProperties,
                           rabbitEventListener: JdaRabbitEventListener,
                           sessionController: SessionController
     ): ShardManager {
 
         val builder = DefaultShardManagerBuilder()
-                .setToken(jdaProperties.discordToken)
+                .setToken(sentinelProperties.discordToken)
                 .setBulkDeleteSplittingEnabled(false)
                 .setEnableShutdownHook(false)
                 .setAudioEnabled(true)
                 .setAutoReconnect(true)
                 .setSessionController(SessionControllerAdapter())
-                .setShardsTotal(jdaProperties.shardCount)
-                .setShards(jdaProperties.shardStart, jdaProperties.shardEnd)
+                .setShardsTotal(sentinelProperties.shardCount)
+                .setShards(sentinelProperties.shardStart, sentinelProperties.shardEnd)
                 .setSessionController(sessionController)
                 //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder() TODO
                 //        .eventListener(OkHttpEventMetrics("jda", Metrics.httpEventCounter)))

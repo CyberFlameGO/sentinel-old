@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.retry.interceptor.RetryInterceptorBuilder
 import org.springframework.retry.interceptor.RetryOperationsInterceptor
-import java.net.InetAddress
 import java.util.*
 
 
@@ -38,9 +37,9 @@ class RabbitConfig {
     }
 
     @Bean
-    fun routingKey(): RoutingKey {
-        val rand = UUID.randomUUID().toString().replace("-", "").substring(0, 8)
-        val id = "${InetAddress.getLocalHost().hostName}-$rand"
+    fun routingKey(props: SentinelProperties): RoutingKey {
+        val rand = UUID.randomUUID().toString().replace("-", "").substring(0, 4)
+        val id = "${props.instance}-$rand"
         log.info("Unique identifier for this session: $id")
         return RoutingKey(id)
     }
