@@ -18,11 +18,11 @@ class RabbitQueuesConfig {
 
     /* Events */
 
-    @Bean
-    fun eventExchange() = DirectExchange(SentinelExchanges.EVENTS)
+    //@Bean
+    //fun eventExchange() = DirectExchange(SentinelExchanges.EVENTS)
 
-    @Bean
-    fun eventQueue() = Queue(SentinelExchanges.EVENTS, false)
+    //@Bean
+    //fun eventQueue() = Queue(SentinelExchanges.EVENTS, false)
 
     /* Requests */
 
@@ -30,7 +30,7 @@ class RabbitQueuesConfig {
     fun requestExchange() = DirectExchange(SentinelExchanges.REQUESTS)
 
     @Bean
-    fun requestQueue() = AnonymousQueue()
+    fun requestQueue(key: RoutingKey) = createQueue(SentinelExchanges.REQUESTS, key)
 
     @Bean
     fun requestBinding(
@@ -43,11 +43,8 @@ class RabbitQueuesConfig {
 
     /* Fanout */
 
-    /** This queue auto-deletes */
     @Bean
-    fun fanoutQueue(): Queue {
-        return AnonymousQueue()
-    }
+    fun fanoutQueue(key: RoutingKey) = createQueue(SentinelExchanges.FANOUT, key)
 
     /** The fanout where we will receive broadcast messages from FredBoat */
     @Bean
@@ -66,11 +63,8 @@ class RabbitQueuesConfig {
 
     /* Sessions */
 
-    /** This queue auto-deletes */
     @Bean
-    fun sessionsQueue(): Queue {
-        return AnonymousQueue()
-    }
+    fun sessionsQueue(key: RoutingKey) = createQueue(SentinelExchanges.SESSIONS, key)
 
     /** The fanout where we will receive broadcast messages from FredBoat */
     @Bean
@@ -86,5 +80,9 @@ class RabbitQueuesConfig {
     ): Binding {
         return BindingBuilder.bind(sessionsQueue).to(sessionsFanout)
     }
+
+    /** Equivalent to an AnonymousQueue, but with a custom name */
+    private fun createQueue(exchange: String, key: RoutingKey)
+            = Queue("$exchange-$key", false, true, true)
 
 }
