@@ -63,6 +63,7 @@ class RemoteSessionController(
             throw IllegalStateException("Node $id is not queued")
         }
         node.run(false) // Always assume false, so that we don't immediately return
+        localQueue.remove(node.shardInfo.shardId)
 
         return "" // Generates a reply
     }
