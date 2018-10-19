@@ -54,7 +54,7 @@ class RemoteSessionController(
         localQueue.values.forEach { it.send(false) }
     }
 
-    fun onRunRequest(id: Int) {
+    fun onRunRequest(id: Int): Any {
         log.info("Received request to run shard $id")
         val node = localQueue[id]
         if(node == null) {
@@ -63,6 +63,8 @@ class RemoteSessionController(
             throw IllegalStateException("Node $id is not queued")
         }
         node.run(false) // Always assume false, so that we don't immediately return
+
+        return Any()
     }
 
     fun SessionConnectNode.send(remove: Boolean) {
