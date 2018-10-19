@@ -12,6 +12,7 @@ import com.fredboat.sentinel.config.RoutingKey
 import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
+import com.fredboat.sentinel.jda.RemoteSessionController
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Game
 import org.slf4j.Logger
@@ -30,28 +31,33 @@ class FanoutConsumer(
         private val key: RoutingKey,
         @param:Qualifier("guildSubscriptions")
         private val subscriptions: MutableSet<Long>,
-        private val shardManager: ShardManager
+        private val shardManager: ShardManager,
+        private val sessionController: RemoteSessionController
 ) {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(FanoutConsumer::class.java)
     }
 
+    var knownFredBoatId: String? = null
+
     init {
         sendHello()
     }
 
     @RabbitHandler
-    fun onHello(request: FredBoatHello) {
-        if (request.startup) {
-            log.info("FredBoat says hello \uD83D\uDC4B - Clearing subscriptions")
+    fun onHello(event: FredBoatHello) {
+        if (event.id != knownFredBoatId) {
+            log.info("FredBoat ${event.id} says hello \uD83D\uDC4B - Replaces $knownFredBoatId")
+            knownFredBoatId = event.id
             subscriptions.clear()
+            sessionController.resendEvents()
         } else {
-            log.info("FredBoat says hello \uD83D\uDC4B")
+            log.info("FredBoat ${event.id} says hello \uD83D\uDC4B")
         }
 
         sendHello()
-        val game = if (request.game.isBlank()) null else Game.playing(request.game)
+        val game = if (event.game.isBlank()) null else Game.playing(event.game)
         // Null means reset
         shardManager.setGame(game)
     }
