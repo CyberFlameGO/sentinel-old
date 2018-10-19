@@ -8,7 +8,10 @@
 package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.SentinelExchanges
+import com.fredboat.sentinel.config.RoutingKey
 import com.fredboat.sentinel.config.SentinelProperties
+import com.fredboat.sentinel.entities.AppendSessionEvent
+import com.fredboat.sentinel.entities.RemoveSessionEvent
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.SessionController
 import net.dv8tion.jda.core.utils.SessionController.SessionConnectNode
@@ -21,32 +24,57 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 
-private val log: Logger = LoggerFactory.getLogger(FederatedSessionControl::class.java)
-/** Time between broadcasting status */
-private const val BROADCAST_INTERVAL = 5_000
-/** Status updates older than this timeout are ignored to prevent ghosts */
-private const val STATUS_TIMEOUT = 12_000
-/** Discord guild id of FredBoat Hangout */
-private const val homeGuildId = 174820236481134592L
+private val log: Logger = LoggerFactory.getLogger(RemoteSessionController::class.java)
 
 @Service
 @RabbitListener(queues = ["#{sessionsQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
-class FederatedSessionControl(
+class RemoteSessionController(
         val sentinelProps: SentinelProperties,
-        val rabbit: RabbitTemplate
+        val rabbit: RabbitTemplate,
+        val routingKey: RoutingKey
 ) : SessionController {
 
     private val adapter = SessionControllerAdapter()
     private val localQueue = ConcurrentHashMap<Int, SessionConnectNode>()
-    @Volatile
     private var globalRatelimit = -1L
-    @Volatile
-    private var worker: Thread? = null
-    @Volatile
-    private var lastConnect = 0L
-    private val sessionInfo = ConcurrentHashMap<Int, ShardSessionInfo>()
-    private var lastBroadcast = 0L
-    private val homeShardId: Int get() = ((homeGuildId shr 22) % sentinelProps.shardCount).toInt()
+
+    override fun appendSession(node: SessionConnectNode) {
+        localQueue[node.shardInfo.shardId] = node
+        node.send(false)
+    }
+
+    override fun removeSession(node: SessionConnectNode) {
+        localQueue.remove(node.shardInfo.shardId)
+        node.send(true)
+    }
+
+    /** Sends an event for each shard currently in the queue. Useful for when FredBoat has restarted, and needs
+     *  to be aware of the queue. */
+    fun resendEvents() {
+        localQueue.values.forEach { it.send(false) }
+    }
+
+    fun onRunRequest(id: Int) {
+        log.info("Received request to run shard $id")
+        val node = localQueue[id]
+        if(node == null) {
+            val msg = RemoveSessionEvent(id, sentinelProps.shardCount, routingKey.key)
+            rabbit.convertAndSend(SentinelExchanges.EVENTS, "", msg)
+            throw IllegalStateException("Node $id is not queued")
+        }
+        node.run(false) // Always assume false, so that we don't immediately return
+    }
+
+    fun SessionConnectNode.send(remove: Boolean) {
+        val msg: Any = if (remove) {
+            RemoveSessionEvent(shardInfo.shardId, shardInfo.shardTotal, routingKey.key)
+        } else {
+            AppendSessionEvent(shardInfo.shardId, shardInfo.shardTotal, routingKey.key)
+        }
+        rabbit.convertAndSend(SentinelExchanges.EVENTS, "", msg)
+    }
+
+    /* Handle gateway and global ratelimit */
 
     override fun getGlobalRatelimit() = globalRatelimit
 
@@ -60,142 +88,8 @@ class FederatedSessionControl(
         globalRatelimit = event.new
     }
 
-    override fun appendSession(node: SessionConnectNode) {
-        if (node.shardInfo.shardId < sentinelProps.shardStart || node.shardInfo.shardId > sentinelProps.shardEnd) {
-            throw IllegalArgumentException("Shard ${node.shardInfo.shardId} is out of bounds from $sentinelProps")
-        }
-
-        localQueue[node.shardInfo.shardId] = node
-        if (worker == null || worker?.state == Thread.State.TERMINATED) {
-            if (worker?.state == Thread.State.TERMINATED) log.warn("Session worker was terminated. Starting a new one")
-
-            worker = Thread(workerRunnable).apply {
-                name = "sentinel-session-worker"
-                setUncaughtExceptionHandler { _, e -> log.error("Exception in worker", e) }
-                start()
-            }
-        }
-        sendSessionInfo()
-    }
-
-    override fun removeSession(node: SessionConnectNode) {
-        if (!localQueue.remove(node.shardInfo.shardId, node))
-            log.warn("Attempted to remove ${node.shardInfo.shardString}, but it was already removed")
-    }
-
     override fun getGateway(api: JDA) = adapter.getGateway(api)!!
     override fun getGatewayBot(api: JDA) = adapter.getGatewayBot(api)!!
-
-    private val workerRunnable = Runnable {
-        log.info("Session worker started, requesting data from other Sentinels")
-        rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", SessionSyncRequest())
-        Thread.sleep(2000) // Ample time
-        val ourShards = sentinelProps.run { shardEnd - shardStart + 1 }
-        log.info("Gathered info for [${sessionInfo.size + ourShards}/${sentinelProps.shardCount}] shards.")
-
-        while (true) {
-            try {
-                if (!isWaitingOnOtherInstances() && localQueue.isNotEmpty()) {
-                    // Make sure we wait before starting the next shard
-                    val toWait = lastConnect + SessionController.IDENTIFY_DELAY * 1000 - System.currentTimeMillis()
-                    if (toWait > 0) Thread.sleep(toWait)
-
-                    val node = getNextNode()
-                    node.run(false) // We'll always want to use false to get the right timestamp
-                    localQueue.remove(node.shardInfo.shardId)
-                    lastConnect = System.currentTimeMillis()
-                    rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", ShardConnectEvent(sentinelProps.shardCount))
-                    sendSessionInfo()
-                    Thread.sleep(SessionController.IDENTIFY_DELAY * 1000L)
-                }
-            } catch (e: Exception) {
-                if (e is InterruptedException) throw e
-                log.error("Unexpected exception in session worker", e)
-            }
-            Thread.sleep(50)
-            if (lastBroadcast + BROADCAST_INTERVAL < System.currentTimeMillis()) sendSessionInfo()
-        }
-    }
-
-    /**
-     * Gets whatever [SessionConnectNode] has the lowest shard id.
-     * Set must not be empty
-     */
-    private fun getNextNode() = localQueue.reduceEntries(1) { acc, entry ->
-        return@reduceEntries if (entry.key < acc.key || isHomeShard(entry.value)) entry else acc
-    }.value
-
-    private fun isHomeShard(node: SessionConnectNode) = homeShardId == node.shardInfo.shardId
-    private fun isHomeShardOurs() = sentinelProps.shardStart <= homeShardId && homeShardId <= sentinelProps.shardEnd
-
-    private fun isWaitingOnOtherInstances(): Boolean {
-        // if we manage the home shard and it needs connecting we have priority
-        if (isHomeShardOurs() && localQueue.containsKey(homeShardId)) {
-            return false
-        }
-        for (id in 0..(sentinelProps.shardCount - 1)) {
-            sessionInfo[id]?.let {
-                // Is this shard queued and is it not too old?
-                if (it.messageTime + STATUS_TIMEOUT < System.currentTimeMillis()) {
-                    log.info("No new update for shard $id for ${System.currentTimeMillis() - it.messageTime}ms so ignoring")
-                    sessionInfo.remove(id)
-                    return@let
-                }
-                if (it.queued && id < sentinelProps.shardStart) return true  // a shard below the ones managed by us is queued
-                if (it.queued && id == homeShardId) return true       // the home shard is queued on one of the other nodes
-            }
-        }
-        return false
-    }
-
-    @RabbitHandler
-    fun onShardConnect(event: ShardConnectEvent) {
-        if (sentinelProps.shardCount != event.shardCount) {
-            log.warn("Conflicting shard count, ignoring. ${sentinelProps.shardCount} != ${event.shardCount}")
-            return
-        }
-        lastConnect = Math.max(lastConnect, event.connectTime)
-    }
-
-    @RabbitHandler
-    fun onShardInfo(event: SessionInfo) {
-        if (sentinelProps.shardCount != event.shardCount) {
-            log.warn("Conflicting shard count, ignoring. ${sentinelProps.shardCount} != ${event.shardCount}")
-            return
-        }
-        event.info.forEach {
-            // Ignore shards we own
-            if (it.id >= sentinelProps.shardStart && it.id <= sentinelProps.shardEnd) return@forEach
-            sessionInfo[it.id] = it
-        }
-    }
-
-    fun sendSessionInfo() {
-        val list = mutableListOf<ShardSessionInfo>()
-        for (id in sentinelProps.shardStart..sentinelProps.shardEnd) {
-            list.add(ShardSessionInfo(id, localQueue.containsKey(id), System.currentTimeMillis()))
-        }
-        rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", SessionInfo(sentinelProps.shardCount, list))
-        lastBroadcast = System.currentTimeMillis()
-    }
-
-    @RabbitHandler
-    fun onSyncRequest(request: SessionSyncRequest) = sendSessionInfo()
-
 }
 
-/** Sent when a new instance needs all the info */
-class SessionSyncRequest
-
-class ShardConnectEvent(val shardCount: Int) {
-    val connectTime = System.currentTimeMillis()
-}
-
-class SetGlobalRatelimit(val new: Long)
-
-data class SessionInfo(
-        val shardCount: Int,
-        val info: List<ShardSessionInfo>
-)
-
-data class ShardSessionInfo(val id: Int, val queued: Boolean, val messageTime: Long)
+data class SetGlobalRatelimit(val new: Long)

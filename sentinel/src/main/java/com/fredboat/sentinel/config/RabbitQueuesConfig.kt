@@ -38,7 +38,7 @@ class RabbitQueuesConfig {
             @Qualifier("requestQueue") requestQueue: Queue,
             key: RoutingKey
     ): Binding {
-        return BindingBuilder.bind(requestQueue).to(requestExchange).with(key.id)
+        return BindingBuilder.bind(requestQueue).to(requestExchange).with(key.key)
     }
 
     /* Fanout */

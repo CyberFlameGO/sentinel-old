@@ -8,6 +8,7 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
+import com.fredboat.sentinel.jda.RemoteSessionController
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
@@ -20,7 +21,8 @@ class DirectConsumer(
         private val management: ManagementRequests,
         private val message: MessageRequests,
         private val permission: PermissionRequests,
-        private val subscription: SubscriptionHandler
+        private val subscription: SubscriptionHandler,
+        private val sessionController: RemoteSessionController
 ) {
 
     @RabbitHandler fun consume(request: AudioQueueRequest) = audio.consume(request)
@@ -53,5 +55,7 @@ class DirectConsumer(
 
     @RabbitHandler fun consume(request: GuildSubscribeRequest) = subscription.consume(request)
     @RabbitHandler fun consume(request: GuildUnsubscribeRequest) = subscription.consume(request)
+
+    @RabbitHandler fun consume(request: RunSessionRequest) = sessionController.onRunRequest(request.shardId)
 
 }

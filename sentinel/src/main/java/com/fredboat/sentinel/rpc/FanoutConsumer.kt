@@ -8,8 +8,8 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.SentinelExchanges
-import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.config.RoutingKey
+import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
 import net.dv8tion.jda.bot.sharding.ShardManager
@@ -61,7 +61,7 @@ class FanoutConsumer(
                 shardStart,
                 shardEnd,
                 shardCount,
-                key.id
+                key.key
         )}
         template.convertAndSend(SentinelExchanges.EVENTS, message)
     }

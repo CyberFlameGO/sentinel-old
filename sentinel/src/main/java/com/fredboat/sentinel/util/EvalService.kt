@@ -51,7 +51,7 @@ class EvalService(
     private fun createMono(source: String): Mono<String> = Mono.create { sink ->
         val engine: ScriptEngine = ScriptEngineManager().getEngineByExtension("kts")
 
-        engine.put("key", key.id)
+        engine.put("key", key.key)
         engine.put("shards", shards)
         engine.put("sentinelProps", sentinelProps)
         engine.put("spring", springContext.get())
