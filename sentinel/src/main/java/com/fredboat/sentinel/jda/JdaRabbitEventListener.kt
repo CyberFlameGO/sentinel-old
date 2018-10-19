@@ -54,7 +54,6 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter
 import net.dv8tion.jda.core.utils.PermissionUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.amqp.core.DirectExchange
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
@@ -65,8 +64,6 @@ class JdaRabbitEventListener(
         private val rabbitTemplate: RabbitTemplate,
         @param:Qualifier("guildSubscriptions")
         private val subscriptions: MutableSet<Long>,
-        @param:Qualifier("eventExchange")
-        private val eventsExchange: DirectExchange,
         private val voiceServerUpdateCache: VoiceServerUpdateCache
 ) : ListenerAdapter() {
 
