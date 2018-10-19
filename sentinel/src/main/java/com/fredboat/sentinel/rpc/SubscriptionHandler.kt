@@ -10,8 +10,8 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.entities.Guild
 import com.fredboat.sentinel.entities.GuildSubscribeRequest
 import com.fredboat.sentinel.entities.GuildUnsubscribeRequest
-import com.fredboat.sentinel.util.toEntity
 import com.fredboat.sentinel.jda.VoiceServerUpdateCache
+import com.fredboat.sentinel.util.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,7 +30,7 @@ class SubscriptionHandler(
         private val log: Logger = LoggerFactory.getLogger(SubscriptionHandler::class.java)
         /** Threshold at which we will send a warning if the guild being loaded is large */
         private const val LARGE_GUILD_THRESHOLD = 50000L
-        private const val LARGE_GUILD_WARNING = "Preparing to play in a large server, give me a moment to get ready..."
+        private const val LARGE_GUILD_WARNING = "This server is very big. Allow me a moment to initialize some thing..."
     }
 
     fun consume(request: GuildSubscribeRequest): Guild? {
