@@ -7,6 +7,6 @@
 
 package com.fredboat.sentinel.config
 
-data class RoutingKey(val id: String) {
-    override fun toString() = id
+data class RoutingKey(val key: String) {
+    override fun toString() = key
 }

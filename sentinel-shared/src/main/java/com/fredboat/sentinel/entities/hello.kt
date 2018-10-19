@@ -9,8 +9,9 @@ package com.fredboat.sentinel.entities
 
 /** Sent by FredBoat to fanout. We will respond with [SentinelHello] */
 class FredBoatHello(
-        /** If true Sentinel will reset its subscriptions */
-        val startup: Boolean,
+        /** Distinguishes between sessions.
+         * We must clear our subscriptions and requeue sessions when a new one is started. */
+        val id: String,
         /** Discord status */
         val game: String
 )

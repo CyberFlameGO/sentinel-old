@@ -12,7 +12,6 @@ import com.fredboat.sentinel.jda.JdaRabbitEventListener
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.utils.SessionController
-import net.dv8tion.jda.core.utils.SessionControllerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -39,7 +38,6 @@ class ShardManagerConfig {
                 .setEnableShutdownHook(false)
                 .setAudioEnabled(true)
                 .setAutoReconnect(true)
-                .setSessionController(SessionControllerAdapter())
                 .setShardsTotal(sentinelProperties.shardCount)
                 .setShards(sentinelProperties.shardStart, sentinelProperties.shardEnd)
                 .setSessionController(sessionController)
