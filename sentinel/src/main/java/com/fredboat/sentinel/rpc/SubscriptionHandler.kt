@@ -30,7 +30,7 @@ class SubscriptionHandler(
         private val log: Logger = LoggerFactory.getLogger(SubscriptionHandler::class.java)
         /** Threshold at which we will send a warning if the guild being loaded is large */
         private const val LARGE_GUILD_THRESHOLD = 50000L
-        private const val LARGE_GUILD_WARNING = "This server is very big. Allow me a moment to initialize some thing..."
+        private const val LARGE_GUILD_WARNING = "Loading large server. Please wait..."
     }
 
     fun consume(request: GuildSubscribeRequest): Guild? {
