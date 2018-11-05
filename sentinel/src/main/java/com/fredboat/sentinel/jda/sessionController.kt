@@ -40,11 +40,13 @@ class RemoteSessionController(
 
     override fun appendSession(node: SessionConnectNode) {
         localQueue[node.shardInfo.shardId] = node
+        log.info("Added ${node.shardInfo} to the queue. Queue size is ${localQueue.size}.")
         node.send(false)
     }
 
     override fun removeSession(node: SessionConnectNode) {
         localQueue.remove(node.shardInfo.shardId)
+        log.info("Removed ${node.shardInfo} from the queue. Queue size is ${localQueue.size}.")
         node.send(true)
     }
 
