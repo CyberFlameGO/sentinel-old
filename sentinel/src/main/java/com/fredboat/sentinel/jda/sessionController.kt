@@ -67,7 +67,7 @@ class RemoteSessionController(
         node.run(false) // Always assume false, so that we don't immediately return
         removeSession(node)
 
-        return "" // Generates a reply
+        return "Started node ${node.shardInfo}" // Generates a reply
     }
 
     fun SessionConnectNode.send(remove: Boolean) {
