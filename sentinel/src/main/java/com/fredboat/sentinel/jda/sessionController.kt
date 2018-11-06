@@ -52,7 +52,7 @@ class RemoteSessionController(
 
     /** Sends an event for each shard currently in the queue. Useful for when FredBoat has restarted, and needs
      *  to be aware of the queue. */
-    fun resendEvents() {
+    fun syncSessionQueue() {
         localQueue.values.forEach { it.send(false) }
     }
 

@@ -9,6 +9,7 @@ package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
+import com.fredboat.sentinel.jda.RemoteSessionController
 import com.fredboat.sentinel.util.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
@@ -18,7 +19,8 @@ import java.util.*
 @Service
 class ManagementRequests(
         private val shardManager: ShardManager,
-        private val eval: EvalService
+        private val eval: EvalService,
+        private val sessionController: RemoteSessionController
 ) {
 
     fun consume(modRequest: ModRequest): String = modRequest.run {
@@ -92,6 +94,10 @@ class ManagementRequests(
                 blockingEvalThread = null
             }
         }
+    }
+
+    fun consume(request: SyncSessionQueueRequest) {
+        sessionController.syncSessionQueue()
     }
 
 }

@@ -41,6 +41,7 @@ class DirectConsumer(
     @RabbitHandler fun consume(request: UserListRequest) = management.consume(request)
     @RabbitHandler fun consume(request: BanListRequest) = management.consume(request)
     @RabbitHandler fun consume(request: EvalRequest) = management.consume(request)
+    @RabbitHandler fun consume(request: SyncSessionQueueRequest) = management.consume(request)
 
     @RabbitHandler fun consume(request: SendMessageRequest) = message.consume(request)
     @RabbitHandler fun consume(request: SendEmbedRequest) = message.consume(request)

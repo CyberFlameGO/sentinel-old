@@ -51,7 +51,7 @@ class FanoutConsumer(
             log.info("FredBoat ${event.id} says hello \uD83D\uDC4B - Replaces $knownFredBoatId")
             knownFredBoatId = event.id
             subscriptions.clear()
-            sessionController.resendEvents()
+            sessionController.syncSessionQueue()
         } else {
             log.info("FredBoat ${event.id} says hello \uD83D\uDC4B")
         }
