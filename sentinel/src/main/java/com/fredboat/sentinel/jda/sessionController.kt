@@ -18,6 +18,7 @@ import net.dv8tion.jda.core.utils.SessionController.SessionConnectNode
 import net.dv8tion.jda.core.utils.SessionControllerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.amqp.core.MessageDeliveryMode
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -76,7 +77,11 @@ class RemoteSessionController(
         } else {
             AppendSessionEvent(shardInfo.shardId, shardInfo.shardTotal, routingKey.key)
         }
-        rabbit.convertAndSend(SentinelExchanges.EVENTS, "", msg)
+        rabbit.convertAndSend(SentinelExchanges.EVENTS, "", msg) {
+            it.messageProperties.deliveryMode = MessageDeliveryMode.PERSISTENT
+            it.messageProperties.expiration = "120000" // 2 minutes
+            it
+        }
     }
 
     /* Handle gateway and global ratelimit */
