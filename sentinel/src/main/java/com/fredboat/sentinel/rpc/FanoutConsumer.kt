@@ -12,6 +12,7 @@ import com.fredboat.sentinel.config.RoutingKey
 import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
+import com.fredboat.sentinel.entities.SyncSessionQueueRequest
 import com.fredboat.sentinel.jda.RemoteSessionController
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Game
@@ -70,6 +71,11 @@ class FanoutConsumer(
                 key.key
         )}
         template.convertAndSend(SentinelExchanges.EVENTS, message)
+    }
+
+    @RabbitHandler
+    fun consume(request: SyncSessionQueueRequest) {
+        sessionController.syncSessionQueue()
     }
 
 }

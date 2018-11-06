@@ -96,8 +96,4 @@ class ManagementRequests(
         }
     }
 
-    fun consume(request: SyncSessionQueueRequest) {
-        sessionController.syncSessionQueue()
-    }
-
 }
