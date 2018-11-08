@@ -12,7 +12,10 @@ import com.fredboat.sentinel.util.complete
 import com.fredboat.sentinel.util.queue
 import com.fredboat.sentinel.util.toJda
 import net.dv8tion.jda.bot.sharding.ShardManager
+import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.TextChannel
+import net.dv8tion.jda.core.entities.impl.JDAImpl
+import net.dv8tion.jda.core.entities.impl.UserImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -51,13 +54,9 @@ class MessageRequests(private val shardManager: ShardManager) {
     }
 
     fun consume(request: SendPrivateMessageRequest): SendMessageResponse? {
-        val user = shardManager.getUserById(request.recipient)
+        val shard = shardManager.shards.find { it.status == JDA.Status.CONNECTED } as JDAImpl
+        val user = UserImpl(request.recipient, shard)
         val channel = user.openPrivateChannel().complete(true)!!
-
-        if (user == null) {
-            log.error("User ${request.recipient} was not found when sending private message")
-            return null
-        }
 
         return SendMessageResponse(
                 channel.sendMessage(request.message).complete("sendPrivate").idLong
