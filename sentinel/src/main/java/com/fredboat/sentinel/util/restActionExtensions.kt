@@ -21,5 +21,5 @@ private fun <T> RestAction<T>.toFuture(name: String) = submit().whenComplete { _
         return@whenComplete
     }
     val errCode = (t as? ErrorResponseException)?.errorCode?.toString() ?: "none"
-    Counters.failedRestActions.labels(name, errCode)
+    Counters.failedRestActions.labels(name, errCode).inc()
 }.toCompletableFuture()!!

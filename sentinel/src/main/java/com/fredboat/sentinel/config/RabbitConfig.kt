@@ -59,7 +59,7 @@ class RabbitConfig {
     @Bean
     fun rabbitListenerErrorHandler() = RabbitListenerErrorHandler { _, msg, e ->
         val name = msg.payload?.javaClass?.simpleName ?: "unknown"
-        Counters.failedRequests.labels(name).inc()
+        Counters.failedSentinelRequests.labels(name).inc()
         log.error("Error handling request $name", e)
         null
     }

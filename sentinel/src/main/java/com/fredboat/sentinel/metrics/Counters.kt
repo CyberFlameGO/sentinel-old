@@ -11,15 +11,15 @@ import io.prometheus.client.Counter
 
 object Counters {
 
-    // ################################################################################
-    // ##                              JDA Stats
-    // ################################################################################
-
-    val failedRequests = Counter.build()
+    val failedSentinelRequests = Counter.build()
             .name("requests_failed_total")
             .help("All failed requests consumed by Sentinel")
             .labelNames("class")
             .register()!!
+
+    // ################################################################################
+    // ##                              JDA Stats
+    // ################################################################################
 
     val jdaEvents = Counter.build()
             .name("jda_events_received_total")
