@@ -39,4 +39,13 @@ object Counters {
             .labelNames("restaction", "error_response_code") //Use the error response codes like: 50013, 10008 etc
             .register()!!
 
+    /**
+     * Code prefixed with c or s for client and server, respectively
+     */
+    val shardDisconnects = Counter.build()
+            .name("jda_disconnects")
+            .help("Total shard disconnects")
+            .labelNames("code")
+            .register()!!
+
 }

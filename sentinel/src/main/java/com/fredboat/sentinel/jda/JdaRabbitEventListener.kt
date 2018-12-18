@@ -11,6 +11,7 @@ import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.metrics.Counters
 import com.fredboat.sentinel.util.toEntity
+import com.neovisionaries.ws.client.WebSocketFrame
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Channel
@@ -93,8 +94,18 @@ class JdaRabbitEventListener(
         }
     }
 
-    override fun onDisconnect(event: DisconnectEvent) =
-            dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.DISCONNECTED))
+    override fun onDisconnect(event: DisconnectEvent) {
+        dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.DISCONNECTED))
+
+        val frame: WebSocketFrame? = if (event.isClosedByServer)
+            event.serviceCloseFrame else event.clientCloseFrame
+
+        val prefix = if (event.isClosedByServer) "s" else "c"
+        val code = "$prefix${frame?.closeCode}"
+        
+        log.warn("Shard ${event.jda.shardInfo} closed. {} {}", code, frame?.closeReason)
+        Counters.shardDisconnects.labels(code).inc()
+    }
 
     override fun onResume(event: ResumedEvent) =
             dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.RESUMED))
@@ -311,7 +322,7 @@ class JdaRabbitEventListener(
 
     private fun dispatch(event: Any, print: Boolean = false) {
         rabbitTemplate.convertAndSend(SentinelExchanges.EVENTS, rabbitTemplate.routingKey, event)
-        if(print) log.info("Sent $event")
+        if (print) log.info("Sent $event")
     }
 
     override fun onHttpRequest(event: HttpRequestEvent) {
