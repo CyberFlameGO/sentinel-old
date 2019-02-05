@@ -9,6 +9,7 @@ package com.fredboat.sentinel.config
 
 import com.fredboat.sentinel.ApplicationState
 import com.fredboat.sentinel.jda.JdaRabbitEventListener
+import com.fredboat.sentinel.jda.RemoteSessionController
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.utils.SessionController
@@ -30,7 +31,7 @@ class ShardManagerConfig {
     @Bean
     fun buildShardManager(sentinelProperties: SentinelProperties,
                           rabbitEventListener: JdaRabbitEventListener,
-                          sessionController: SessionController
+                          sessionController: RemoteSessionController
     ): ShardManager {
 
         val builder = DefaultShardManagerBuilder()
@@ -50,6 +51,7 @@ class ShardManagerConfig {
         val shardManager: ShardManager
         try {
             shardManager = builder.build()
+            sessionController.shardManager = shardManager
             rabbitEventListener.shardManager = shardManager
             if (ApplicationState.isTesting) {
                 log.info("Shutting down JDA because we are running tests")

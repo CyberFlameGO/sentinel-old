@@ -12,6 +12,7 @@ import com.fredboat.sentinel.config.RoutingKey
 import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.entities.AppendSessionEvent
 import com.fredboat.sentinel.entities.RemoveSessionEvent
+import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.SessionController
 import net.dv8tion.jda.core.utils.SessionController.SessionConnectNode
@@ -37,6 +38,7 @@ class RemoteSessionController(
     private val adapter = SessionControllerAdapter()
     private val localQueue = ConcurrentHashMap<Int, SessionConnectNode>()
     private var globalRatelimit = -1L
+    lateinit var shardManager: ShardManager
 
     override fun appendSession(node: SessionConnectNode) {
         localQueue[node.shardInfo.shardId] = node
@@ -56,14 +58,24 @@ class RemoteSessionController(
         localQueue.values.forEach { it.send(false) }
     }
 
+    @Synchronized
     fun onRunRequest(id: Int): String {
-        log.info("Received request to run shard $id")
+        val status = shardManager.getShardById(id)?.status
+        log.info("Received request to run shard $id, which has status $status")
         val node = localQueue[id]
         if(node == null) {
             val msg = RemoveSessionEvent(id, sentinelProps.shardCount, routingKey.key)
             rabbit.convertAndSend(SentinelExchanges.EVENTS, "", msg)
             throw IllegalStateException("Node $id is not queued")
         }
+
+        if (shardManager.getShardById(id)?.status == JDA.Status.AWAITING_LOGIN_CONFIRMATION) {
+            val msg = "Refusing to run shard $id as it has status $status"
+            log.error(msg)
+            node.send(true)
+            return msg
+        }
+
         node.run(false) // Always assume false, so that we don't immediately return
         removeSession(node)
 
