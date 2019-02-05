@@ -42,7 +42,10 @@ class ManagementRequests(
         shardManager.shards[0].selfUser.manager.setAvatar(Icon.from(decoded)).queue("setAvatar")
     }
 
-    fun consume(request: ReviveShardRequest) = shardManager.restart(request.shardId)
+    fun consume(request: ReviveShardRequest): String {
+        shardManager.restart(request.shardId)
+        return "" // Generates a reply
+    }
 
     fun consume(request: LeaveGuildRequest) {
         val guild = shardManager.getGuildById(request.guildId)
