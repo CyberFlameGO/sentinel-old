@@ -71,6 +71,7 @@ ext {
     logbackVersion = "1.2.3"
     sentryVersion = '1.7.5'
     prometheusClientVersion = "0.4.0"
+    reactorVersion = "3.2.6.RELEASE"
 
     //testing deps
     junitVersion                = '5.1.0'
