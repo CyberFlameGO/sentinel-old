@@ -10,12 +10,13 @@ package com.fredboat.sentinel.util
 import com.fredboat.sentinel.metrics.Counters
 import net.dv8tion.jda.core.exceptions.ErrorResponseException
 import net.dv8tion.jda.core.requests.RestAction
+import org.jetbrains.kotlin.com.intellij.util.Function
 import java.util.concurrent.TimeUnit
 
 fun <T> RestAction<T>.queue(name: String) { toFuture(name) }
 fun <T> RestAction<T>.complete(name: String): T = toFuture(name).get(30, TimeUnit.SECONDS)
 
-private fun <T> RestAction<T>.toFuture(name: String) = submit().whenComplete { _, t ->
+fun <T> RestAction<T>.toFuture(name: String) = submit().whenComplete { _, t ->
     if (t == null) {
         Counters.successfulRestActions.labels(name).inc()
         return@whenComplete
