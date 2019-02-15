@@ -37,6 +37,7 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
     compile group: 'io.sentry', name: 'sentry-logback', version: sentryVersion
+    compile "org.yaml:snakeyaml:$snakeYamlVersion"
 
     compile group: 'io.prometheus', name: 'simpleclient', version: prometheusClientVersion
     compile group: 'io.prometheus', name: 'simpleclient_hotspot', version: prometheusClientVersion
