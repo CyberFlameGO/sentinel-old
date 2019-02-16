@@ -12,6 +12,8 @@ import com.fredboat.sentinel.jda.RemoteSessionController
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 
 @Service
 @RabbitListener(queues = ["#{requestQueue.name}"], errorHandler = "rabbitListenerErrorHandler", concurrency = "50")
@@ -25,37 +27,37 @@ class DirectConsumer(
         private val sessionController: RemoteSessionController
 ) {
 
-    @RabbitHandler fun consume(request: AudioQueueRequest) = audio.consume(request)
+    @RabbitHandler fun consume(request: AudioQueueRequest) = audio.consume(request).just()
+    @RabbitHandler fun consume(request: MemberInfoRequest) = info.consume(request).just()
+    @RabbitHandler fun consume(request: GuildInfoRequest) = info.consume(request).just()
+    @RabbitHandler fun consume(request: RoleInfoRequest) = info.consume(request).just()
+    @RabbitHandler fun consume(request: GetUserRequest) = info.consume(request).just()
 
-    @RabbitHandler fun consume(request: MemberInfoRequest) = info.consume(request)
-    @RabbitHandler fun consume(request: GuildInfoRequest) = info.consume(request)
-    @RabbitHandler fun consume(request: RoleInfoRequest) = info.consume(request)
-    @RabbitHandler fun consume(request: GetUserRequest) = info.consume(request)
-
-    @RabbitHandler fun consume(request: ModRequest) = management.consume(request)
-    @RabbitHandler fun consume(request: SetAvatarRequest) = management.consume(request)
-    @RabbitHandler fun consume(request: ReviveShardRequest) = management.consume(request)
-    @RabbitHandler fun consume(request: LeaveGuildRequest) = management.consume(request)
-    @RabbitHandler fun consume(request: GetPingRequest) = management.consume(request)
-    @RabbitHandler fun consume(request: SentinelInfoRequest) = management.consume(request)
-    @RabbitHandler fun consume(request: UserListRequest) = management.consume(request)
-    @RabbitHandler fun consume(request: BanListRequest) = management.consume(request)
-    @RabbitHandler fun consume(request: EvalRequest) = management.consume(request)
+    @RabbitHandler fun consume(request: ModRequest) = management.consume(request).just()
+    @RabbitHandler fun consume(request: SetAvatarRequest) = management.consume(request).just()
+    @RabbitHandler fun consume(request: ReviveShardRequest) = management.consume(request).just()
+    @RabbitHandler fun consume(request: LeaveGuildRequest) = management.consume(request).just()
+    @RabbitHandler fun consume(request: GetPingRequest) = management.consume(request).just()
+    @RabbitHandler fun consume(request: SentinelInfoRequest) = management.consume(request).just()
+    @RabbitHandler fun consume(request: UserListRequest) = management.consume(request).just()
+    @RabbitHandler fun consume(request: BanListRequest) = management.consume(request).just()
+    @RabbitHandler fun consume(request: EvalRequest) = management.consume(request).just()
 
     @RabbitHandler fun consume(request: SendMessageRequest) = message.consume(request)
     @RabbitHandler fun consume(request: SendEmbedRequest) = message.consume(request)
     @RabbitHandler fun consume(request: SendPrivateMessageRequest) = message.consume(request)
-    @RabbitHandler fun consume(request: EditMessageRequest) = message.consume(request)
-    @RabbitHandler fun consume(request: MessageDeleteRequest) = message.consume(request)
-    @RabbitHandler fun consume(request: SendTypingRequest) = message.consume(request)
+    @RabbitHandler fun consume(request: EditMessageRequest) = message.consume(request).just()
+    @RabbitHandler fun consume(request: MessageDeleteRequest) = message.consume(request).just()
+    @RabbitHandler fun consume(request: SendTypingRequest) = message.consume(request).just()
 
-    @RabbitHandler fun consume(request: GuildPermissionRequest) = permission.consume(request)
-    @RabbitHandler fun consume(request: ChannelPermissionRequest) = permission.consume(request)
-    @RabbitHandler fun consume(request: BulkGuildPermissionRequest) = permission.consume(request)
+    @RabbitHandler fun consume(request: GuildPermissionRequest) = permission.consume(request).just()
+    @RabbitHandler fun consume(request: ChannelPermissionRequest) = permission.consume(request).just()
+    @RabbitHandler fun consume(request: BulkGuildPermissionRequest) = permission.consume(request).just()
 
-    @RabbitHandler fun consume(request: GuildSubscribeRequest) = subscription.consume(request)
-    @RabbitHandler fun consume(request: GuildUnsubscribeRequest) = subscription.consume(request)
+    @RabbitHandler fun consume(request: GuildSubscribeRequest) = subscription.consume(request).just()
+    @RabbitHandler fun consume(request: GuildUnsubscribeRequest) = subscription.consume(request).just()
+    @RabbitHandler fun consume(request: RunSessionRequest) = sessionController.onRunRequest(request.shardId).just()
 
-    @RabbitHandler fun consume(request: RunSessionRequest) = sessionController.onRunRequest(request.shardId)
+    private fun <T> T?.just(): Mono<T> = Mono.justOrEmpty(this)
 
 }

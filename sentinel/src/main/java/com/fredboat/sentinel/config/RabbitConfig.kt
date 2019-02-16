@@ -14,6 +14,7 @@ import com.fredboat.sentinel.metrics.Counters
 import org.aopalliance.aop.Advice
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.amqp.core.AcknowledgeMode
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
@@ -78,6 +79,7 @@ class RabbitConfig {
             retryOperationsInterceptor: RetryOperationsInterceptor
     ): SimpleRabbitListenerContainerFactory {
         val factory = SimpleRabbitListenerContainerFactory()
+        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL)
         configurer.configure(factory, connectionFactory)
         val chain = factory.adviceChain?.toMutableList() ?: mutableListOf<Advice>()
         chain.add(retryOperationsInterceptor)
