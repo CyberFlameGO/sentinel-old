@@ -9,8 +9,8 @@ package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.util.queue
-import com.fredboat.sentinel.util.toFuture
 import com.fredboat.sentinel.util.toJda
+import com.fredboat.sentinel.util.toMono
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.TextChannel
@@ -19,7 +19,7 @@ import net.dv8tion.jda.core.entities.impl.UserImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.concurrent.CompletableFuture
+import reactor.core.publisher.Mono
 
 @Service
 class MessageRequests(private val shardManager: ShardManager) {
@@ -28,7 +28,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         private val log: Logger = LoggerFactory.getLogger(MessageRequests::class.java)
     }
 
-    fun consume(request: SendMessageRequest): CompletableFuture<SendMessageResponse>? {
+    fun consume(request: SendMessageRequest): Mono<SendMessageResponse>? {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
         if (channel == null) {
@@ -37,11 +37,11 @@ class MessageRequests(private val shardManager: ShardManager) {
         }
 
         return channel.sendMessage(request.message)
-                .toFuture("sendMessage")
-                .thenApply { SendMessageResponse(it.idLong) }
+                .toMono("sendMessage")
+                .map { SendMessageResponse(it.idLong) }
     }
 
-    fun consume(request: SendEmbedRequest): CompletableFuture<SendMessageResponse>? {
+    fun consume(request: SendEmbedRequest): Mono<SendMessageResponse>? {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
         if (channel == null) {
@@ -50,18 +50,18 @@ class MessageRequests(private val shardManager: ShardManager) {
         }
 
         return channel.sendMessage(request.embed.toJda())
-                .toFuture("sendEmbed")
-                .thenApply { SendMessageResponse(it.idLong) }
+                .toMono("sendEmbed")
+                .map { SendMessageResponse(it.idLong) }
     }
 
-    fun consume(request: SendPrivateMessageRequest): CompletableFuture<SendMessageResponse>? {
+    fun consume(request: SendPrivateMessageRequest): Mono<SendMessageResponse>? {
         val shard = shardManager.shards.find { it.status == JDA.Status.CONNECTED } as JDAImpl
         val user = UserImpl(request.recipient, shard)
 
         return user.openPrivateChannel()
-                .toFuture("openPrivateChannel")
-                .thenCompose { it.sendMessage(request.message).toFuture("sendPrivate") }
-                .thenApply { SendMessageResponse(it.idLong) }
+                .toMono("openPrivateChannel")
+                .flatMap { it.sendMessage(request.message).toMono("sendPrivate") }
+                .map { SendMessageResponse(it.idLong) }
     }
 
     fun consume(request: EditMessageRequest) {

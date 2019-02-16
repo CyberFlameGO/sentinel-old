@@ -11,9 +11,13 @@ import com.fredboat.sentinel.metrics.Counters
 import net.dv8tion.jda.core.exceptions.ErrorResponseException
 import net.dv8tion.jda.core.requests.RestAction
 import org.jetbrains.kotlin.com.intellij.util.Function
+import reactor.core.publisher.Mono
 import java.util.concurrent.TimeUnit
 
-fun <T> RestAction<T>.queue(name: String) { toFuture(name) }
+fun <T> RestAction<T>.queue(name: String) {
+    toFuture(name)
+}
+
 fun <T> RestAction<T>.complete(name: String): T = toFuture(name).get(30, TimeUnit.SECONDS)
 
 fun <T> RestAction<T>.toFuture(name: String) = submit().whenComplete { _, t ->
@@ -24,3 +28,17 @@ fun <T> RestAction<T>.toFuture(name: String) = submit().whenComplete { _, t ->
     val errCode = (t as? ErrorResponseException)?.errorCode?.toString() ?: "none"
     Counters.failedRestActions.labels(name, errCode).inc()
 }.toCompletableFuture()!!
+
+fun <T> RestAction<T>.toMono(name: String): Mono<T> = Mono.create<T> { sink ->
+    this.queue(
+            { result ->
+                sink.success(result)
+                Counters.successfulRestActions.labels(name).inc()
+            },
+            { t ->
+                sink.error(t)
+                val errCode = (t as? ErrorResponseException)?.errorCode?.toString() ?: "none"
+                Counters.failedRestActions.labels(name, errCode).inc()
+            }
+    )
+}
