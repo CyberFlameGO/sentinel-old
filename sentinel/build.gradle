@@ -24,8 +24,7 @@ configurations {
 
 dependencies {
     compile project(":sentinel-shared")
-    //compile "net.dv8tion:JDA:$jdaVersion"
-    compile 'com.github.Frederikam:JDA:b967d8f0e0'
+    compile "net.dv8tion:JDA:$jdaVersion"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"      // For kotlin eval
     compile "org.jetbrains.kotlin:kotlin-script-util:$kotlin_version"         // For kotlin eval
