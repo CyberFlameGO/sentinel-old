@@ -84,7 +84,7 @@ class RabbitConfig {
         val chain = factory.adviceChain?.toMutableList() ?: mutableListOf<Advice>()
         chain.add(retryOperationsInterceptor)
         factory.setAdviceChain(*chain.toTypedArray())
-        factory.setPrefetchCount(750) // Drastically increase throughput during high API latency
+        factory.setPrefetchCount(1) // Drastically increase throughput during high API latency
         return factory
     }
 
