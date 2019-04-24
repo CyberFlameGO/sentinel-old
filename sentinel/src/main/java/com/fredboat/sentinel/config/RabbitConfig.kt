@@ -79,12 +79,11 @@ class RabbitConfig {
             retryOperationsInterceptor: RetryOperationsInterceptor
     ): SimpleRabbitListenerContainerFactory {
         val factory = SimpleRabbitListenerContainerFactory()
-        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL)
+        factory.setAcknowledgeMode(AcknowledgeMode.AUTO)
         configurer.configure(factory, connectionFactory)
         val chain = factory.adviceChain?.toMutableList() ?: mutableListOf<Advice>()
         chain.add(retryOperationsInterceptor)
         factory.setAdviceChain(*chain.toTypedArray())
-        factory.setPrefetchCount(1) // Drastically increase throughput during high API latency
         return factory
     }
 
