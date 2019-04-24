@@ -65,7 +65,7 @@ allprojects {
 
 ext {
     jdaVersion                  = '3.8.3_460'
-    amqpVersion                 = '2.1.4.RELEASE'
+    amqpVersion                 = '2.1.5.RELEASE'
     gsonVersion                 = '2.8.2'
     jacksonKotlinVersion        = '2.9.+'
     logbackVersion              = '1.2.3'
