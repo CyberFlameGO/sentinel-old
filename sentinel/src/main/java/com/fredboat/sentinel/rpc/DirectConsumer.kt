@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 
 @Service
-@RabbitListener(queues = ["#{requestQueue.name}"], errorHandler = "rabbitListenerErrorHandler", concurrency = "50")
+@RabbitListener(queues = ["#{requestQueue.name}"], errorHandler = "rabbitListenerErrorHandler", concurrency = "200")
 class DirectConsumer(
         private val audio: AudioRequests,
         private val info: InfoRequests,
