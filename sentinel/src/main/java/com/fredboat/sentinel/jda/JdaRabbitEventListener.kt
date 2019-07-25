@@ -7,9 +7,9 @@
 
 package com.fredboat.sentinel.jda
 
-import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.metrics.Counters
+import com.fredboat.sentinel.util.Rabbit
 import com.fredboat.sentinel.util.toEntity
 import com.neovisionaries.ws.client.WebSocketFrame
 import net.dv8tion.jda.bot.sharding.ShardManager
@@ -55,14 +55,13 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter
 import net.dv8tion.jda.core.utils.PermissionUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import java.io.File
 
 @Component
 class JdaRabbitEventListener(
-        private val rabbitTemplate: RabbitTemplate,
+        private val rabbit: Rabbit,
         @param:Qualifier("guildSubscriptions")
         private val subscriptions: MutableSet<Long>,
         private val voiceServerUpdateCache: VoiceServerUpdateCache
@@ -85,7 +84,7 @@ class JdaRabbitEventListener(
         dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READIED))
 
         val handlers = (event.jda as JDAImpl).client.handlers
-        handlers["VOICE_SERVER_UPDATE"] = VoiceServerUpdateInterceptor(event.jda as JDAImpl, rabbitTemplate, voiceServerUpdateCache)
+        handlers["VOICE_SERVER_UPDATE"] = VoiceServerUpdateInterceptor(event.jda as JDAImpl, rabbit, voiceServerUpdateCache)
         handlers["VOICE_STATE_UPDATE"] = VoiceStateUpdateInterceptor(event.jda as JDAImpl)
 
         if (shardManager.shards.all { it.status == JDA.Status.CONNECTED }) {
@@ -118,10 +117,10 @@ class JdaRabbitEventListener(
 
     /* Guild jda */
     override fun onGuildJoin(event: GuildJoinEvent) =
-            dispatch(com.fredboat.sentinel.entities.GuildJoinEvent(event.guild.idLong))
+            dispatch(GuildJoinEvent(event.guild.idLong))
 
     override fun onGuildLeave(event: GuildLeaveEvent) =
-            dispatch(com.fredboat.sentinel.entities.GuildLeaveEvent(
+            dispatch(GuildLeaveEvent(
                     event.guild.idLong,
                     event.guild.selfMember.joinDate.toEpochSecond() * 1000
             ))
@@ -297,7 +296,7 @@ class JdaRabbitEventListener(
         ))
     }
 
-    private fun updateGuild(event: Event, guild: net.dv8tion.jda.core.entities.Guild) {
+    private fun updateGuild(event: Event, guild: Guild) {
         log.info("Updated ${guild.id} because of ${event.javaClass.simpleName}")
         dispatch(GuildUpdateEvent(guild.toEntity(voiceServerUpdateCache)))
     }
@@ -321,7 +320,7 @@ class JdaRabbitEventListener(
     /* Util */
 
     private fun dispatch(event: Any, print: Boolean = false) {
-        rabbitTemplate.convertAndSend(SentinelExchanges.EVENTS, rabbitTemplate.routingKey, event)
+        rabbit.sendEvent(event)
         if (print) log.info("Sent $event")
     }
 
@@ -335,6 +334,5 @@ class JdaRabbitEventListener(
     override fun onGenericEvent(event: Event) {
         Counters.jdaEvents.labels(event.javaClass.simpleName).inc()
     }
-
 
 }

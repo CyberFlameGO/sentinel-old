@@ -7,9 +7,7 @@
 
 package com.fredboat.sentinel.config
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.fredboat.sentinel.util.Rabbit
 import com.rabbitmq.client.ConnectionFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,6 +15,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import reactor.rabbitmq.RabbitFlux
 import reactor.rabbitmq.ReceiverOptions
+import reactor.rabbitmq.Sender
 import reactor.rabbitmq.SenderOptions
 import java.util.*
 
@@ -58,11 +57,6 @@ class RabbitConfig(val props: RabbitProperties) {
     fun receiver(opts: ReceiverOptions) = RabbitFlux.createReceiver(opts)!!
 
     @Bean
-    fun jsonMessageConverter(): ObjectMapper {
-        // We must register this Kotlin module to get deserialization to work with data classes
-        return ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .registerKotlinModule()
-    }
+    fun rabbit(sender: Sender, routingKey: RoutingKey) = Rabbit(sender, routingKey)
 
 }

@@ -9,16 +9,16 @@ package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.VoiceServerUpdate
+import com.fredboat.sentinel.util.Rabbit
 import net.dv8tion.jda.core.entities.impl.JDAImpl
 import net.dv8tion.jda.core.handle.SocketHandler
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 
 class VoiceServerUpdateInterceptor(
         jda: JDAImpl,
-        private val template: RabbitTemplate,
+        private val rabbit: Rabbit,
         private val voiceServerUpdateCache: VoiceServerUpdateCache
 ) : SocketHandler(jda) {
 
@@ -39,6 +39,7 @@ class VoiceServerUpdateInterceptor(
 
         val event = VoiceServerUpdate(guild.selfMember.voiceState.sessionId, content.toString())
         voiceServerUpdateCache[idLong] = event
+
         template.convertAndSend(SentinelExchanges.EVENTS, event)
 
         return null
