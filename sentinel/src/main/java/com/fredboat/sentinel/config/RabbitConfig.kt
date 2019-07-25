@@ -57,6 +57,6 @@ class RabbitConfig(val props: RabbitProperties) {
     fun receiver(opts: ReceiverOptions) = RabbitFlux.createReceiver(opts)!!
 
     @Bean
-    fun rabbit(sender: Sender, routingKey: RoutingKey) = Rabbit(sender, routingKey)
+    fun rabbit(sender: Sender) = Rabbit(sender)
 
 }

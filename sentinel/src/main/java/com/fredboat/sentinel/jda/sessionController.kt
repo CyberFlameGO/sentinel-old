@@ -7,11 +7,11 @@
 
 package com.fredboat.sentinel.jda
 
-import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.config.RoutingKey
 import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.entities.AppendSessionEvent
 import com.fredboat.sentinel.entities.RemoveSessionEvent
+import com.fredboat.sentinel.util.Rabbit
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.utils.SessionController
@@ -19,9 +19,6 @@ import net.dv8tion.jda.core.utils.SessionController.SessionConnectNode
 import net.dv8tion.jda.core.utils.SessionControllerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.amqp.rabbit.annotation.RabbitHandler
-import org.springframework.amqp.rabbit.annotation.RabbitListener
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 
@@ -31,7 +28,7 @@ private val log: Logger = LoggerFactory.getLogger(RemoteSessionController::class
 @RabbitListener(queues = ["#{sessionsQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
 class RemoteSessionController(
         val sentinelProps: SentinelProperties,
-        val rabbit: RabbitTemplate,
+        val rabbit: Rabbit,
         val routingKey: RoutingKey
 ) : SessionController {
 
@@ -64,7 +61,7 @@ class RemoteSessionController(
         val node = localQueue[id]
         if(node == null) {
             val msg = RemoveSessionEvent(id, sentinelProps.shardCount, routingKey.key)
-            rabbit.convertAndSend(SentinelExchanges.EVENTS, "", msg)
+            rabbit.sendEvent(msg)
             throw IllegalStateException("Node $id is not queued")
         }
 
@@ -87,7 +84,7 @@ class RemoteSessionController(
         } else {
             AppendSessionEvent(shardInfo.shardId, shardInfo.shardTotal, routingKey.key)
         }
-        rabbit.convertAndSend(SentinelExchanges.EVENTS, "", msg)
+        rabbit.sendEvent(msg)
     }
 
     /* Handle gateway and global ratelimit */
@@ -95,7 +92,7 @@ class RemoteSessionController(
     override fun getGlobalRatelimit() = globalRatelimit
 
     override fun setGlobalRatelimit(ratelimit: Long) {
-        rabbit.convertAndSend(SentinelExchanges.SESSIONS, "", SetGlobalRatelimit(ratelimit))
+        rabbit.sendSession(SetGlobalRatelimit(ratelimit))
         globalRatelimit = ratelimit
     }
 
