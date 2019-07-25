@@ -30,20 +30,20 @@ class RabbitIo(private val sender: Sender, private val receiver: Receiver, routi
                 .subscribe { log.info("Configured RabbitMQ resources") }
     }
 
-    private final fun configureExchanges(): List<Mono<AMQP.Exchange.DeclareOk>> {
+    private fun configureExchanges(): List<Mono<AMQP.Exchange.DeclareOk>> {
         return mutableListOf<Mono<AMQP.Exchange.DeclareOk>>().apply {
             delcareExchange(SentinelExchanges.SESSIONS)
             delcareExchange(SentinelExchanges.REQUESTS)
-            delcareExchange(SentinelExchanges.FANOUT)
+            delcareExchange(SentinelExchanges.FANOUT, type = "fanout")
         }
     }
 
-    private final fun configureQueues(): List<Mono<AMQP.Queue.DeclareOk>> {
+    private fun configureQueues(): List<Mono<AMQP.Queue.DeclareOk>> {
         val monos = mutableListOf<Mono<AMQP.Queue.DeclareOk>>()
         return monos
     }
 
-    private final fun declareBindings(): List<Mono<AMQP.Queue.BindOk>> {
+    private fun declareBindings(): List<Mono<AMQP.Queue.BindOk>> {
         val monos = mutableListOf<Mono<AMQP.Queue.BindOk>>()
         monos.add(sender.bind(BindingSpecification().apply {
 
@@ -51,11 +51,12 @@ class RabbitIo(private val sender: Sender, private val receiver: Receiver, routi
         return monos
     }
 
-    private final fun delcareExchange(name: String): Mono<AMQP.Exchange.DeclareOk> {
+    private fun delcareExchange(name: String, type: String = "direct"): Mono<AMQP.Exchange.DeclareOk> {
         return sender.declareExchange(ExchangeSpecification().apply {
             name(name)
             durable(false)
             autoDelete(true)
+            type(type)
         })
     }
 }
