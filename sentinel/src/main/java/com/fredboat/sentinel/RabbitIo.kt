@@ -4,6 +4,9 @@ import com.fredboat.sentinel.SentinelExchanges.FANOUT
 import com.fredboat.sentinel.SentinelExchanges.REQUESTS
 import com.fredboat.sentinel.SentinelExchanges.SESSIONS
 import com.fredboat.sentinel.config.RoutingKey
+import com.fredboat.sentinel.jda.RemoteSessionController
+import com.fredboat.sentinel.jda.SetGlobalRatelimit
+import com.fredboat.sentinel.util.Rabbit
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
@@ -11,7 +14,13 @@ import reactor.core.publisher.Flux
 import reactor.rabbitmq.*
 
 @Controller
-class RabbitIo(private val sender: Sender, private val receiver: Receiver, private val routingKey: RoutingKey) {
+class RabbitIo(
+        private val sender: Sender,
+        private val receiver: Receiver,
+        private val rabbit: Rabbit,
+        private val routingKey: RoutingKey,
+        private val sessionControl: RemoteSessionController
+) {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(RabbitIo::class.java)
@@ -28,6 +37,13 @@ class RabbitIo(private val sender: Sender, private val receiver: Receiver, priva
                 .count()
                 .doOnSuccess { log.info("Declared $it bindings") }
                 .subscribe { log.info("Declared all RabbitMQ resources") }
+    }
+
+    private fun configureReceiver() {
+        receiver.consumeAutoAck(SESSIONS).subscribe {
+            val event = rabbit.fromJson(it, SetGlobalRatelimit::class.java)
+            sessionControl.handleRatelimitSet(event)
+        }
     }
 
     private fun declareExchanges() = mutableListOf(
@@ -52,11 +68,11 @@ class RabbitIo(private val sender: Sender, private val receiver: Receiver, priva
             name: String,
             type: String = "direct"
     ) = sender.declareExchange(ExchangeSpecification().apply {
-                name(name)
-                durable(false)
-                autoDelete(true)
-                type(type)
-            })
+        name(name)
+        durable(false)
+        autoDelete(true)
+        type(type)
+    })
 
 
     private fun declareQueue(name: String) = sender.declareQueue(QueueSpecification().apply {

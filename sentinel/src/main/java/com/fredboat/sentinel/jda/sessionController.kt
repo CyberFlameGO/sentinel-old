@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap
 private val log: Logger = LoggerFactory.getLogger(RemoteSessionController::class.java)
 
 @Service
-@RabbitListener(queues = ["#{sessionsQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
 class RemoteSessionController(
         val sentinelProps: SentinelProperties,
         val rabbit: Rabbit,
@@ -96,7 +95,6 @@ class RemoteSessionController(
         globalRatelimit = ratelimit
     }
 
-    @RabbitHandler
     fun handleRatelimitSet(event: SetGlobalRatelimit) {
         globalRatelimit = event.new
     }
