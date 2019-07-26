@@ -14,27 +14,26 @@ import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
 import com.fredboat.sentinel.entities.SyncSessionQueueRequest
 import com.fredboat.sentinel.jda.RemoteSessionController
+import com.fredboat.sentinel.util.Rabbit
+import com.rabbitmq.client.AMQP
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Game
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.amqp.rabbit.annotation.RabbitHandler
-import org.springframework.amqp.rabbit.annotation.RabbitListener
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
+// TODO: Fix fanout queues!
 @Service
-@RabbitListener(queues = ["#{fanoutQueue.name}"], errorHandler = "rabbitListenerErrorHandler")
 class FanoutConsumer(
-        private val template: RabbitTemplate,
+        private val rabbit: Rabbit,
         private val sentinelProperties: SentinelProperties,
         private val key: RoutingKey,
         @param:Qualifier("guildSubscriptions")
         private val subscriptions: MutableSet<Long>,
         private val shardManager: ShardManager,
         private val sessionController: RemoteSessionController
-) {
+): ReactiveConsumer(rabbit) {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(FanoutConsumer::class.java)
@@ -46,8 +45,13 @@ class FanoutConsumer(
         sendHello()
     }
 
-    @RabbitHandler
-    fun onHello(event: FredBoatHello) {
+    override fun consume(message: Any, props: AMQP.BasicProperties) = when(message) {
+        is FredBoatHello -> consume(message)
+        is SyncSessionQueueRequest -> consume(message)
+        else -> log.warn("Unknown message type: {}", message.javaClass)
+    }
+
+    fun consume(event: FredBoatHello) {
         if (event.id != knownFredBoatId) {
             log.info("FredBoat ${event.id} says hello \uD83D\uDC4B - Replaces $knownFredBoatId")
             knownFredBoatId = event.id
@@ -73,7 +77,6 @@ class FanoutConsumer(
         template.convertAndSend(SentinelExchanges.EVENTS, message)
     }
 
-    @RabbitHandler
     fun consume(request: SyncSessionQueueRequest) {
         sessionController.syncSessionQueue()
     }

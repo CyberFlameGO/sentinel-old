@@ -47,11 +47,7 @@ class RabbitIo(
         receiver.consumeAutoAck(REQUESTS).subscribe {
             val clazz = rabbit.getType(it)
             val request = rabbit.fromJson(it, clazz)
-
-            it.
         }
-
-        sender.rpcClient("", "").
     }
 
     private fun declareExchanges() = mutableListOf(
