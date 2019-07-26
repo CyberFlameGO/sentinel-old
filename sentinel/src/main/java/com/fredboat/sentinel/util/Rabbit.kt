@@ -33,6 +33,7 @@ class Rabbit(sender: Sender) {
         sender.send(Flux.create { s -> sink = s }).subscribe()
     }
 
+    fun send(message: OutboundMessage) { sink.next(message) }
     fun sendEvent(event: Any) = send(EVENTS, event)
     fun sendSession(event: Any) = send(SESSIONS, event)
 
@@ -58,10 +59,7 @@ class Rabbit(sender: Sender) {
     }
 
     fun <T> fromJson(delivery: Delivery, clazz: Class<T>) = mapper.readValue(delivery.body, clazz)!!
-
-    fun fromJson(delivery: Delivery): Any {
-        val clazz = Class.forName(delivery.properties.headers[typeKey] as String)
-        return fromJson(delivery, clazz)
-    }
+    fun fromJson(delivery: Delivery): Any = fromJson(delivery, getType(delivery))
+    fun getType(delivery: Delivery) = Class.forName(delivery.properties.headers[typeKey] as String)
 
 }
