@@ -9,7 +9,7 @@ package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
-import com.fredboat.sentinel.jda.RemoteSessionController
+import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.*
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
@@ -17,12 +17,13 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
+@SentinelRequest
 class ManagementRequests(
         private val shardManager: ShardManager,
-        private val eval: EvalService,
-        private val sessionController: RemoteSessionController
+        private val eval: EvalService
 ) {
 
+    @SentinelRequest
     fun consume(modRequest: ModRequest): String = modRequest.run {
         val guild = shardManager.getGuildById(guildId)
                 ?: throw RuntimeException("Guild $guildId not found")
@@ -37,27 +38,32 @@ class ManagementRequests(
         return ""
     }
 
+    @SentinelRequest
     fun consume(request: SetAvatarRequest) {
         val decoded = Base64.getDecoder().decode(request.base64)
         shardManager.shards[0].selfUser.manager.setAvatar(Icon.from(decoded)).queue("setAvatar")
     }
 
+    @SentinelRequest
     fun consume(request: ReviveShardRequest): String {
         shardManager.restart(request.shardId)
         return "" // Generates a reply
     }
 
+    @SentinelRequest
     fun consume(request: LeaveGuildRequest) {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
         guild.leave().queue("leaveGuild")
     }
 
+    @SentinelRequest
     fun consume(request: GetPingRequest): GetPingReponse {
         val shard = shardManager.getShardById(request.shardId)
         return GetPingReponse(shard?.ping ?: -1, shardManager.averagePing)
     }
 
+    @SentinelRequest
     fun consume(request: SentinelInfoRequest) = shardManager.run { SentinelInfoResponse(
             guildCache.size(),
             roleCache.size(),
@@ -68,8 +74,10 @@ class ManagementRequests(
             if (request.includeShards) shards.map { it.toEntityExtended() } else null
     )}
 
+    @SentinelRequest
     fun consume(request: UserListRequest) = shardManager.userCache.map { it.idLong }
 
+    @SentinelRequest
     fun consume(request: BanListRequest): Array<Ban> {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
@@ -81,6 +89,7 @@ class ManagementRequests(
     @Volatile
     var blockingEvalThread: Thread? = null
 
+    @SentinelRequest
     fun consume(request: EvalRequest): String {
         if (request.kill) {
             blockingEvalThread ?: return "No task is running"

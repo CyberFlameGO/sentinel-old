@@ -7,7 +7,6 @@
 
 package com.fredboat.sentinel.jda
 
-import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.entities.VoiceServerUpdate
 import com.fredboat.sentinel.util.Rabbit
 import net.dv8tion.jda.core.entities.impl.JDAImpl
@@ -40,7 +39,7 @@ class VoiceServerUpdateInterceptor(
         val event = VoiceServerUpdate(guild.selfMember.voiceState.sessionId, content.toString())
         voiceServerUpdateCache[idLong] = event
 
-        template.convertAndSend(SentinelExchanges.EVENTS, event)
+        rabbit.sendEvent(event)
 
         return null
     }

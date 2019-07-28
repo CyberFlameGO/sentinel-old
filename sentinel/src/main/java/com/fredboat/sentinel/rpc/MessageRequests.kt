@@ -8,6 +8,7 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
+import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.complete
 import com.fredboat.sentinel.util.queue
 import com.fredboat.sentinel.util.toJda
@@ -27,6 +28,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         private val log: Logger = LoggerFactory.getLogger(MessageRequests::class.java)
     }
 
+    @SentinelRequest
     fun consume(request: SendMessageRequest): SendMessageResponse? {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
@@ -40,6 +42,7 @@ class MessageRequests(private val shardManager: ShardManager) {
                 .let { SendMessageResponse(it.idLong) }
     }
 
+    @SentinelRequest
     fun consume(request: SendEmbedRequest): SendMessageResponse? {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
@@ -53,6 +56,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         )
     }
 
+    @SentinelRequest
     fun consume(request: SendPrivateMessageRequest): SendMessageResponse? {
         val shard = shardManager.shards.find { it.status == JDA.Status.CONNECTED } as JDAImpl
         val user = UserImpl(request.recipient, shard)
@@ -63,6 +67,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         )
     }
 
+    @SentinelRequest
     fun consume(request: EditMessageRequest) {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
@@ -74,6 +79,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         channel.editMessageById(request.messageId, request.message).queue("editMessage")
     }
 
+    @SentinelRequest
     fun consume(request: MessageDeleteRequest) {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 
@@ -91,6 +97,7 @@ class MessageRequests(private val shardManager: ShardManager) {
         channel.deleteMessagesByIds(list).queue("deleteMessages")
     }
 
+    @SentinelRequest
     fun consume(request: SendTypingRequest) {
         val channel: TextChannel? = shardManager.getTextChannelById(request.channel)
 

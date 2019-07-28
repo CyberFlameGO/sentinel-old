@@ -7,15 +7,14 @@
 
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.SentinelExchanges
 import com.fredboat.sentinel.config.RoutingKey
 import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.entities.FredBoatHello
 import com.fredboat.sentinel.entities.SentinelHello
 import com.fredboat.sentinel.entities.SyncSessionQueueRequest
 import com.fredboat.sentinel.jda.RemoteSessionController
+import com.fredboat.sentinel.rpc.meta.FanoutRequest
 import com.fredboat.sentinel.util.Rabbit
-import com.rabbitmq.client.AMQP
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Game
 import org.slf4j.Logger
@@ -33,7 +32,7 @@ class FanoutConsumer(
         private val subscriptions: MutableSet<Long>,
         private val shardManager: ShardManager,
         private val sessionController: RemoteSessionController
-): ReactiveConsumer(rabbit) {
+) {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(FanoutConsumer::class.java)
@@ -45,12 +44,7 @@ class FanoutConsumer(
         sendHello()
     }
 
-    override fun consume(message: Any, props: AMQP.BasicProperties) = when(message) {
-        is FredBoatHello -> consume(message)
-        is SyncSessionQueueRequest -> consume(message)
-        else -> log.warn("Unknown message type: {}", message.javaClass)
-    }
-
+    @FanoutRequest
     fun consume(event: FredBoatHello) {
         if (event.id != knownFredBoatId) {
             log.info("FredBoat ${event.id} says hello \uD83D\uDC4B - Replaces $knownFredBoatId")
@@ -67,16 +61,17 @@ class FanoutConsumer(
         shardManager.setGame(game)
     }
 
+    @FanoutRequest
     private fun sendHello() {
-        val message = sentinelProperties.run {  SentinelHello(
+        rabbit.sendEvent(sentinelProperties.run {  SentinelHello(
                 shardStart,
                 shardEnd,
                 shardCount,
                 key.key
-        )}
-        template.convertAndSend(SentinelExchanges.EVENTS, message)
+        )})
     }
 
+    @FanoutRequest
     fun consume(request: SyncSessionQueueRequest) {
         sessionController.syncSessionQueue()
     }

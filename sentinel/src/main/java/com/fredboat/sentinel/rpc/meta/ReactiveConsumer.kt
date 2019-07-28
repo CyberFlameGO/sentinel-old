@@ -1,4 +1,4 @@
-package com.fredboat.sentinel.rpc
+package com.fredboat.sentinel.rpc.meta
 
 import com.fredboat.sentinel.util.Rabbit
 import com.rabbitmq.client.AMQP
@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import reactor.rabbitmq.OutboundMessage
 
-abstract class ReactiveConsumer(
+class ReactiveConsumer<T : Annotation>(
         private val rabbit: Rabbit,
         spring: ApplicationContext,
-        annotation: Class<Annotation>
+        annotation: Class<T>
 ) {
 
     companion object {

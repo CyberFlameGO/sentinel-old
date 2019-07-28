@@ -8,6 +8,7 @@
 package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
+import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.complete
 import com.fredboat.sentinel.util.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service
 @Service
 class InfoRequests(private val shardManager: ShardManager) {
 
+    @SentinelRequest
     fun consume(request: MemberInfoRequest): MemberInfo {
         val member = shardManager.getGuildById(request.guildId).getMemberById(request.id)
         return member.run {
@@ -33,6 +35,7 @@ class InfoRequests(private val shardManager: ShardManager) {
         }
     }
 
+    @SentinelRequest
     fun consume(request: GuildInfoRequest): GuildInfo {
         val guild = shardManager.getGuildById(request.id)
         return guild.run {
@@ -45,6 +48,7 @@ class InfoRequests(private val shardManager: ShardManager) {
         }
     }
 
+    @SentinelRequest
     fun consume(request: RoleInfoRequest): RoleInfo {
         val role = shardManager.getRoleById(request.id)
         return role.run {
@@ -59,6 +63,7 @@ class InfoRequests(private val shardManager: ShardManager) {
         }
     }
 
+    @SentinelRequest
     fun consume(request: GetUserRequest): User? {
         val user = shardManager.getUserById(request.id)
         if(user != null) return user.toEntity()
