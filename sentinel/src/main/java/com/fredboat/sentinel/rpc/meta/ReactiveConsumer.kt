@@ -7,6 +7,7 @@ import org.reflections.Reflections
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
+import reactor.core.publisher.Mono
 import reactor.rabbitmq.OutboundMessage
 
 class ReactiveConsumer<T : Annotation>(
@@ -34,7 +35,13 @@ class ReactiveConsumer<T : Annotation>(
                 }
     }
 
-    fun handleIncoming(delivery: Delivery) {
+    fun handleIncoming(delivery: Delivery) = try {
+        handleIncoming0(delivery)
+    } catch (t: Throwable) {
+        handleFailure(delivery, t)
+    }
+
+    private fun handleIncoming0(delivery: Delivery) {
         val clazz = rabbit.getType(delivery)
         val message = rabbit.fromJson(delivery, clazz)
 
@@ -44,30 +51,49 @@ class ReactiveConsumer<T : Annotation>(
             return
         }
 
-        val reply = handler(message)
-        if (reply is Unit) {
-            if (delivery.properties.replyTo != null) {
-                log.warn("Sender with {} message expected reply, but we have none!", clazz)
+        when(val reply = handler(message)) {
+            is Unit -> {
+                if (delivery.properties.replyTo != null) {
+                    log.warn("Sender with {} message expected reply, but we have none!", clazz)
+                }
             }
-            return
+            is Mono<*> -> reply.doOnError { handleFailure(delivery, it) }
+                    .subscribe{ sendReply(delivery, it) }
+            else -> sendReply(delivery, reply)
         }
+    }
 
-        if (delivery.properties.replyTo == null) {
-            log.warn("Sender of {} is not expecting a reply, but we still have {} to reply with. Dropping reply...",
-                    clazz,
-                    reply.javaClass)
-            return
-        }
+    private fun handleFailure(incoming: Delivery, throwable: Throwable) {
+        log.error("Got exception while consuming message", throwable)
+        if (incoming.properties.replyTo == null) return
 
-        val (body, headers) = rabbit.toJson(reply)
+        val message = "${throwable.javaClass.simpleName} ${throwable.message}"
+
         val props = AMQP.BasicProperties.Builder()
-                .headers(headers)
+                .headers(mapOf("Content-Type" to "text/plain"))
+                .correlationId(incoming.properties.correlationId)
                 .build()
 
         // Replies are always sent via the default exchange
         rabbit.send(OutboundMessage(
                 "",
-                delivery.properties.replyTo,
+                incoming.properties.replyTo,
+                props,
+                message.toByteArray()
+        ))
+    }
+
+    private fun sendReply(incoming: Delivery, reply: Any) {
+        val (body, headers) = rabbit.toJson(reply)
+        val props = AMQP.BasicProperties.Builder()
+                .headers(headers)
+                .correlationId(incoming.properties.correlationId)
+                .build()
+
+        // Replies are always sent via the default exchange
+        rabbit.send(OutboundMessage(
+                "",
+                incoming.properties.replyTo,
                 props,
                 body
         ))

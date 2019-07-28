@@ -55,6 +55,7 @@ class Rabbit(sender: Sender) {
         val body = mapper.writeValueAsBytes(a)
         val headers = HashMap<String, Any>()
         headers[typeKey] = a.javaClass.name
+        headers["Content-Type"] = "application/json"
         return body to headers
     }
 
