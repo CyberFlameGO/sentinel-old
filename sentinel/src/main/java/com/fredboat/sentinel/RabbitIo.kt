@@ -98,6 +98,6 @@ class RabbitIo(
     ) = sender.bind(BindingSpecification().apply {
         exchange(exchange)
         queue(queue)
-        routingKey(key?.key)
+        routingKey(key?.key ?: "")
     })
 }
