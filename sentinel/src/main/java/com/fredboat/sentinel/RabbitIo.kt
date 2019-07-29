@@ -32,6 +32,7 @@ class RabbitIo(
     }
 
     private val sessionQueueName = "sessions-${routingKey.key}"
+    private val requestsQueueName = "requests-${routingKey.key}"
     private val fanoutQueueName = "fanout-${routingKey.key}"
 
     override fun setApplicationContext(spring: ApplicationContext) {
@@ -48,15 +49,15 @@ class RabbitIo(
     }
 
     private fun configureReceiver(spring: ApplicationContext) {
-        receiver.consumeAutoAck(SESSIONS).subscribe {
+        receiver.consumeAutoAck(sessionQueueName).subscribe {
             val event = rabbit.fromJson(it, SetGlobalRatelimit::class.java)
             sessionControl.handleRatelimitSet(event)
         }
 
         val requestsHandler = ReactiveConsumer(rabbit, spring, SentinelRequest::class.java)
-        receiver.consumeAutoAck(REQUESTS).subscribe { requestsHandler.handleIncoming(it) }
+        receiver.consumeAutoAck(requestsQueueName).subscribe { requestsHandler.handleIncoming(it) }
         val fanoutHandler = ReactiveConsumer(rabbit, spring, FanoutRequest::class.java)
-        receiver.consumeAutoAck(FANOUT).subscribe { fanoutHandler.handleIncoming(it) }
+        receiver.consumeAutoAck(fanoutQueueName).subscribe { fanoutHandler.handleIncoming(it) }
     }
 
     private fun declareExchanges() = mutableListOf(
@@ -66,13 +67,13 @@ class RabbitIo(
     )
 
     private fun declareQueues() = mutableListOf(
-            declareQueue(REQUESTS),
+            declareQueue(requestsQueueName),
             declareQueue(sessionQueueName),
             declareQueue(fanoutQueueName)
     )
 
     private fun declareBindings() = mutableListOf(
-            declareBinding(REQUESTS, REQUESTS, routingKey),
+            declareBinding(REQUESTS, requestsQueueName, routingKey),
             declareBinding(SESSIONS, sessionQueueName),
             declareBinding(FANOUT, fanoutQueueName)
     )

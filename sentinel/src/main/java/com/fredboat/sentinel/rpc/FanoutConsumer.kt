@@ -40,7 +40,11 @@ class FanoutConsumer(
     var knownFredBoatId: String? = null
 
     init {
-        sendHello()
+        try {
+            sendHello()
+        } catch (e: Exception) {
+            log.error("Error sending hello", e)
+        }
     }
 
     @FanoutRequest
