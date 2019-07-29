@@ -7,9 +7,12 @@ import com.fredboat.sentinel.SentinelExchanges.EVENTS
 import com.fredboat.sentinel.SentinelExchanges.SESSIONS
 import com.rabbitmq.client.AMQP
 import com.rabbitmq.client.Delivery
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.FluxSink
 import reactor.rabbitmq.OutboundMessage
+import reactor.rabbitmq.SendOptions
 import reactor.rabbitmq.Sender
 
 /**
@@ -21,6 +24,11 @@ class Rabbit(sender: Sender) {
 
     companion object {
         private const val typeKey = "__TypeId__"
+        private val log: Logger = LoggerFactory.getLogger(Rabbit::class.java)
+    }
+
+    private val sendOptions = SendOptions().exceptionHandler { _, exception ->
+        log.error("Failed sending message", exception)
     }
 
     private val mapper = ObjectMapper()
@@ -30,10 +38,13 @@ class Rabbit(sender: Sender) {
     private lateinit var sink: FluxSink<OutboundMessage>
 
     init {
-        sender.send(Flux.create { s -> sink = s }).subscribe()
+        sender.send(Flux.create { s -> sink = s }, sendOptions).subscribe()
     }
 
-    fun send(message: OutboundMessage) { sink.next(message) }
+    fun send(message: OutboundMessage) {
+        sink.next(message)
+    }
+
     fun sendEvent(event: Any) = send(EVENTS, event)
     fun sendSession(event: Any) = send(SESSIONS, event)
 

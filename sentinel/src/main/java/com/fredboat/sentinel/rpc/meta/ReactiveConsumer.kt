@@ -26,13 +26,20 @@ class ReactiveConsumer<T : Annotation>(
         val reflections = Reflections("com.fredboat.sentinel.rpc")
         handlers = reflections.getTypesAnnotatedWith(annotation)
                 .flatMap { it.declaredMethods.toList() }
+                .filter { it.isAnnotationPresent(annotation) }
                 .associate { method ->
                     val clazz = method.declaringClass
                     val bean = spring.getBean(clazz)
-                    clazz to { input: Any ->
+
+                    if (method.parameters.size != 1) {
+                        throw IllegalStateException("$method must have exactly one parameter")
+                    }
+
+                    method.parameters.first().type to { input: Any ->
                         method.invoke(bean, input)
                     }
                 }
+        log.info("Found {} listening methods annotated with {}", handlers.size, annotation)
     }
 
     fun handleIncoming(delivery: Delivery) = try {

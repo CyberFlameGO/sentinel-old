@@ -6,6 +6,7 @@ import com.fredboat.sentinel.SentinelExchanges.SESSIONS
 import com.fredboat.sentinel.config.RoutingKey
 import com.fredboat.sentinel.jda.RemoteSessionController
 import com.fredboat.sentinel.jda.SetGlobalRatelimit
+import com.fredboat.sentinel.rpc.meta.FanoutRequest
 import com.fredboat.sentinel.rpc.meta.ReactiveConsumer
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.Rabbit
@@ -40,18 +41,18 @@ class RabbitIo(
                 .thenMany(Flux.concat(declareBindings()))
                 .count()
                 .doOnSuccess { log.info("Declared $it bindings") }
-                .subscribe { log.info("Declared all RabbitMQ resources") }
+                .subscribe { configureReceiver(spring) }
     }
 
     private fun configureReceiver(spring: ApplicationContext) {
-        val requestsHandler = ReactiveConsumer(rabbit, spring, SentinelRequest::class.java)
-        val fanoutHandler = ReactiveConsumer(rabbit, spring, SentinelRequest::class.java)
-
         receiver.consumeAutoAck(SESSIONS).subscribe {
             val event = rabbit.fromJson(it, SetGlobalRatelimit::class.java)
             sessionControl.handleRatelimitSet(event)
         }
+
+        val requestsHandler = ReactiveConsumer(rabbit, spring, SentinelRequest::class.java)
         receiver.consumeAutoAck(REQUESTS).subscribe { requestsHandler.handleIncoming(it) }
+        val fanoutHandler = ReactiveConsumer(rabbit, spring, FanoutRequest::class.java)
         receiver.consumeAutoAck(FANOUT).subscribe { fanoutHandler.handleIncoming(it) }
     }
 
