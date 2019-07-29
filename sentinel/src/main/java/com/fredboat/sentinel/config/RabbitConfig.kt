@@ -8,6 +8,7 @@
 package com.fredboat.sentinel.config
 
 import com.fredboat.sentinel.util.Rabbit
+import com.rabbitmq.client.Connection
 import com.rabbitmq.client.ConnectionFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,6 +19,7 @@ import reactor.rabbitmq.ReceiverOptions
 import reactor.rabbitmq.Sender
 import reactor.rabbitmq.SenderOptions
 import java.util.*
+import java.util.concurrent.atomic.AtomicReference
 
 
 @Configuration
@@ -44,11 +46,23 @@ class RabbitConfig(val props: RabbitProperties) {
         useNio()
     }
 
-    @Bean
-    fun senderOptions(factory: ConnectionFactory) = SenderOptions().connectionFactory(factory)!!
+    private var connection = AtomicReference<Connection>()
+    private fun supplier(factory: ConnectionFactory, routingKey: RoutingKey): Connection {
+        return connection.updateAndGet { conn ->
+            if (conn != null) return@updateAndGet conn
+            factory.newConnection(routingKey.key)
+        }
+    }
 
     @Bean
-    fun receiverOptions(factory: ConnectionFactory) = ReceiverOptions().connectionFactory(factory)!!
+    fun senderOptions(factory: ConnectionFactory, routingKey: RoutingKey) = SenderOptions()
+            .connectionFactory(factory)
+            .connectionSupplier { supplier(factory, routingKey) }!!
+
+    @Bean
+    fun receiverOptions(factory: ConnectionFactory, routingKey: RoutingKey) = ReceiverOptions()
+            .connectionFactory(factory)
+            .connectionSupplier { supplier(factory, routingKey) }!!
 
     @Bean
     fun sender(opts: SenderOptions) = RabbitFlux.createSender(opts)!!
