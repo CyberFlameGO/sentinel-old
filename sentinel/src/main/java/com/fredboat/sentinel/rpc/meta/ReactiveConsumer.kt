@@ -58,8 +58,8 @@ class ReactiveConsumer<T : Annotation>(
             return
         }
 
-        when(val reply = handler(message)) {
-            is Unit -> {
+        when(val reply: Any? = handler(message)) {
+            is Unit, null -> {
                 if (delivery.properties.replyTo != null) {
                     log.warn("Sender with {} message expected reply, but we have none!", clazz)
                 }

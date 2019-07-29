@@ -64,7 +64,7 @@ class FanoutConsumer(
         // Null means reset
         shardManager.setGame(game)
     }
-    
+
     private fun sendHello() {
         rabbit.sendEvent(sentinelProperties.run {  SentinelHello(
                 shardStart,
