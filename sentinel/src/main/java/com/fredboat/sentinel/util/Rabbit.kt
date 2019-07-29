@@ -72,6 +72,6 @@ class Rabbit(sender: Sender) {
 
     fun <T> fromJson(delivery: Delivery, clazz: Class<T>) = mapper.readValue(delivery.body, clazz)!!
     fun fromJson(delivery: Delivery): Any = fromJson(delivery, getType(delivery))
-    fun getType(delivery: Delivery) = Class.forName(delivery.properties.headers[typeKey] as String)
+    fun getType(delivery: Delivery) = Class.forName(delivery.properties.headers[typeKey].toString())
 
 }
