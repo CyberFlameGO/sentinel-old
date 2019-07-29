@@ -4,7 +4,6 @@ import com.fredboat.sentinel.SentinelExchanges.FANOUT
 import com.fredboat.sentinel.SentinelExchanges.REQUESTS
 import com.fredboat.sentinel.SentinelExchanges.SESSIONS
 import com.fredboat.sentinel.config.RoutingKey
-import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.jda.RemoteSessionController
 import com.fredboat.sentinel.jda.SetGlobalRatelimit
 import com.fredboat.sentinel.rpc.meta.FanoutRequest
@@ -25,16 +24,15 @@ class RabbitIo(
         private val receiver: Receiver,
         private val rabbit: Rabbit,
         private val routingKey: RoutingKey,
-        private val sessionControl: RemoteSessionController,
-        sentinelProperties: SentinelProperties
+        private val sessionControl: RemoteSessionController
 ): ApplicationContextAware {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(RabbitIo::class.java)
     }
 
-    private val sessionQueueName = "${sentinelProperties.instance}-sessions-${routingKey.key}"
-    private val fanoutQueueName = "${sentinelProperties.instance}-fanout-${routingKey.key}"
+    private val sessionQueueName = "sessions-${routingKey.key}"
+    private val fanoutQueueName = "fanout-${routingKey.key}"
 
     override fun setApplicationContext(spring: ApplicationContext) {
         Flux.concat(declareExchanges())
