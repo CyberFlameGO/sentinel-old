@@ -4,6 +4,7 @@ import com.fredboat.sentinel.SentinelExchanges.FANOUT
 import com.fredboat.sentinel.SentinelExchanges.REQUESTS
 import com.fredboat.sentinel.SentinelExchanges.SESSIONS
 import com.fredboat.sentinel.config.RoutingKey
+import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.jda.RemoteSessionController
 import com.fredboat.sentinel.jda.SetGlobalRatelimit
 import com.fredboat.sentinel.rpc.meta.FanoutRequest
@@ -24,12 +25,16 @@ class RabbitIo(
         private val receiver: Receiver,
         private val rabbit: Rabbit,
         private val routingKey: RoutingKey,
-        private val sessionControl: RemoteSessionController
+        private val sessionControl: RemoteSessionController,
+        sentinelProperties: SentinelProperties
 ): ApplicationContextAware {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(RabbitIo::class.java)
     }
+
+    private val sessionQueueName = "${sentinelProperties.instance}-sessions-${routingKey.key}"
+    private val fanoutQueueName = "${sentinelProperties.instance}-fanout-${routingKey.key}"
 
     override fun setApplicationContext(spring: ApplicationContext) {
         Flux.concat(declareExchanges())
@@ -64,14 +69,14 @@ class RabbitIo(
 
     private fun declareQueues() = mutableListOf(
             declareQueue(REQUESTS),
-            declareQueue(SESSIONS),
-            declareQueue(FANOUT)
+            declareQueue(sessionQueueName),
+            declareQueue(fanoutQueueName)
     )
 
     private fun declareBindings() = mutableListOf(
             declareBinding(REQUESTS, REQUESTS, routingKey),
-            declareBinding(SESSIONS, SESSIONS),
-            declareBinding(FANOUT, FANOUT)
+            declareBinding(SESSIONS, sessionQueueName),
+            declareBinding(FANOUT, fanoutQueueName)
     )
 
     private fun declareExchange(
@@ -83,7 +88,6 @@ class RabbitIo(
         autoDelete(true)
         type(type)
     })
-
 
     private fun declareQueue(name: String) = sender.declareQueue(QueueSpecification().apply {
         name(name)
