@@ -39,7 +39,7 @@ class ReactiveConsumer<T : Annotation>(
                         method.invoke(bean, input)
                     }
                 }
-        log.info("Found {} listening methods annotated with {}", handlers.size, annotation)
+        log.info("Found {} listening methods annotated with {}", handlers.size, annotation.simpleName)
     }
 
     fun handleIncoming(delivery: Delivery) = try {

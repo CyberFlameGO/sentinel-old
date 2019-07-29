@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
+@FanoutRequest
 class FanoutConsumer(
         private val rabbit: Rabbit,
         private val sentinelProperties: SentinelProperties,
