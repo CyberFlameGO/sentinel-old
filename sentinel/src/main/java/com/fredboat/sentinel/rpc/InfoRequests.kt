@@ -9,14 +9,14 @@ package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
-import com.fredboat.sentinel.util.complete
+import com.fredboat.sentinel.util.mono
 import com.fredboat.sentinel.util.toEntity
 import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.exceptions.ErrorResponseException
 import net.dv8tion.jda.core.requests.ErrorResponse
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 
 @Service
 class InfoRequests(private val shardManager: ShardManager) {
@@ -64,21 +64,11 @@ class InfoRequests(private val shardManager: ShardManager) {
     }
 
     @SentinelRequest
-    fun consume(request: GetUserRequest): User? {
-        val user = shardManager.getUserById(request.id)
-        if(user != null) return user.toEntity()
-
-        for (shard in shardManager.shards) {
-            if (shard.status != JDA.Status.CONNECTED) continue
-            return try {
-                shard.retrieveUserById(request.id).complete("fetchUser").toEntity()
-            } catch (e: ErrorResponseException) {
-                if (e.errorResponse == ErrorResponse.UNKNOWN_USER) return null
-                throw e
-            }
-        }
-
-        throw RuntimeException("No shards connected")
-    }
+    fun consume(request: GetUserRequest): Mono<User> = shardManager.retrieveUserById(request.id)
+            .mono(("fetchUser"))
+            .onErrorContinue { t, _ ->
+                // Just drop the user if it was not found. Fail otherwise.
+                t is ErrorResponseException && t.errorResponse == ErrorResponse.UNKNOWN_USER
+            }.map { it.toEntity() }
 
 }

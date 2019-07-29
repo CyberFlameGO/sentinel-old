@@ -10,10 +10,14 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
-import com.fredboat.sentinel.util.*
+import com.fredboat.sentinel.util.EvalService
+import com.fredboat.sentinel.util.mono
+import com.fredboat.sentinel.util.toEntity
+import com.fredboat.sentinel.util.toEntityExtended
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Icon
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 import java.util.*
 
 @Service
@@ -24,24 +28,26 @@ class ManagementRequests(
 ) {
 
     @SentinelRequest
-    fun consume(modRequest: ModRequest): String = modRequest.run {
+    fun consume(modRequest: ModRequest): Mono<String> = modRequest.run {
         val guild = shardManager.getGuildById(guildId)
                 ?: throw RuntimeException("Guild $guildId not found")
         val control = guild.controller
 
-        val action = when(type) {
+        val action = when (type) {
             KICK -> control.kick(userId.toString(), reason)
             BAN -> control.ban(userId.toString(), banDeleteDays, reason)
             UNBAN -> control.unban(userId.toString())
         }
-        action.complete(type.name.toLowerCase())
-        return ""
+
+        return action.mono(type.name.toLowerCase()).thenReturn("")
     }
 
     @SentinelRequest
     fun consume(request: SetAvatarRequest) {
         val decoded = Base64.getDecoder().decode(request.base64)
-        shardManager.shards[0].selfUser.manager.setAvatar(Icon.from(decoded)).queue("setAvatar")
+        shardManager.shards[0].selfUser.manager.setAvatar(Icon.from(decoded))
+                .mono("setAvatar")
+                .subscribe()
     }
 
     @SentinelRequest
@@ -54,7 +60,7 @@ class ManagementRequests(
     fun consume(request: LeaveGuildRequest) {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
-        guild.leave().queue("leaveGuild")
+        guild.leave().mono("leaveGuild").subscribe()
     }
 
     @SentinelRequest
@@ -64,26 +70,29 @@ class ManagementRequests(
     }
 
     @SentinelRequest
-    fun consume(request: SentinelInfoRequest) = shardManager.run { SentinelInfoResponse(
-            guildCache.size(),
-            roleCache.size(),
-            categoryCache.size(),
-            textChannelCache.size(),
-            voiceChannelCache.size(),
-            emoteCache.size(),
-            if (request.includeShards) shards.map { it.toEntityExtended() } else null
-    )}
+    fun consume(request: SentinelInfoRequest) = shardManager.run {
+        SentinelInfoResponse(
+                guildCache.size(),
+                roleCache.size(),
+                categoryCache.size(),
+                textChannelCache.size(),
+                voiceChannelCache.size(),
+                emoteCache.size(),
+                if (request.includeShards) shards.map { it.toEntityExtended() } else null
+        )
+    }
 
     @SentinelRequest
     fun consume(request: UserListRequest) = shardManager.userCache.map { it.idLong }
 
     @SentinelRequest
-    fun consume(request: BanListRequest): Array<Ban> {
+    fun consume(request: BanListRequest): Mono<Array<Ban>> {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
-        return guild.banList.complete("getBanList").map {
-            Ban(it.user.toEntity(), it.reason)
-        }.toTypedArray()
+        return guild.banList.mono("getBanList").map { list ->
+            list.map { Ban(it.user.toEntity(), it.reason) }
+                    .toTypedArray()
+        }
     }
 
     @Volatile
