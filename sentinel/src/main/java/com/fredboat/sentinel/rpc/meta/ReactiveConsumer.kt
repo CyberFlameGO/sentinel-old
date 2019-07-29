@@ -77,7 +77,7 @@ class ReactiveConsumer<T : Annotation>(
         val message = "${throwable.javaClass.simpleName} ${throwable.message}"
 
         val props = AMQP.BasicProperties.Builder()
-                .headers(mapOf("Content-Type" to "text/plain"))
+                .contentType("text/plain")
                 .correlationId(incoming.properties.correlationId)
                 .build()
 
@@ -91,17 +91,13 @@ class ReactiveConsumer<T : Annotation>(
     }
 
     private fun sendReply(incoming: Delivery, reply: Any) {
-        val (body, headers) = rabbit.toJson(reply)
-        val props = AMQP.BasicProperties.Builder()
-                .headers(headers)
-                .correlationId(incoming.properties.correlationId)
-                .build()
+        val (body, builder) = rabbit.toJson(reply)
 
         // Replies are always sent via the default exchange
         rabbit.send(OutboundMessage(
                 "",
                 incoming.properties.replyTo,
-                props,
+                builder.correlationId(incoming.properties.correlationId).build(),
                 body
         ))
     }

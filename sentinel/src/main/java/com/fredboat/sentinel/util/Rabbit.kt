@@ -49,25 +49,24 @@ class Rabbit(sender: Sender) {
     fun sendSession(event: Any) = send(SESSIONS, event)
 
     private fun send(exchange: String, event: Any) {
-        val (body, headers) = toJson(event)
-        val props = AMQP.BasicProperties.Builder()
-                .headers(headers)
-                .build()
+        val (body, props) = toJson(event)
 
         sink.next(OutboundMessage(
                 exchange,
                 "",
-                props,
+                props.build(),
                 body
         ))
     }
 
-    fun toJson(a: Any): Pair<ByteArray, HashMap<String, Any>> {
+    fun toJson(a: Any): Pair<ByteArray, AMQP.BasicProperties.Builder> {
         val body = mapper.writeValueAsBytes(a)
         val headers = HashMap<String, Any>()
         headers[typeKey] = a.javaClass.name
-        headers["Content-Type"] = "application/json"
-        return body to headers
+        val builder = AMQP.BasicProperties.Builder()
+                .headers(headers)
+                .contentType("application/json")
+        return body to builder
     }
 
     fun <T> fromJson(delivery: Delivery, clazz: Class<T>) = mapper.readValue(delivery.body, clazz)!!
