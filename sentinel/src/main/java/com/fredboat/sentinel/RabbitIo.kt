@@ -55,8 +55,8 @@ class RabbitIo(
                 .doOnSuccess {
                     log.info("Declared $it exchanges")
                     conn.close()
-                    exchangeDeclarer!!.close()
                     exchangeDeclarer = null
+                    // Closing the sender itself has strange side effects on the remaining stream
                 }
                 .thenMany(Flux.concat(declareQueues()))
                 .count()
