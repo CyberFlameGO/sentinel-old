@@ -9,6 +9,7 @@ package com.fredboat.sentinel.rpc
 
 import com.fredboat.sentinel.entities.*
 import com.fredboat.sentinel.entities.ModRequestType.*
+import com.fredboat.sentinel.jda.RemoteSessionController
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.EvalService
 import com.fredboat.sentinel.util.mono
@@ -24,7 +25,8 @@ import java.util.*
 @SentinelRequest
 class ManagementRequests(
         private val shardManager: ShardManager,
-        private val eval: EvalService
+        private val eval: EvalService,
+        private val sessionsController: RemoteSessionController
 ) {
 
     @SentinelRequest
@@ -81,6 +83,9 @@ class ManagementRequests(
                 if (request.includeShards) shards.map { it.toEntityExtended() } else null
         )
     }
+
+    @SentinelRequest
+    fun consume(request: RunSessionRequest) = sessionsController.onRunRequest(request.shardId)
 
     @SentinelRequest
     fun consume(request: UserListRequest) = shardManager.userCache.map { it.idLong }
