@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
 @Service
+@SentinelRequest
 class MessageRequests(private val shardManager: ShardManager) {
 
     companion object {

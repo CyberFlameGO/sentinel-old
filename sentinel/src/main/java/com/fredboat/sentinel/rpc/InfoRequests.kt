@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
 @Service
+@SentinelRequest
 class InfoRequests(private val shardManager: ShardManager) {
 
     @SentinelRequest

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service
  * Requests related to audio
  */
 @Service
+@SentinelRequest
 class AudioRequests(private val shardManager: ShardManager) {
 
     @SentinelRequest
