@@ -15,6 +15,7 @@ import com.fredboat.sentinel.entities.SentinelHello
 import com.fredboat.sentinel.entities.SyncSessionQueueRequest
 import com.fredboat.sentinel.jda.RemoteSessionController
 import net.dv8tion.jda.bot.sharding.ShardManager
+import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Game
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -60,7 +61,11 @@ class FanoutConsumer(
         sendHello()
         val game = if (event.game.isBlank()) null else Game.playing(event.game)
         // Null means reset
-        shardManager.setGame(game)
+        shardManager.shards.forEach {
+            if (it.presence?.game?.name != game?.name) {
+                it.presence.setPresence(OnlineStatus.ONLINE, game)
+            }
+        }
     }
 
     private fun sendHello() {
