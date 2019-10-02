@@ -20,6 +20,7 @@ class FredBoatHello(
  *  Used for mapping what Sentinels we have in FredBoat */
 data class SentinelHello(
         val shards: Set<Int>,
+        val shardCount: Int,
         val key: String,
         val time: Long = System.currentTimeMillis()
 )
