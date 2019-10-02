@@ -12,7 +12,6 @@ import com.fredboat.sentinel.jda.JdaRabbitEventListener
 import com.fredboat.sentinel.jda.RemoteSessionController
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.utils.SessionController
 import net.dv8tion.jda.core.utils.cache.CacheFlag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,6 +27,7 @@ class ShardManagerConfig {
     companion object {
         private val log: Logger = LoggerFactory.getLogger(ShardManagerConfig::class.java)
     }
+
     @Bean
     fun buildShardManager(sentinelProperties: SentinelProperties,
                           rabbitEventListener: JdaRabbitEventListener,
@@ -41,7 +41,7 @@ class ShardManagerConfig {
                 .setAudioEnabled(true)
                 .setAutoReconnect(true)
                 .setShardsTotal(sentinelProperties.shardCount)
-                .setShards(sentinelProperties.shardStart, sentinelProperties.shardEnd)
+                .setShards(sentinelProperties.getShards())
                 .setSessionController(sessionController)
                 .setDisabledCacheFlags(EnumSet.of(CacheFlag.GAME, CacheFlag.EMOTE))
                 //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder() TODO
