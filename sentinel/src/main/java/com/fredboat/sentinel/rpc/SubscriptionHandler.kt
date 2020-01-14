@@ -13,7 +13,7 @@ import com.fredboat.sentinel.entities.GuildUnsubscribeRequest
 import com.fredboat.sentinel.jda.VoiceServerUpdateCache
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.toEntity
-import net.dv8tion.jda.bot.sharding.ShardManager
+import net.dv8tion.jda.api.sharding.ShardManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier

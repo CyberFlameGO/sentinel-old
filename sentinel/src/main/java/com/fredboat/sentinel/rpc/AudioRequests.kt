@@ -10,9 +10,9 @@ package com.fredboat.sentinel.rpc
 import com.fredboat.sentinel.entities.AudioQueueRequest
 import com.fredboat.sentinel.entities.AudioQueueRequestEnum.*
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
-import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.impl.JDAImpl
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.sharding.ShardManager
+import net.dv8tion.jda.internal.JDAImpl
 import org.springframework.stereotype.Service
 
 /**
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service
 @SentinelRequest
 class AudioRequests(private val shardManager: ShardManager) {
 
+    // TODO: This requires migration from internal APIs
     @SentinelRequest
     fun consume(request: AudioQueueRequest) {
         val guild: Guild = shardManager.getGuildById(request.guild)

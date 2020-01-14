@@ -8,8 +8,8 @@
 package com.fredboat.sentinel.util
 
 import com.fredboat.sentinel.metrics.Counters
-import net.dv8tion.jda.core.exceptions.ErrorResponseException
-import net.dv8tion.jda.core.requests.RestAction
+import net.dv8tion.jda.api.exceptions.ErrorResponseException
+import net.dv8tion.jda.api.requests.RestAction
 import reactor.core.publisher.Mono
 
 fun <T> RestAction<T>.mono(name: String): Mono<T> = Mono.create<T> { sink ->

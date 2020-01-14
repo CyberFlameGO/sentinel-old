@@ -12,11 +12,11 @@ import com.fredboat.sentinel.config.SentinelProperties
 import com.fredboat.sentinel.entities.AppendSessionEvent
 import com.fredboat.sentinel.entities.RemoveSessionEvent
 import com.fredboat.sentinel.util.Rabbit
-import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.utils.SessionController
-import net.dv8tion.jda.core.utils.SessionController.SessionConnectNode
-import net.dv8tion.jda.core.utils.SessionControllerAdapter
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.sharding.ShardManager
+import net.dv8tion.jda.api.utils.SessionController
+import net.dv8tion.jda.api.utils.SessionController.SessionConnectNode
+import net.dv8tion.jda.api.utils.SessionControllerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

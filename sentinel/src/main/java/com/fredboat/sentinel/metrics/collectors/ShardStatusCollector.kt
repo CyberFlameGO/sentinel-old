@@ -9,8 +9,8 @@ package com.fredboat.sentinel.metrics.collectors
 
 import io.prometheus.client.Collector
 import io.prometheus.client.GaugeMetricFamily
-import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.JDA
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.sharding.ShardManager
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -41,7 +41,7 @@ class ShardStatusCollector(private val shardManager: ShardManager) : Collector()
         shardsConnected.addMetric(noLabels, shardManager.shards.stream()
                 .filter { shard -> shard.status == JDA.Status.CONNECTED }
                 .count().toDouble())
-        averagePing.addMetric(noLabels, shardManager.averagePing)
+        averagePing.addMetric(noLabels, shardManager.averageGatewayPing)
 
         return mfs
     }

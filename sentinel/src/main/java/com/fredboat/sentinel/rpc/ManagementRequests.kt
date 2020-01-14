@@ -7,16 +7,28 @@
 
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.entities.*
+import com.fredboat.sentinel.entities.Ban
+import com.fredboat.sentinel.entities.BanListRequest
+import com.fredboat.sentinel.entities.EvalRequest
+import com.fredboat.sentinel.entities.GetPingReponse
+import com.fredboat.sentinel.entities.GetPingRequest
+import com.fredboat.sentinel.entities.LeaveGuildRequest
+import com.fredboat.sentinel.entities.ModRequest
 import com.fredboat.sentinel.entities.ModRequestType.*
+import com.fredboat.sentinel.entities.ReviveShardRequest
+import com.fredboat.sentinel.entities.RunSessionRequest
+import com.fredboat.sentinel.entities.SentinelInfoRequest
+import com.fredboat.sentinel.entities.SentinelInfoResponse
+import com.fredboat.sentinel.entities.SetAvatarRequest
+import com.fredboat.sentinel.entities.UserListRequest
 import com.fredboat.sentinel.jda.RemoteSessionController
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.EvalService
 import com.fredboat.sentinel.util.mono
 import com.fredboat.sentinel.util.toEntity
 import com.fredboat.sentinel.util.toEntityExtended
-import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.entities.Icon
+import net.dv8tion.jda.api.entities.Icon
+import net.dv8tion.jda.api.sharding.ShardManager
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.util.*
@@ -33,12 +45,11 @@ class ManagementRequests(
     fun consume(modRequest: ModRequest): Mono<String> = modRequest.run {
         val guild = shardManager.getGuildById(guildId)
                 ?: throw RuntimeException("Guild $guildId not found")
-        val control = guild.controller
 
         val action = when (type) {
-            KICK -> control.kick(userId.toString(), reason)
-            BAN -> control.ban(userId.toString(), banDeleteDays, reason)
-            UNBAN -> control.unban(userId.toString())
+            KICK -> guild.kick(userId.toString(), reason)
+            BAN -> guild.ban(userId.toString(), banDeleteDays, reason)
+            UNBAN -> guild.unban(userId.toString())
         }
 
         return action.mono(type.name.toLowerCase()).thenReturn("")
@@ -68,7 +79,7 @@ class ManagementRequests(
     @SentinelRequest
     fun consume(request: GetPingRequest): GetPingReponse {
         val shard = shardManager.getShardById(request.shardId)
-        return GetPingReponse(shard?.ping ?: -1, shardManager.averagePing)
+        return GetPingReponse(shard?.gatewayPing ?: -1, shardManager.averageGatewayPing)
     }
 
     @SentinelRequest
@@ -94,7 +105,7 @@ class ManagementRequests(
     fun consume(request: BanListRequest): Mono<Array<Ban>> {
         val guild = shardManager.getGuildById(request.guildId)
                 ?: throw RuntimeException("Guild ${request.guildId} not found")
-        return guild.banList.mono("getBanList").map { list ->
+        return guild.retrieveBanList().mono("getBanList").map { list ->
             list.map { Ban(it.user.toEntity(), it.reason) }
                     .toTypedArray()
         }

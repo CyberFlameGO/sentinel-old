@@ -10,9 +10,9 @@ package com.fredboat.sentinel.config
 import com.fredboat.sentinel.ApplicationState
 import com.fredboat.sentinel.jda.JdaRabbitEventListener
 import com.fredboat.sentinel.jda.RemoteSessionController
-import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
-import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.utils.cache.CacheFlag
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
+import net.dv8tion.jda.api.sharding.ShardManager
+import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -38,12 +38,11 @@ class ShardManagerConfig {
                 .setToken(sentinelProperties.discordToken)
                 .setBulkDeleteSplittingEnabled(false)
                 .setEnableShutdownHook(false)
-                .setAudioEnabled(true)
                 .setAutoReconnect(true)
                 .setShardsTotal(sentinelProperties.shardCount)
                 .setShards(sentinelProperties.getShards())
                 .setSessionController(sessionController)
-                .setDisabledCacheFlags(EnumSet.of(CacheFlag.GAME, CacheFlag.EMOTE))
+                .setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.EMOTE))
                 //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder() TODO
                 //        .eventListener(OkHttpEventMetrics("jda", Metrics.httpEventCounter)))
                 .addEventListeners(rabbitEventListener)

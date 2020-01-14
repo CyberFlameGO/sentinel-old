@@ -3,11 +3,10 @@
 sentinel:
   discordToken: ""
 
-  # The range of shards to start from shardStart (inclusively) to shardEndExcl (exclusively)
-  shardStart: 0
-  shardEnd: 0
-
   shardCount: 1 # The total number of shards of your entire bot
+  sentinelId: 0 # The ID number of this sentinel. A unique non-negative integer lower than the total count.
+  sentinelCount: 1 # How many sentinels there are in total
+
   instance: dev # A human-readable identifier
 
 sentry:
@@ -19,14 +18,13 @@ sentry:
 server:
   port: 27212
 
-spring:
-  rabbitmq:
-    # These default settings should work without configuring the server
-    host: "localhost"
-    #host: rabbitmq   # use this when running with the attached docker-compose file
-    port: 5672
-    username: "guest"
-    password: "guest"
+rabbit:
+  # These default settings should work without configuring the server
+  host: "localhost"
+  #host: rabbitmq   # use this when running with the attached docker-compose file
+  port: 5672
+  username: "guest"
+  password: "guest"
 
 logging:
   file:             './logs/sentinel.log'

@@ -7,14 +7,21 @@
 
 package com.fredboat.sentinel.rpc
 
-import com.fredboat.sentinel.entities.*
+import com.fredboat.sentinel.entities.GetUserRequest
+import com.fredboat.sentinel.entities.GuildInfo
+import com.fredboat.sentinel.entities.GuildInfoRequest
+import com.fredboat.sentinel.entities.MemberInfo
+import com.fredboat.sentinel.entities.MemberInfoRequest
+import com.fredboat.sentinel.entities.RoleInfo
+import com.fredboat.sentinel.entities.RoleInfoRequest
+import com.fredboat.sentinel.entities.User
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.mono
 import com.fredboat.sentinel.util.toEntity
-import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.OnlineStatus
-import net.dv8tion.jda.core.exceptions.ErrorResponseException
-import net.dv8tion.jda.core.requests.ErrorResponse
+import net.dv8tion.jda.api.OnlineStatus
+import net.dv8tion.jda.api.exceptions.ErrorResponseException
+import net.dv8tion.jda.api.requests.ErrorResponse
+import net.dv8tion.jda.api.sharding.ShardManager
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
@@ -24,14 +31,16 @@ class InfoRequests(private val shardManager: ShardManager) {
 
     @SentinelRequest
     fun consume(request: MemberInfoRequest): MemberInfo {
-        val member = shardManager.getGuildById(request.guildId).getMemberById(request.id)
+        val member = shardManager.getGuildById(request.guildId)?.getMemberById(request.id)
+                ?: throw IllegalStateException("Member ${request.id} of ${request.guildId} not found")
+
         return member.run {
             MemberInfo(
                     user.idLong,
                     guild.idLong,
                     user.avatarUrl,
                     color?.rgb,
-                    joinDate.toInstant().toEpochMilli()
+                    timeJoined.toInstant().toEpochMilli()
             )
         }
     }
@@ -39,6 +48,8 @@ class InfoRequests(private val shardManager: ShardManager) {
     @SentinelRequest
     fun consume(request: GuildInfoRequest): GuildInfo {
         val guild = shardManager.getGuildById(request.id)
+                ?: throw IllegalStateException("Guild ${request.id} not found")
+
         return guild.run {
             GuildInfo(
                     idLong,
@@ -52,6 +63,8 @@ class InfoRequests(private val shardManager: ShardManager) {
     @SentinelRequest
     fun consume(request: RoleInfoRequest): RoleInfo {
         val role = shardManager.getRoleById(request.id)
+                ?: throw IllegalStateException("Role ${request.id} not found")
+
         return role.run {
             RoleInfo(
                     idLong,

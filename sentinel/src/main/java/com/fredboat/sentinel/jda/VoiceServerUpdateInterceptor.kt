@@ -9,8 +9,8 @@ package com.fredboat.sentinel.jda
 
 import com.fredboat.sentinel.entities.VoiceServerUpdate
 import com.fredboat.sentinel.util.Rabbit
-import net.dv8tion.jda.core.entities.impl.JDAImpl
-import net.dv8tion.jda.core.handle.SocketHandler
+import net.dv8tion.jda.api.entities.impl.JDAImpl
+import net.dv8tion.jda.api.handle.SocketHandler
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

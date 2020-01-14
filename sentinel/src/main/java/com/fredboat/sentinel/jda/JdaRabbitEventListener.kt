@@ -12,47 +12,48 @@ import com.fredboat.sentinel.metrics.Counters
 import com.fredboat.sentinel.util.Rabbit
 import com.fredboat.sentinel.util.toEntity
 import com.neovisionaries.ws.client.WebSocketFrame
-import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.Channel
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.MessageType
-import net.dv8tion.jda.core.entities.impl.JDAImpl
-import net.dv8tion.jda.core.events.*
-import net.dv8tion.jda.core.events.channel.category.CategoryDeleteEvent
-import net.dv8tion.jda.core.events.channel.category.GenericCategoryEvent
-import net.dv8tion.jda.core.events.channel.category.update.CategoryUpdatePermissionsEvent
-import net.dv8tion.jda.core.events.channel.category.update.CategoryUpdatePositionEvent
-import net.dv8tion.jda.core.events.channel.text.GenericTextChannelEvent
-import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent
-import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent
-import net.dv8tion.jda.core.events.channel.voice.GenericVoiceChannelEvent
-import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent
-import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent
-import net.dv8tion.jda.core.events.channel.voice.update.VoiceChannelUpdatePositionEvent
-import net.dv8tion.jda.core.events.guild.GenericGuildEvent
-import net.dv8tion.jda.core.events.guild.GuildJoinEvent
-import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
-import net.dv8tion.jda.core.events.guild.member.*
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent
-import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent
-import net.dv8tion.jda.core.events.guild.update.GuildUpdateNameEvent
-import net.dv8tion.jda.core.events.guild.update.GuildUpdateOwnerEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
-import net.dv8tion.jda.core.events.http.HttpRequestEvent
-import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
-import net.dv8tion.jda.core.events.role.GenericRoleEvent
-import net.dv8tion.jda.core.events.role.RoleCreateEvent
-import net.dv8tion.jda.core.events.role.RoleDeleteEvent
-import net.dv8tion.jda.core.events.role.update.RoleUpdatePermissionsEvent
-import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent
-import net.dv8tion.jda.core.events.user.update.GenericUserPresenceEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
-import net.dv8tion.jda.core.utils.PermissionUtil
+import net.dv8tion.jda.api.sharding.ShardManager
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.GuildChannel
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.MessageType
+import net.dv8tion.jda.api.events.*
+import net.dv8tion.jda.api.events.channel.category.CategoryDeleteEvent
+import net.dv8tion.jda.api.events.channel.category.GenericCategoryEvent
+import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdatePermissionsEvent
+import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdatePositionEvent
+import net.dv8tion.jda.api.events.channel.text.GenericTextChannelEvent
+import net.dv8tion.jda.api.events.channel.text.TextChannelCreateEvent
+import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent
+import net.dv8tion.jda.api.events.channel.voice.GenericVoiceChannelEvent
+import net.dv8tion.jda.api.events.channel.voice.VoiceChannelCreateEvent
+import net.dv8tion.jda.api.events.channel.voice.VoiceChannelDeleteEvent
+import net.dv8tion.jda.api.events.channel.voice.update.VoiceChannelUpdatePositionEvent
+import net.dv8tion.jda.api.events.guild.GenericGuildEvent
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
+import net.dv8tion.jda.api.events.guild.member.*
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
+import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateOwnerEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent
+import net.dv8tion.jda.api.events.http.HttpRequestEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
+import net.dv8tion.jda.api.events.role.GenericRoleEvent
+import net.dv8tion.jda.api.events.role.RoleCreateEvent
+import net.dv8tion.jda.api.events.role.RoleDeleteEvent
+import net.dv8tion.jda.api.events.role.update.RoleUpdatePermissionsEvent
+import net.dv8tion.jda.api.events.role.update.RoleUpdatePositionEvent
+import net.dv8tion.jda.api.events.user.update.GenericUserPresenceEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.internal.JDAImpl
+import net.dv8tion.jda.internal.utils.PermissionUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -83,6 +84,7 @@ class JdaRabbitEventListener(
     override fun onReady(event: ReadyEvent) {
         dispatch(ShardLifecycleEvent(event.jda.toEntity(), LifecycleEventEnum.READIED))
 
+        // TODO
         val handlers = (event.jda as JDAImpl).client.handlers
         handlers["VOICE_SERVER_UPDATE"] = VoiceServerUpdateInterceptor(event.jda as JDAImpl, rabbit, voiceServerUpdateCache)
         handlers["VOICE_STATE_UPDATE"] = VoiceStateUpdateInterceptor(event.jda as JDAImpl)
@@ -122,7 +124,7 @@ class JdaRabbitEventListener(
     override fun onGuildLeave(event: GuildLeaveEvent) =
             dispatch(GuildLeaveEvent(
                     event.guild.idLong,
-                    event.guild.selfMember.joinDate.toEpochSecond() * 1000
+                    event.guild.selfMember.timeJoined.toEpochSecond() * 1000
             ))
 
     /* Member jda */
@@ -145,10 +147,10 @@ class JdaRabbitEventListener(
 
     override fun onGuildMemberRoleAdd(event: GuildMemberRoleAddEvent) = onMemberChange(event.member)
     override fun onGuildMemberRoleRemove(event: GuildMemberRoleRemoveEvent) = onMemberChange(event.member)
-    override fun onGenericUserPresence(event: GenericUserPresenceEvent<*>) = onMemberChange(event.member)
-    override fun onGuildMemberNickChange(event: GuildMemberNickChangeEvent) = onMemberChange(event.member)
+    override fun onGenericUserPresence(event: GenericUserPresenceEvent) = onMemberChange(event.member)
+    override fun onGuildMemberUpdateNickname(event: GuildMemberUpdateNicknameEvent) = onMemberChange(event.member)
 
-    private fun onMemberChange(member: net.dv8tion.jda.core.entities.Member) {
+    private fun onMemberChange(member: net.dv8tion.jda.api.entities.Member) {
         if (!subscriptions.contains(member.guild.idLong)) return
         dispatch(GuildMemberUpdate(
                 member.guild.idLong,
@@ -304,7 +306,7 @@ class JdaRabbitEventListener(
     private fun updateChannelPermissions(guild: Guild) {
         val permissions = mutableMapOf<String, Long>()
         val self = guild.selfMember
-        val func = { channel: Channel ->
+        val func = { channel: GuildChannel ->
             permissions[channel.id] = PermissionUtil.getEffectivePermission(channel, self)
         }
 
@@ -325,13 +327,13 @@ class JdaRabbitEventListener(
     }
 
     override fun onHttpRequest(event: HttpRequestEvent) {
-        if (event.response.code >= 300) {
+        if (event.response?.code ?: -2 >= 300) {
             log.warn("Unsuccessful JDA HTTP Request:\n{}\nResponse:{}\n",
                     event.requestRaw, event.responseRaw)
         }
     }
 
-    override fun onGenericEvent(event: Event) {
+    override fun onGenericEvent(event: GenericEvent) {
         Counters.jdaEvents.labels(event.javaClass.simpleName).inc()
     }
 
