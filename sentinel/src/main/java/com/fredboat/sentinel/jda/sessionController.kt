@@ -99,8 +99,8 @@ class RemoteSessionController(
         globalRatelimit = event.new
     }
 
-    override fun getGateway(api: JDA) = adapter.getGateway(api)!!
-    override fun getGatewayBot(api: JDA) = adapter.getGatewayBot(api)!!
+    override fun getGateway(api: JDA) = adapter.getGateway(api)
+    override fun getGatewayBot(api: JDA) = adapter.getGatewayBot(api)
 }
 
 data class SetGlobalRatelimit(val new: Long)

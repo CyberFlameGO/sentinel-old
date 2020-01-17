@@ -10,6 +10,7 @@ package com.fredboat.sentinel.config
 import com.fredboat.sentinel.ApplicationState
 import com.fredboat.sentinel.jda.JdaRabbitEventListener
 import com.fredboat.sentinel.jda.RemoteSessionController
+import com.fredboat.sentinel.jda.VoiceInterceptor
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.cache.CacheFlag
@@ -31,7 +32,8 @@ class ShardManagerConfig {
     @Bean
     fun buildShardManager(sentinelProperties: SentinelProperties,
                           rabbitEventListener: JdaRabbitEventListener,
-                          sessionController: RemoteSessionController
+                          sessionController: RemoteSessionController,
+                          voiceInterceptor: VoiceInterceptor
     ): ShardManager {
 
         val builder = DefaultShardManagerBuilder()
@@ -43,6 +45,7 @@ class ShardManagerConfig {
                 .setShards(sentinelProperties.getShards())
                 .setSessionController(sessionController)
                 .setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.EMOTE))
+                .setVoiceDispatchInterceptor(voiceInterceptor)
                 //.setHttpClientBuilder(Http.DEFAULT_BUILDER.newBuilder() TODO
                 //        .eventListener(OkHttpEventMetrics("jda", Metrics.httpEventCounter)))
                 .addEventListeners(rabbitEventListener)
