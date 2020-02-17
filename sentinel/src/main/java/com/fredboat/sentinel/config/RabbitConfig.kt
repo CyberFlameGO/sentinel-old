@@ -18,6 +18,9 @@ import reactor.rabbitmq.RabbitFlux
 import reactor.rabbitmq.ReceiverOptions
 import reactor.rabbitmq.Sender
 import reactor.rabbitmq.SenderOptions
+import java.io.IOException
+import java.net.InetSocketAddress
+import java.net.Socket
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 
@@ -49,9 +52,24 @@ class RabbitConfig(val props: RabbitProperties) {
     private var connection = AtomicReference<Connection>()
     private fun supplier(factory: ConnectionFactory, routingKey: RoutingKey): Connection {
         return connection.updateAndGet { conn ->
+            waitForRabbit()
             if (conn != null) return@updateAndGet conn
             factory.newConnection(routingKey.key)
         }
+    }
+
+    private fun waitForRabbit() {
+        while (!isRabbitAvailable()) { Thread.sleep(2000) }
+    }
+
+    private fun isRabbitAvailable(): Boolean = try {
+        val sock = Socket()
+        sock.soTimeout = 5000
+        sock.connect(InetSocketAddress(props.host, props.port))
+        true
+    } catch (e: IOException) {
+        log.info("Waiting for RabbitMQ... {}", e.message)
+        false
     }
 
     @Bean
