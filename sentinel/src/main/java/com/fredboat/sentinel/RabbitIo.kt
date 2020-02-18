@@ -1,5 +1,6 @@
 package com.fredboat.sentinel
 
+import com.fredboat.sentinel.SentinelExchanges.EVENTS
 import com.fredboat.sentinel.SentinelExchanges.FANOUT
 import com.fredboat.sentinel.SentinelExchanges.REQUESTS
 import com.fredboat.sentinel.SentinelExchanges.SESSIONS
@@ -18,7 +19,12 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.stereotype.Controller
 import reactor.core.publisher.Flux
-import reactor.rabbitmq.*
+import reactor.rabbitmq.BindingSpecification
+import reactor.rabbitmq.ExchangeSpecification
+import reactor.rabbitmq.QueueSpecification
+import reactor.rabbitmq.Receiver
+import reactor.rabbitmq.Sender
+import reactor.rabbitmq.SenderOptions
 
 @Controller
 class RabbitIo(
@@ -82,6 +88,7 @@ class RabbitIo(
     private fun declareExchanges() = mutableListOf(
             declareExchange(REQUESTS, durable = true),
             declareExchange(SESSIONS),
+            declareExchange(EVENTS),
             declareExchange(FANOUT, type = "fanout")
     )
 
