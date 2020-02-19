@@ -63,11 +63,18 @@ class ReactiveConsumer<T : Annotation>(
             is Unit, null -> {
                 if (delivery.properties.replyTo != null) {
                     log.warn("Sender with {} message expected reply, but we have none!", clazz)
+                    delivery.nack(false)
+                } else {
+                    // Empty response
+                    delivery.ack()
                 }
             }
             is Mono<*> -> reply.doOnError { handleFailure(delivery, it) }
-                    .subscribe{ sendReply(delivery, it) }
-            else -> sendReply(delivery, reply)
+                    .subscribe{ sendReply(delivery, it); delivery.ack() }
+            else -> {
+                sendReply(delivery, reply)
+                delivery.ack()
+            }
         }
     }
 
@@ -86,6 +93,5 @@ class ReactiveConsumer<T : Annotation>(
                 builder.correlationId(incoming.properties.correlationId).build(),
                 body
         ))
-        incoming.ack()
     }
 }
