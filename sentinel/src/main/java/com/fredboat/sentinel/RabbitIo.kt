@@ -11,8 +11,6 @@ import com.fredboat.sentinel.rpc.meta.FanoutRequest
 import com.fredboat.sentinel.rpc.meta.ReactiveConsumer
 import com.fredboat.sentinel.rpc.meta.SentinelRequest
 import com.fredboat.sentinel.util.Rabbit
-import com.rabbitmq.client.Connection
-import com.rabbitmq.client.ConnectionFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
@@ -24,13 +22,11 @@ import reactor.rabbitmq.ExchangeSpecification
 import reactor.rabbitmq.QueueSpecification
 import reactor.rabbitmq.Receiver
 import reactor.rabbitmq.Sender
-import reactor.rabbitmq.SenderOptions
 
 @Controller
 class RabbitIo(
         private val sender: Sender,
         private val receiver: Receiver,
-        private val connectionFactory: ConnectionFactory,
         private val rabbit: Rabbit,
         private val routingKey: RoutingKey,
         private val sessionControl: RemoteSessionController
@@ -40,30 +36,14 @@ class RabbitIo(
         private val log: Logger = LoggerFactory.getLogger(RabbitIo::class.java)
     }
 
-    private var exchangeDeclarer: Sender? = null
     private val sessionQueueName = "sessions-${routingKey.key}"
     private val requestsQueueName = "requests-${routingKey.key}"
     private val fanoutQueueName = "fanout-${routingKey.key}"
 
     override fun setApplicationContext(spring: ApplicationContext) {
-        // The exchange declaration may fail if our options mismatch
-        // Using a separate Sender prevents side effects upon failure
-        lateinit var conn: Connection
-        exchangeDeclarer = Sender(SenderOptions()
-                .connectionFactory(connectionFactory)
-                .connectionSupplier {
-                    conn = it.newConnection(routingKey.key + "-exchange-declarations")
-                    conn
-                })
-
         Flux.concat(declareExchanges())
                 .count()
-                .doOnSuccess {
-                    log.info("Declared $it exchanges")
-                    conn.close()
-                    exchangeDeclarer = null
-                    // Closing the sender itself has strange side effects on the remaining stream
-                }
+                .doOnSuccess { log.info("Declared $it exchanges") }
                 .thenMany(Flux.concat(declareQueues()))
                 .count()
                 .doOnSuccess { log.info("Declared $it queues") }
@@ -108,7 +88,7 @@ class RabbitIo(
             name: String,
             type: String = "direct",
             durable: Boolean = false
-    ) = exchangeDeclarer!!.declareExchange(ExchangeSpecification().apply {
+    ) = sender.declareExchange(ExchangeSpecification().apply {
         name(name)
         durable(durable)
         autoDelete(true)
