@@ -1,13 +1,12 @@
 package com.fredboat.sentinel.rpc.meta
 
 import com.fredboat.sentinel.util.Rabbit
-import com.rabbitmq.client.AMQP
-import com.rabbitmq.client.Delivery
 import org.reflections.Reflections
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import reactor.core.publisher.Mono
+import reactor.rabbitmq.AcknowledgableDelivery
 import reactor.rabbitmq.OutboundMessage
 
 class ReactiveConsumer<T : Annotation>(
@@ -42,19 +41,21 @@ class ReactiveConsumer<T : Annotation>(
         log.info("Found {} listening methods annotated with {}", handlers.size, annotation.simpleName)
     }
 
-    fun handleIncoming(delivery: Delivery) = try {
+    fun handleIncoming(delivery: AcknowledgableDelivery) = try {
         handleIncoming0(delivery)
     } catch (t: Throwable) {
         handleFailure(delivery, t)
     }
 
-    private fun handleIncoming0(delivery: Delivery) {
+    private fun handleIncoming0(delivery: AcknowledgableDelivery) {
         val clazz = rabbit.getType(delivery)
         val message = rabbit.fromJson(delivery, clazz)
+
 
         val handler = handlers[clazz]
         if (handler == null) {
             log.warn("Unhandled type {}!", clazz)
+            delivery.nack(false)
             return
         }
 
@@ -70,27 +71,12 @@ class ReactiveConsumer<T : Annotation>(
         }
     }
 
-    private fun handleFailure(incoming: Delivery, throwable: Throwable) {
+    private fun handleFailure(incoming: AcknowledgableDelivery, throwable: Throwable) {
         log.error("Got exception while consuming message", throwable)
-        if (incoming.properties.replyTo == null) return
-
-        val message = "${throwable.javaClass.simpleName} ${throwable.message}"
-
-        val props = AMQP.BasicProperties.Builder()
-                .contentType("text/plain")
-                .correlationId(incoming.properties.correlationId)
-                .build()
-
-        // Replies are always sent via the default exchange
-        rabbit.send(OutboundMessage(
-                "",
-                incoming.properties.replyTo,
-                props,
-                message.toByteArray()
-        ))
+        incoming.nack(false)
     }
 
-    private fun sendReply(incoming: Delivery, reply: Any) {
+    private fun sendReply(incoming: AcknowledgableDelivery, reply: Any) {
         val (body, builder) = rabbit.toJson(reply)
 
         // Replies are always sent via the default exchange
@@ -100,5 +86,6 @@ class ReactiveConsumer<T : Annotation>(
                 builder.correlationId(incoming.properties.correlationId).build(),
                 body
         ))
+        incoming.ack()
     }
 }

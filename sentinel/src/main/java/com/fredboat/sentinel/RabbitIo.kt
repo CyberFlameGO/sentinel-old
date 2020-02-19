@@ -80,9 +80,9 @@ class RabbitIo(
         }
 
         val requestsHandler = ReactiveConsumer(rabbit, spring, SentinelRequest::class.java)
-        receiver.consumeAutoAck(requestsQueueName).subscribe { requestsHandler.handleIncoming(it) }
+        receiver.consumeManualAck(requestsQueueName).subscribe { requestsHandler.handleIncoming(it) }
         val fanoutHandler = ReactiveConsumer(rabbit, spring, FanoutRequest::class.java)
-        receiver.consumeAutoAck(fanoutQueueName).subscribe { fanoutHandler.handleIncoming(it) }
+        receiver.consumeManualAck(fanoutQueueName).subscribe { fanoutHandler.handleIncoming(it) }
     }
 
     private fun declareExchanges() = mutableListOf(
