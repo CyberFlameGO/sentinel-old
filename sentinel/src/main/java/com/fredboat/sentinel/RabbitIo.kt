@@ -68,7 +68,7 @@ class RabbitIo(
     private fun declareExchanges() = mutableListOf(
             declareExchange(REQUESTS, durable = true),
             declareExchange(SESSIONS),
-            declareExchange(EVENTS),
+            declareExchange(EVENTS, durable = true),
             declareExchange(FANOUT, type = "fanout")
     )
 
@@ -93,7 +93,9 @@ class RabbitIo(
         durable(durable)
         autoDelete(true)
         type(type)
-    })
+    }).onErrorContinue { t, _ ->
+        log.error("Failed to declare exchange", t)
+    }.doOnSuccess { log.info("Declared $name") }
 
     private fun declareQueue(name: String) = sender.declareQueue(QueueSpecification().apply {
         name(name)
