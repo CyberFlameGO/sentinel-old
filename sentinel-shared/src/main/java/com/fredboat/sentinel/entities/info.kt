@@ -20,13 +20,20 @@ data class GuildInfoRequest(val id: Long)
 
 data class MemberInfo(
         val id: Long,
+        val name: String,
+        val discrim: String,
+        val bot: Boolean,
         val guildId: Long,
         val iconUrl: String?,
         val colorRgb: Int?,
         val joinDateMillis: Long
 )
 
+/** Responds with [MemberInfo] */
 data class MemberInfoRequest(val id: Long, val guildId: Long)
+
+/** Responds with [Array] of [MemberInfo] */
+data class MembersByPrefixRequest(val prefix: String, val guildId: Long, val limit: Int)
 
 data class RoleInfo(
         val id: Long,
