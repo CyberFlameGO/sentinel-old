@@ -7,5 +7,4 @@
 
 rootProject.name = 'sentinel-parent'
 include 'sentinel-shared'
-include 'sentinel'
 
